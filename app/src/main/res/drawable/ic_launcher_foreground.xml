@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A plectrum with three strings and two fretted notes -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="#FFF6F1E6"
+        android:pathData="M54,30c13,0 21,6 21,16.5c0,12.5 -11.5,26.5 -21,32.5c-9.5,-6 -21,-20 -21,-32.5c0,-10.5 8,-16.5 21,-16.5z" />
+    <path android:strokeColor="#FF0D6B61" android:strokeWidth="2.2" android:strokeLineCap="round"
+        android:pathData="M46,38V68 M54,36V74 M62,38V68 M41,48H67" />
+    <path android:fillColor="#FFC4552A"
+        android:pathData="M46,54m-3.6,0a3.6,3.6 0,1 1,7.2 0a3.6,3.6 0,1 1,-7.2 0" />
+    <path android:fillColor="#FF0D6B61"
+        android:pathData="M62,59m-3.6,0a3.6,3.6 0,1 1,7.2 0a3.6,3.6 0,1 1,-7.2 0" />
+</vector>
