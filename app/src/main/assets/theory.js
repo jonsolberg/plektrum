@@ -163,7 +163,14 @@ function voicings(r, t, b = null, inst = CHORD_INSTS[0]) {
     for (let i = 0; i < N; i++) if (i !== drone && cur[i] >= 0) { if (first < 0) first = i; last = i; sounded++; }
     if (sounded < minStrings || sounded > maxStrings) return;
     // the bass note: lowest string (guitar, bass) or lowest pitch (slash chords elsewhere)
-    if (inst.bass) { if (mod12(tuning[first] + cur[first]) !== bass) return; }
+    let looseBass = false;
+    if (inst.bass) {
+      if (mod12(tuning[first] + cur[first]) !== bass) {
+        // open and altered tunings: another chord tone may sit in the bass (all strings ringing)
+        if (inst.bassLoose && b == null && (req.has(mod12(tuning[first] + cur[first])) || opt.has(mod12(tuning[first] + cur[first])))) looseBass = true;
+        else return;
+      }
+    }
     else if (b != null) {
       let lo = 999;
       for (let i = 0; i < N; i++) if (cur[i] >= 0) lo = Math.min(lo, tuning[i] + cur[i]);
@@ -227,7 +234,7 @@ function voicings(r, t, b = null, inst = CHORD_INSTS[0]) {
           + fingers * 0.5 + (fretted ? (maxF - minF) * 0.7 : 0) + (barre ? 0.8 : 0)
           + opens * (pos > 4 ? 1.6 : -0.4) + (inst.guitarMutes && maxF >= 4 ? opens * 1.2 : 0)
           + (!inst.bass && b == null && lowestPc !== r ? 0.6 : 0)
-          + (drone >= 0 && cur[drone] < 0 ? 0.5 : 0);
+          + (drone >= 0 && cur[drone] < 0 ? 0.5 : 0) + (looseBass ? 1.4 : 0);
     out.set(k, { frets: cur.slice(), fing, barre, pos, score: s });
   }
 
@@ -658,6 +665,21 @@ function temperOffset(temp, root, pc) {
 function targetFreq(m, a4, temp, root) {
   return midiFreq(m, a4) * Math.pow(2, temperOffset(temp, root, m) / 1200);
 }
+
+/* tunings the chord library offers for each instrument (the first is standard) */
+(function () {
+  const from = (id, filter) => INSTRUMENTS.find(x => x.id === id).tunings.filter(filter || (() => true)).map(t => ({ id: t.id, en: t.en, sv: t.sv, n: t.n }));
+  const T = {
+    guitar: TUNINGS.filter(x => x.n).map(t => ({ id: t.id, en: t.en, sv: t.sv, n: t.n })),
+    uke: from('uke', t => t.id !== 'ukbari'),
+    ukebari: from('uke', t => t.id === 'ukbari'),
+    mandolin: [{ id: 'mdstd', en: 'Standard (G D A E)', sv: 'Standard (G D A E)', n: [55, 62, 69, 76] }],
+    banjo5: from('banjo5'),
+    banjo4: from('banjo4'),
+    bass: from('bass4'),
+  };
+  CHORD_INSTS.forEach(ci => { ci.tunings = T[ci.id]; });
+})();
 
 if (typeof module !== 'undefined') module.exports = {
   STD, CHORD_INSTS, TYPES, SCALES, TUNINGS, INSTRUMENTS, TEMPERAMENTS, TEMPER_GROUPS, SCALE_GROUPS, scaleInstruments, scaleChords, stepPattern, spellScale, PROGRESSIONS, CIRCLE, Theory, nn, voicings, parseChord, chordName,

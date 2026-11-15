@@ -160,8 +160,9 @@ const Snd = {
     let idx = frets.map((f, i) => i).filter(i => frets[i] >= 0);
     for (let i = 0; i < frets.length; i++) if (frets[i] < 0) this.dampString(i, when);
     if (style === 'up') idx = idx.slice(-4).reverse();
-    const gap = style === 'arp' ? 0.16 : style === 'fast' ? 0.012 : 0.022;
+    const gap = style === 'arp' ? 0.3 : style === 'fast' ? 0.012 : 0.022;
     idx.forEach((s, k) => this.pluck(tuning[s] + frets[s], when + k * gap, s, vel * (style === 'up' ? 0.8 : 1)));
+    return idx.map((s, k) => ({ s, when: when + k * gap }));
   },
   dampString(i, when) {
     const v = this.voices[i];

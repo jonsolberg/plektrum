@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.9';
+const VERSION = '1.10';
 const REPO = 'https://github.com/jonsolberg/guitarchords';
 
 const store = {
@@ -19,7 +19,7 @@ const store = {
 };
 const S = Object.assign({
   lang: 'auto', theme: 'auto', lefty: false, names: false, hNotation: false, style: 'strum', volume: 0.8, sound: true,
-  a4: 440, temp: 'equal', tempRoot: 0, tuning: 'std', custom: [40, 45, 50, 55, 59, 64], tunerMode: 'guitar', tunerView: 'needle', tunerSens: 0.52, instrument: 'guitar', customs: {}, tunerHist: false, chordInst: 'guitar', quizInst: 'guitar', dotLabel: 'finger',
+  a4: 440, temp: 'equal', tempRoot: 0, tuning: 'std', custom: [40, 45, 50, 55, 59, 64], tunerMode: 'guitar', tunerView: 'needle', tunerSens: 0.52, instrument: 'guitar', customs: {}, tunerHist: false, chordInst: 'guitar', quizInst: 'guitar', chordTun: {}, showTuning: true, dotLabel: 'finger',
   tab: 'chords',
 }, store.get('settings', {}));
 const saveS = () => store.set('settings', S);
@@ -58,7 +58,7 @@ const STR = {
     sens: 'Sensitivity', sensD: 'Raise it for quiet acoustics, lower it in noisy rooms',
     grouping: 'Grouping', subdiv: 'Subdivision', swingD: 'Plays the off-beats late, like a shuffle', accentPat: 'Accent pattern',
     customPat: 'Custom', resetAcc: 'Reset accents', stepHint: 'Tap a step: normal → accent → soft → silent',
-    learn: 'Music theory', learnDesc: 'Short lessons with examples you can play', lessonsN: '{n} lessons', lessonN: 'Lesson {n} of {of}',
+    learn: 'Music theory', learnDesc: 'Short lessons with examples you can play', lessonsN: '{n} lessons', lessonN: 'Lesson {n} of {of}', lTry: 'Try it', lKey: 'Remember',
     metroDesc: 'Time signatures, subdivisions, accents', qWhichNote: 'Which note is marked?', qFindNote: 'Find {n} on string {k} ({s})',
     qDegree: 'What is the {d} of {k} major?', qScaleIs: '{k} major: {s}', qSig: 'How many sharps or flats in {k} major?',
     qRel: 'What is the relative minor of {k} major?', qRelEx: 'The relative minor starts on the 6th note of the major scale.',
@@ -69,6 +69,7 @@ const STR = {
     metronome: 'Metronome', perBar: 'Beats per bar', tap: 'Tap', start: 'Start', challenge: 'Chord challenge',
     challengeDesc: 'Ten chord diagrams – name each one.', go: 'Start', which: 'Which chord is this?', next: 'Next',
     right: 'Right!', wrongIs: 'That was {c}', result: '{s} of 10', best: 'Best: {b} of 10', again: 'Play again', hear: 'Hear it',
+    showTun: 'Show string tuning', showTunD: 'Note names of the open strings above the chord chart',
     settings: 'Settings', setDisplay: 'Display', soundOn: 'Play sounds', language: 'Language', auto: 'Automatic', theme: 'Theme', light: 'Light', dark: 'Dark',
     lefty: 'Left-handed', leftyD: 'Mirror diagrams and fretboards', namesS: 'Note names on diagrams',
     hNot: 'Swedish note names', hNotD: 'B is called H, B♭ is called B', playStyle: 'Tapping a chord chart plays', sound: 'Sound', volume: 'Volume',
@@ -106,7 +107,7 @@ const STR = {
     sens: 'Känslighet', sensD: 'Höj för tysta akustiska gitarrer, sänk i stökiga rum',
     grouping: 'Gruppering', subdiv: 'Underdelning', swingD: 'Spelar offbeat-slagen sent, som shuffle', accentPat: 'Betoningsmönster',
     customPat: 'Eget', resetAcc: 'Återställ betoningar', stepHint: 'Tryck på ett steg: normal → betonad → svag → tyst',
-    learn: 'Musikteori', learnDesc: 'Korta lektioner med exempel du kan spela', lessonsN: '{n} lektioner', lessonN: 'Lektion {n} av {of}',
+    learn: 'Musikteori', learnDesc: 'Korta lektioner med exempel du kan spela', lessonsN: '{n} lektioner', lessonN: 'Lektion {n} av {of}', lTry: 'Prova', lKey: 'Kom ihåg',
     metroDesc: 'Taktarter, underdelningar, betoningar', qWhichNote: 'Vilken ton är markerad?', qFindNote: 'Hitta {n} på sträng {k} ({s})',
     qDegree: 'Vilken ton är {d} i {k}-dur?', qScaleIs: '{k}-dur: {s}', qSig: 'Hur många förtecken har {k}-dur?',
     qRel: 'Vilken är parallelltonarten i moll till {k}-dur?', qRelEx: 'Parallelltonarten i moll börjar på durskalans sjätte ton.',
@@ -117,6 +118,7 @@ const STR = {
     metronome: 'Metronom', perBar: 'Slag per takt', tap: 'Knacka', start: 'Starta', challenge: 'Ackordutmaning',
     challengeDesc: 'Tio ackorddiagram – namnge vart och ett.', go: 'Börja', which: 'Vilket ackord är det här?', next: 'Nästa',
     right: 'Rätt!', wrongIs: 'Det var {c}', result: '{s} av 10', best: 'Bäst: {b} av 10', again: 'Spela igen', hear: 'Lyssna',
+    showTun: 'Visa strängarnas stämning', showTunD: 'De lösa strängarnas tonnamn ovanför ackorddiagrammet',
     nav_tuner: 'Stämma', nav_circle: 'Kvintcirkel', settings: 'Inställningar', setDisplay: 'Visning', soundOn: 'Spela upp ljud', language: 'Språk', auto: 'Automatiskt', theme: 'Tema', light: 'Ljust', dark: 'Mörkt',
     lefty: 'Vänsterhänt', leftyD: 'Spegelvänd diagram och greppbräda', namesS: 'Tonnamn i diagrammen',
     hNot: 'Svenska tonnamn', hNotD: 'B heter H, B♭ heter B', playStyle: 'Ett tryck på ackorddiagrammet spelar', sound: 'Ljud', volume: 'Volym',
@@ -183,8 +185,29 @@ function rootGrid(action, cur, extra = '') {
   return `<div class="grid12">${[...Array(12).keys()].map(pc => `<button class="chip ${pc === cur ? 'on' : ''}" data-a="${action}" data-v="${pc}" ${extra}>${nn(pc)}</button>`).join('')}</div>`;
 }
 /** the instrument the chord library is showing */
-const CI = () => CHORD_INSTS.find(x => x.id === S.chordInst) || CHORD_INSTS[0];
-const instOf = c => (c && c.inst && CHORD_INSTS.find(x => x.id === c.inst)) || CI();
+/** chord instrument with a tuning; id "guitar:openg" for anything but standard tuning */
+function chordInstById(id) {
+  const [bid, tid] = String(id || 'guitar').split(':');
+  const base = CHORD_INSTS.find(x => x.id === bid) || CHORD_INSTS[0];
+  const tu = (tid && base.tunings.find(x => x.id === tid)) || base.tunings[0];
+  if (tu === base.tunings[0]) return base;
+  return Object.assign({}, base, { id: base.id + ':' + tu.id, n: tu.n, tun: tu, bassLoose: base.guitarMutes });
+}
+const CI = () => chordInstById(S.chordInst + (S.chordTun[S.chordInst] ? ':' + S.chordTun[S.chordInst] : ''));
+const instOf = c => (c && c.inst) ? chordInstById(c.inst) : CI();
+const tuningOf = inst => inst.tun || (CHORD_INSTS.find(x => x.id === inst.id) || CHORD_INSTS[0]).tunings[0];
+/** flash an element (an SVG dot) – restarts the animation if it is already running */
+function blink(el) {
+  if (!el) return;
+  el.classList.remove('on');
+  void el.getBoundingClientRect();
+  el.classList.add('on');
+}
+/** blink the strings of the big chord chart in time with the sound */
+function blinkChord(sched, scope = '#bigdiag') {
+  if (!sched || !Snd.ctx) return;
+  sched.forEach(({ s, when }) => atTime(when, () => blink(document.querySelector(`${scope} .hl[data-s="${s}"]`))));
+}
 function vfor(c) {
   const vs = voicings(c.r, c.t, c.b, instOf(c));
   return vs[clamp(c.v || 0, 0, vs.length - 1)] || null;
@@ -208,7 +231,8 @@ function diagram(v, root, opt = {}) {
   const mini = !!opt.mini, labels = !mini && opt.labels ? opt.labels : null;
   const names = !mini && !labels && S.names;
   const mode = labels ? (opt.dot || 'finger') : 'finger';
-  const W = 124, padL = 23, sx = 16, top = 26, sy = 22, rows = 5;
+  const tuneRow = !mini && opt.showTuning;
+  const W = 124, padL = 23, sx = 16, top = tuneRow ? 38 : 26, sy = 22, rows = 5;
   const H = top + sy * rows + (names ? 22 : 10);
   const dotText = (i, f) => {
     const pc = mod12(tun[i] + f);
@@ -218,6 +242,7 @@ function diagram(v, root, opt = {}) {
   };
   const fs = txt => txt.length > 1 ? 8 : 10;
   if (!v) return `<svg viewBox="0 0 ${W} ${H}" class="${opt.cls || ''}"></svg>`;
+  const tunLabels = () => { let o = ''; for (let i = 0; i < NS; i++) o += `<text x="${x(i)}" y="9" font-size="8.5" font-weight="600" text-anchor="middle" style="fill:var(--muted)">${nn(tun[i], opt.spell)}</text>`; return o; };
   const tun = opt.tuning || CI().n, NS = tun.length;
   const x = i => padL + (S.lefty ? NS - 1 - i : i) * (80 / (NS - 1));
   const fretted = v.frets.filter(f => f > 0);
@@ -226,6 +251,7 @@ function diagram(v, root, opt = {}) {
   const base = maxF <= rows ? 1 : minF;
   const y = f => top + (f - base + 0.5) * sy;
   let s = `<svg viewBox="0 0 ${W} ${H}" class="${opt.cls || ''}" xmlns="http://www.w3.org/2000/svg">`;
+  if (tuneRow) s += tunLabels();
   for (let j = 0; j <= rows; j++) s += `<line x1="${x(0) - (S.lefty ? -0 : 0)}" x2="${x(NS - 1)}" y1="${top + j * sy}" y2="${top + j * sy}" style="stroke:var(--fret)" stroke-width="1.4"/>`;
   for (let i = 0; i < NS; i++) s += `<line x1="${x(i)}" x2="${x(i)}" y1="${top}" y2="${top + rows * sy}" style="stroke:var(--str)" stroke-width="${clamp(0.8 + (66 - tun[i]) / 22, 0.8, 2.2)}"/>`;
   if (base === 1) s += `<rect x="${Math.min(x(0), x(NS - 1)) - 1}" y="${top - 4}" width="${Math.abs(x(NS - 1) - x(0)) + 2}" height="5" rx="1.5" style="fill:var(--ink)"/>`;
@@ -263,6 +289,12 @@ function diagram(v, root, opt = {}) {
     }
     s += `<circle cx="${x(i)}" cy="${y(f)}" r="7" style="fill:${isRoot ? 'var(--root)' : 'var(--accent)'}"/>`;
     if (!mini) { const txt = dotText(i, f); if (txt) s += `<text x="${x(i)}" y="${y(f) + 3.4}" font-size="${fs(txt)}" font-weight="700" text-anchor="middle" style="fill:${isRoot ? '#fff' : 'var(--on-accent)'}">${txt}</text>`; }
+  }
+  if (!mini) for (let i = 0; i < NS; i++) {
+    const f = v.frets[i];
+    if (f < 0) continue;
+    const cy = f === 0 ? top - 12 : y(f);
+    s += `<circle class="hl" data-s="${i}" cx="${x(i)}" cy="${cy}" r="${f === 0 ? 8 : 10.5}"/>`;
   }
   if (names) for (let i = 0; i < NS; i++) {
     const f = v.frets[i];
@@ -324,13 +356,16 @@ const Chords = {
         <div class="chordhead">
           <div class="grow" style="min-width:0"><div class="chordname">${cname(c.r, c.t, c.b)}</div>
           <div class="chordlong">${nn(c.r)} ${L(T)}${c.b != null ? ' / ' + nn(c.b) : ''}</div></div>
-          <select id="cinst" class="instsel" aria-label="${esc(t('instrument'))}">${CHORD_INSTS.map(x => `<option value="${x.id}" ${x.id === inst.id ? 'selected' : ''}>${L(x)}</option>`).join('')}</select>
           <button class="iconbtn star ${this.isFav() ? 'on' : ''}" data-a="fav" aria-label="favourite">${I.star}</button>
+        </div>
+        <div class="instrow">
+          <select id="cinst" aria-label="${esc(t('instrument'))}">${CHORD_INSTS.map(x => `<option value="${x.id}" ${x.id === S.chordInst ? 'selected' : ''}>${L(x)}</option>`).join('')}</select>
+          <select id="ctun" aria-label="${esc(t('tuning'))}">${CHORD_INSTS.find(x => x.id === S.chordInst).tunings.map((x, k) => `<option value="${k ? x.id : ''}" ${x === tuningOf(inst) ? 'selected' : ''}>${L(x)}</option>`).join('')}</select>
         </div>
         ${v ? `
         <div class="diagwrap">
           <button class="iconbtn" data-a="vprev" ${c.v === 0 ? 'disabled style="opacity:.25"' : ''}>${I.left}</button>
-          <div id="bigdiag" data-a="playCur">${diagram(v, c.r, { cls: 'big', labels, dot: S.dotLabel, spell: sp })}</div>
+          <div id="bigdiag" data-a="playCur">${diagram(v, c.r, { cls: 'big', labels, dot: S.dotLabel, spell: sp, showTuning: S.showTuning })}</div>
           <button class="iconbtn" data-a="vnext" ${c.v >= vs.length - 1 ? 'disabled style="opacity:.25"' : ''}>${I.right}</button>
         </div>
         <div class="voicenav">${t('fingering', { i: c.v + 1, n: vs.length })} · ${posTxt}</div>
@@ -346,7 +381,7 @@ const Chords = {
       <div class="card">
         <div class="lbl">${t('favourites')}</div>
         <div class="favs">${this.favs.length ? this.favs.map((f, i) => `
-          <div class="fav" data-a="openFav" data-v="${i}">${diagram(vfor(Object.assign({ inst: 'guitar' }, f)), f.r, { mini: true, tuning: instOf(Object.assign({ inst: 'guitar' }, f)).n })}<b>${cname(f.r, f.t, f.b)}</b>${(f.inst || 'guitar') !== 'guitar' ? `<small>${L(instOf(f))}</small>` : ''}</div>`).join('')
+          <div class="fav" data-a="openFav" data-v="${i}">${diagram(vfor(Object.assign({ inst: 'guitar' }, f)), f.r, { mini: true, tuning: instOf(Object.assign({ inst: 'guitar' }, f)).n })}<b>${cname(f.r, f.t, f.b)}</b>${(f.inst || 'guitar') !== 'guitar' ? `<small>${L(instOf(f))}${instOf(f).tun ? ' · ' + L(instOf(f).tun) : ''}</small>` : ''}</div>`).join('')
           : `<div class="empty">${t('noFavs')}</div>`}</div>
       </div>
       <div class="card">
@@ -358,6 +393,10 @@ const Chords = {
         <div class="chips scroll"><button class="chip ${c.b == null ? 'on' : ''}" data-a="cbass" data-v="">${t('none')}</button>${[...Array(12).keys()].filter(pc => pc !== c.r).map(pc => `<button class="chip ${pc === c.b ? 'on' : ''}" data-a="cbass" data-v="${pc}">/${nn(pc)}</button>`).join('')}</div>
       </div>`;
     $('#cinst').addEventListener('change', e => { S.chordInst = e.target.value; saveS(); Snd.setTimbre(S.chordInst); this.c.v = 0; this.save(); this.render(); this.play(); });
+    $('#ctun').addEventListener('change', e => {
+      if (e.target.value) S.chordTun[S.chordInst] = e.target.value; else delete S.chordTun[S.chordInst];
+      saveS(); this.c.v = 0; this.save(); this.render(); this.play();
+    });
     const th = $('#thumbs .thumb.on'), row = $('#thumbs');
     if (th) row.scrollLeft = th.offsetLeft - row.offsetLeft - (row.clientWidth - th.clientWidth) / 2;
     this.bindSwipe();
@@ -371,7 +410,7 @@ const Chords = {
   },
   play(style) {
     const v = vfor(this.c);
-    if (v) Snd.chord(v.frets, CI().n, 0, style || S.style);
+    if (v) blinkChord(Snd.chord(v.frets, CI().n, 0, style || S.style));
   },
   toggleFav() {
     const c = this.c;
@@ -460,7 +499,10 @@ const Chords = {
       case 'strum': this.play('strum'); break;
       case 'arp': this.play('arp'); break;
       case 'fav': this.toggleFav(); break;
-      case 'openFav': { const f = this.favs[+v]; S.chordInst = f.inst || 'guitar'; saveS(); Snd.setTimbre(S.chordInst); this.set({ r: f.r, t: f.t, b: f.b, v: f.v }, true); window.scrollTo({ top: 0, behavior: 'smooth' }); break; }
+      case 'openFav': {
+        const f = this.favs[+v], [fb, ft] = String(f.inst || 'guitar').split(':');
+        S.chordInst = fb; if (ft) S.chordTun[fb] = ft; else delete S.chordTun[fb];
+        saveS(); Snd.setTimbre(S.chordInst); this.set({ r: f.r, t: f.t, b: f.b, v: f.v }, true); window.scrollTo({ top: 0, behavior: 'smooth' }); break; }
       default: return false;
     }
     return true;
@@ -1190,16 +1232,35 @@ const Scales = {
       const m0 = tu.n[lo] + mod12(s.root - tu.n[lo]);
       notes = sc.iv.concat([12]).map(x => ({ m: m0 + x, s: -1 }));
     }
+    // where to show each note: the position's own dot, else the nearest dot to the previous one
+    if (!b.pos) {
+      let pf = 0;
+      notes = notes.map(n => {
+        let best = null;
+        tu.n.forEach((o, si) => { const f = n.m - o; if (f >= tu.start[si] && f <= MAX_FRET && (!best || Math.abs(f - pf) < Math.abs(best.f - pf))) best = { s: si, f }; });
+        if (best) pf = best.f;
+        return { m: n.m, s: best ? best.s : -1 };
+      });
+    }
     const all = notes.concat(notes.slice(0, -1).reverse());
-    const now = Snd.now() + 0.05, step = TIMBRES[Snd.timbre].bow ? 0.42 : 0.2;
-    all.forEach((n, i) => TIMBRES[Snd.timbre].bow ? Snd.bowNote(n.m, now + i * step, -1, 0.9, step * 0.9) : Snd.pluck(n.m, now + i * step, -1, 0.9));
+    const now = Snd.now() + 0.05, step = TIMBRES[Snd.timbre].bow ? 0.42 : 0.26;
+    all.forEach((n, i) => {
+      const at = now + i * step;
+      if (TIMBRES[Snd.timbre].bow) Snd.bowNote(n.m, at, -1, 0.9, step * 0.9); else Snd.pluck(n.m, at, -1, 0.9);
+      if (n.s >= 0) atTime(at, () => blink(document.querySelector(`#boardSvg [data-v="${n.m},${n.s}"]`)));
+    });
   },
   action(a, v) {
     switch (a) {
       case 'skey': this.s.root = +v; this.lastChord = null; this.save(); this.render(); break;
       case 'spos': this.s.pos = +v; this.save(); this.render(); break;
       case 'splay': this.playScale(); break;
-      case 'snote': { const [m, s] = v.split(',').map(Number); Snd.pluck(m, 0, s); break; }
+      case 'snote': {
+        const [m, s] = v.split(',').map(Number);
+        Snd.pluck(m, 0, s);
+        blink(document.querySelector(`#boardSvg [data-v="${v}"]`));
+        break;
+      }
       case 'schord': {
         const i = +v, c = scaleChords(this.s.root, this.sc(), this.s.sev)[i];
         const keep = Snd.timbre;
@@ -2024,6 +2085,56 @@ function quizTuning() {
  * tap: true with check(value) for fretboard taps – play() for ear training, reveal() html shown
  * after answering, answerText for "That was …"}.
  */
+/* ---------- explanations shown after each answer ---------- */
+const X = (en, sv) => lang() === 'sv' ? sv : en;
+const exChips = items => `<div class="notes exchips">${items.map(([n, l, hi]) => `<div class="note ${hi ? 'r' : ''}"><b>${n}</b><span>${l}</span></div>`).join('')}</div>`;
+const TYPE_INFO = {
+  '':     ['A major chord is the root, the major 3rd and the 5th (1 – 3 – 5). The major 3rd, four semitones up, gives the bright sound.',
+           'Ett durackord är grundton, stor ters och kvint (1 – 3 – 5). Den stora tersen, fyra halvtoner upp, ger den ljusa klangen.'],
+  'm':    ['A minor chord has a minor 3rd (♭3, three semitones up) instead of a major 3rd: 1 – ♭3 – 5. That single semitone makes it sound darker.',
+           'Ett mollackord har en liten ters (♭3, tre halvtoner upp) i stället för stor ters: 1 – ♭3 – 5. Det enda halvtonssteget gör det mörkare.'],
+  '7':    ['A dominant 7th chord is a major chord plus the ♭7, two semitones below the octave: 1 – 3 – 5 – ♭7. It sounds bluesy and wants to move on.',
+           'Ett septimaackord är ett durackord plus ♭7, två halvtoner under oktaven: 1 – 3 – 5 – ♭7. Det låter bluesigt och vill vidare.'],
+  'maj7': ['A major 7th chord is a major chord plus the major 7th, one semitone below the octave: 1 – 3 – 5 – 7. Soft and dreamy.',
+           'Ett ackord med stor septima är ett durackord plus stor septima, en halvton under oktaven: 1 – 3 – 5 – 7. Mjukt och drömskt.'],
+  'm7':   ['A minor 7th chord is a minor chord plus the ♭7: 1 – ♭3 – 5 – ♭7. Mellow – very common in soul, funk and jazz.',
+           'Ett mollackord med septima är ett mollackord plus ♭7: 1 – ♭3 – 5 – ♭7. Mjukt – mycket vanligt i soul, funk och jazz.'],
+  '5':    ['A power chord is only the root and the 5th (often with the octave). With no 3rd it is neither major nor minor.',
+           'Ett kvintackord är bara grundton och kvint (ofta med oktaven). Utan ters är det varken dur eller moll.'],
+  'sus2': ['sus2 swaps the 3rd for the 2nd: 1 – 2 – 5. Open and airy.', 'sus2 byter tersen mot sekunden: 1 – 2 – 5. Öppet och luftigt.'],
+  'sus4': ['sus4 swaps the 3rd for the 4th: 1 – 4 – 5. It sounds unfinished and usually moves on to the major chord.',
+           'sus4 byter tersen mot kvarten: 1 – 4 – 5. Det låter ofärdigt och går oftast vidare till durackordet.'],
+  'add9': ['add9 is a major chord with the 9th added (the 2nd, an octave up): 1 – 3 – 5 – 9.', 'add9 är ett durackord med tillagd nona (sekunden en oktav upp): 1 – 3 – 5 – 9.'],
+  '6':    ['A 6 chord is a major chord with the 6th added: 1 – 3 – 5 – 6.', 'Ett sextackord är ett durackord med tillagd sext: 1 – 3 – 5 – 6.'],
+  'dim':  ['A diminished chord stacks two minor 3rds: 1 – ♭3 – ♭5. Tense and unstable.', 'Ett förminskat ackord staplar två små terser: 1 – ♭3 – ♭5. Spänt och instabilt.'],
+  'aug':  ['An augmented chord stacks two major 3rds: 1 – 3 – ♯5. It sounds floating and unresolved.', 'Ett överstigande ackord staplar två stora terser: 1 – 3 – ♯5. Det låter svävande och olöst.'],
+};
+const SOUND = {
+  '': ['bright and stable', 'ljust och stabilt'], 'm': ['darker, a little sad', 'mörkare, lite sorgset'], '7': ['bluesy, wants to move on', 'bluesigt, vill vidare'],
+  'maj7': ['soft and dreamy', 'mjukt och drömskt'], 'm7': ['mellow and relaxed', 'mjukt och avslappnat'], 'dim': ['tense and unstable', 'spänt och instabilt'],
+  'aug': ['floating, unresolved', 'svävande, olöst'], 'sus4': ['open, waiting to resolve to major', 'öppet, väntar på att lösas upp till dur'],
+};
+const IV_SONG = {
+  1: ['the Jaws theme', 'Hajen-temat'], 2: ['the start of Happy Birthday', 'början av Happy Birthday'], 3: ['the start of Greensleeves', 'början av Greensleeves'],
+  4: ['the start of When the Saints Go Marching In', 'början av When the Saints Go Marching In'], 5: ['Here Comes the Bride', 'Here Comes the Bride (brudmarschen)'],
+  6: ['The Simpsons theme', 'Simpsons-temat'], 7: ['Twinkle Twinkle Little Star', 'Blinka lilla stjärna'], 8: ['The Entertainer', 'The Entertainer'],
+  9: ['My Bonnie Lies Over the Ocean', 'My Bonnie Lies Over the Ocean'], 10: ['the original Star Trek theme', 'det gamla Star Trek-temat'],
+  11: ['the chorus of Take On Me', 'refrängen i Take On Me'], 12: ['Somewhere Over the Rainbow', 'Somewhere Over the Rainbow'],
+};
+const pair = a => a ? X(a[0], a[1]) : '';
+const typeInfo = ti => TYPE_INFO[TYPES[ti].sfx] ? pair(TYPE_INFO[TYPES[ti].sfx])
+  : X('Formula: ', 'Formel: ') + TYPES[ti].req.concat(TYPES[ti].opt).sort((a, b) => a - b).map(s => intervalLabel(ti, s)).join(' – ');
+function chordChips(r, ti) {
+  const sp = chordSpell(r, ti);
+  return exChips(TYPES[ti].req.concat(TYPES[ti].opt).sort((a, b) => a - b).map(s => [nn(r + s, sp), intervalLabel(ti, s), s === 0]));
+}
+/** notes from the open string up to fret f, one semitone per fret */
+function stringWalk(open, from, f) {
+  const out = [];
+  for (let k = from; k <= f; k++) out.push([nn(open + k), k === 0 ? X('open', 'lös') : String(k), k === f]);
+  return exChips(out);
+}
+
 const QUIZZES = {
   chords: {
     icon: 'chords', en: 'Name the chord', sv: 'Namnge ackordet', inst: 'chord',
@@ -2040,6 +2151,7 @@ const QUIZZES = {
         prompt: `<div class="qtext">${t('which')}</div><div class="diagwrap">${diagram(v, -1, { cls: 'big', tuning: ci.n })}</div>`,
         reveal: () => `<div class="diagwrap">${diagram(v, c.r, { cls: 'big', tuning: ci.n })}</div>`,
         play: () => Snd.chord(v.frets, ci.n, 0), autoplay: false,
+        explain: `<b>${cname(c.r, c.t)}</b> – ${X('the red dots are the root,', 'de röda prickarna är grundtonen,')} <b>${nn(c.r)}</b>. ${typeInfo(c.t)}${chordChips(c.r, c.t)}`,
       });
     },
   },
@@ -2056,6 +2168,10 @@ const QUIZZES = {
         options: [...Array(12).keys()].map(k => nn(k)), correct: pc, grid12: true,
         reveal: () => quizBoard(tu, { dots: [{ s, f, label: nn(pc), color: 'var(--good)' }] }),
         play: () => Snd.pluck(m, 0, -1),
+        explain: (f === tu.start[s] ? X(`It is the open string itself: <b>${nn(pc)}</b>.`, `Det är den lösa strängen själv: <b>${nn(pc)}</b>.`)
+          : X(`The open string is <b>${nn(tu.n[s] + tu.start[s])}</b>. Every fret is one semitone higher – count up to fret ${f}:`,
+              `Lösa strängen är <b>${nn(tu.n[s] + tu.start[s])}</b>. Varje band är en halvton högre – räkna upp till band ${f}:`) + stringWalk(tu.n[s], tu.start[s], f))
+          + (f === 12 ? X('Fret 12 is always the open note again, an octave higher.', 'Band 12 är alltid den lösa tonen igen, en oktav högre.') : ''),
       };
     },
   },
@@ -2077,6 +2193,9 @@ const QUIZZES = {
           .concat(QUIZZES.findNote.tapped && !spots.includes(QUIZZES.findNote.tapped.f) ? [{ s, f: QUIZZES.findNote.tapped.f, label: '✕', color: 'var(--warn)' }] : []) }),
         answerText: `${nn(pc)}: ${t('fretWord')} ${spots.join(', ')}`,
         play: () => Snd.pluck(tu.n[s] + spots[0], 0, -1),
+        explain: X(`Start from the open string (<b>${strName}</b>) and count one semitone per fret until you reach <b>${nn(pc)}</b>:`,
+                   `Börja på lösa strängen (<b>${strName}</b>) och räkna en halvton per band tills du når <b>${nn(pc)}</b>:`) + stringWalk(tu.n[s], tu.start[s], spots[0])
+          + X('Remember: there is no note between E and F, or between B and C.', 'Kom ihåg: det finns ingen ton mellan E och F, eller mellan H och C.'),
       };
     },
   },
@@ -2093,24 +2212,39 @@ const QUIZZES = {
         const i = 1 + Math.floor(Math.random() * 6);
         const ord = (L2 ? ['', 'sekunden', 'tersen', 'kvarten', 'kvinten', 'sexten', 'septiman'] : ['', '2nd', '3rd', '4th', '5th', '6th', '7th'])[i];
         return Object.assign(choices(deg(i), all.concat([nn(r + 1), nn(r + 6), nn(r + 10)])),
-          { prompt: `<div class="qtext big">${t('qDegree', { d: ord, k: `<b>${K}</b>` })}</div>`, explain: t('qScaleIs', { k: K, s: all.join(' ') }) });
+          { prompt: `<div class="qtext big">${t('qDegree', { d: ord, k: `<b>${K}</b>` })}</div>`,
+            explain: X(`Count along the ${K} major scale – the note numbered ${i + 1} is <b>${deg(i)}</b>:`, `Räkna längs ${K}-durskalan – ton nummer ${i + 1} är <b>${deg(i)}</b>:`)
+              + exChips(all.map((n, k) => [n, String(k + 1), k === i])) });
       }
       if (kind === 'sig') {
         const sg = keySignature(r, false), lab = n => n === 0 ? '0' : n + ' ' + sg.acc;
         const ans = lab(sg.n), pool = [1, 2, 3, 4, 5, 6].map(lab).concat(['0']);
-        return Object.assign(choices(ans, pool), { prompt: `<div class="qtext big">${t('qSig', { k: `<b>${K}</b>` })}</div>`, explain: t('qScaleIs', { k: K, s: all.join(' ') }) });
+        const cw = sg.acc !== '♭';
+        const chain = cw ? [0, 7, 2, 9, 4, 11, 6] : [0, 5, 10, 3, 8, 1, 6];
+        const steps = chain.slice(0, sg.n + 1).map((pc, k) => [nn(pc, cw ? 's' : 'f'), String(k), k === sg.n]);
+        const accs = (cw ? ['F♯', 'C♯', 'G♯', 'D♯', 'A♯', 'E♯'] : ['B♭', 'E♭', 'A♭', 'D♭', 'G♭', 'C♭']).slice(0, sg.n);
+        return Object.assign(choices(ans, pool), { prompt: `<div class="qtext big">${t('qSig', { k: `<b>${K}</b>` })}</div>`,
+          explain: sg.n === 0 ? X('C major uses only the natural notes – no sharps or flats.', 'C-dur använder bara stamtoner – inga förtecken.')
+            : X(`Walk ${cw ? 'clockwise' : 'anticlockwise'} round the circle of fifths from C. Each step adds one ${cw ? 'sharp' : 'flat'}:`,
+                `Gå ${cw ? 'medurs' : 'moturs'} runt kvintcirkeln från C. Varje steg lägger till ${cw ? 'ett kors' : 'ett b'}:`) + exChips(steps)
+              + X(`So ${K} major has ${sg.n}: <b>${accs.join(' ')}</b>.`, `${K}-dur har alltså ${sg.n}: <b>${accs.join(' ')}</b>.`) });
       }
       if (kind === 'rel') {
         const ans = deg(5) + 'm';
         return Object.assign(choices(ans, [deg(1) + 'm', deg(2) + 'm', K + 'm', deg(3) + 'm', deg(4) + 'm']),
-          { prompt: `<div class="qtext big">${t('qRel', { k: `<b>${K}</b>` })}</div>`, explain: t('qRelEx') });
+          { prompt: `<div class="qtext big">${t('qRel', { k: `<b>${K}</b>` })}</div>`,
+            explain: X(`The relative minor starts on the 6th note of the major scale. Count to 6 in ${K} major:`, `Parallelltonarten i moll börjar på durskalans sjätte ton. Räkna till 6 i ${K}-dur:`)
+              + exChips(all.slice(0, 6).map((n, k) => [n, String(k + 1), k === 5]))
+              + X(`<b>${ans}</b> uses exactly the same notes as ${K} major – it just has another home note.`, `<b>${ans}</b> har exakt samma toner som ${K}-dur – bara ett annat hem.`) });
       }
       if (kind === 'dia') {
         const romans = DIATONIC_MAJOR, i = Math.floor(Math.random() * 7);
         const name = j => { const c = romanChord(romans[j], r, false); return names.get(c.r) + pretty(TYPES[c.t].sfx); };
         const ans = name(i), pool = [0, 1, 2, 3, 4, 5, 6].filter(j => j !== i).map(name).concat([names.get(mod12(r + [0, 2, 4, 5, 7, 9, 11][i])) + (/m|dim/.test(name(i)) ? '' : 'm')]);
         return Object.assign(choices(ans, pool), { prompt: `<div class="qtext big">${t('qDia', { n: `<b>${romans[i]}</b>`, k: `<b>${K}</b>` })}</div>`,
-          explain: romans.map((rm, j) => rm + ' ' + name(j)).join(' · ') });
+          explain: X(`Build a chord on every note of ${K} major using only the scale's notes (1-3-5, 2-4-6, 3-5-7 …). Capital numerals are major, small ones minor, ° diminished:`,
+                     `Bygg ett ackord på varje ton i ${K}-dur med bara skalans toner (1-3-5, 2-4-6, 3-5-7 …). Versaler är dur, gemener moll, ° förminskat:`)
+            + exChips(romans.map((rm, j) => [name(j), rm, j === i])) });
       }
       if (kind === 'tones') {
         const tt = pick(['', 'm', '7', 'maj7', 'm7', 'dim']), ti = typeIndex(tt), root = Math.floor(Math.random() * 12);
@@ -2134,23 +2268,37 @@ const QUIZZES = {
         const ans = tones(base);
         const wrong = [];
         for (let k = 1; k < base.length; k++) for (const d of [-1, 1]) { const w = base.slice(); w[k] += d; if (w[k] > 0 && w[k] < 12 && !base.includes(w[k])) wrong.push(tones(w.sort((a, b) => a - b))); }
-        return Object.assign(choices(ans, wrong), { prompt: `<div class="qtext big">${t('qTones', { c: `<b>${fix(best.rn) + pretty(tt)}</b>` })}</div>`, small: true });
+        return Object.assign(choices(ans, wrong), { prompt: `<div class="qtext big">${t('qTones', { c: `<b>${fix(best.rn) + pretty(tt)}</b>` })}</div>`, small: true,
+          explain: typeInfo(ti) + exChips(spell(best.rn, base).map((n, k) => [fix(n), intervalLabel(ti, base[k]) + ' · ' + base[k], k === 0]))
+            + X('The small numbers show the step in the chord and how many semitones above the root.', 'De små siffrorna visar steget i ackordet och hur många halvtoner över grundtonen.') });
       }
       if (kind === 'mode') {
         const MODES = ['major', 'dor', 'phr', 'lyd', 'mix', 'minor', 'loc'], i = Math.floor(Math.random() * 7);
+        const MODE_FEEL = { major: ['Ionian is the major scale itself – bright.', 'Jonisk är durskalan själv – ljus.'], dor: ['Dorian is minor with a bright 6th – folk, jazz, funk.', 'Dorisk är moll med ljus sext – folk, jazz, funk.'],
+          phr: ['Phrygian is minor with a ♭2 – Spanish, metal.', 'Frygisk är moll med ♭2 – spanskt, metal.'], lyd: ['Lydian is major with a ♯4 – dreamy.', 'Lydisk är dur med ♯4 – drömsk.'],
+          mix: ['Mixolydian is major with a ♭7 – rock and blues.', 'Mixolydisk är dur med ♭7 – rock och blues.'], minor: ['Aeolian is the natural minor scale.', 'Eolisk är den rena mollskalan.'],
+          loc: ['Locrian has a ♭2 and ♭5 – tense, rarely used.', 'Lokrisk har ♭2 och ♭5 – spänd, används sällan.'] };
         const ans = L(SCALES.find(x => x.id === MODES[i]));
         const ord = (L2 ? ['1:a', '2:a', '3:e', '4:e', '5:e', '6:e', '7:e'] : ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th'])[i];
         return Object.assign(choices(ans, MODES.map(id => L(SCALES.find(x => x.id === id)))),
-          { prompt: `<div class="qtext big">${t('qMode', { o: ord })}</div>`, explain: t('qModeEx', { k: K, n: deg(i), m: ans }), small: true });
+          { prompt: `<div class="qtext big">${t('qMode', { o: ord })}</div>`, small: true,
+            explain: X(`Each mode is the major scale started on another note. Start ${K} major on note ${i + 1}, <b>${deg(i)}</b>, and you get <b>${deg(i)} ${ans.toLowerCase()}</b>:`,
+                       `Varje modus är durskalan startad på en annan ton. Starta ${K}-dur på ton ${i + 1}, <b>${deg(i)}</b>, så får du <b>${deg(i)} ${ans.toLowerCase()}</b>:`)
+              + exChips([...Array(7).keys()].map(k => [deg((i + k) % 7), k === 0 ? X('home', 'hem') : '', k === 0]))
+              + pair(MODE_FEEL[MODES[i]]) });
       }
       if (kind === 'steps') {
         const ids = ['major', 'minor', 'dor', 'mix', 'harm', 'mel', 'phr', 'lyd'], id = pick(ids), sc = SCALES.find(x => x.id === id);
         return Object.assign(choices(L(sc), ids.map(x => L(SCALES.find(y => y.id === x)))),
-          { prompt: `<div class="qtext big">${t('qSteps')}<div class="qsteps">${stepPattern(sc)}</div></div>`, explain: t('qStepsEx'), small: true });
+          { prompt: `<div class="qtext big">${t('qSteps')}<div class="qsteps">${stepPattern(sc)}</div></div>`, small: true,
+            explain: t('qStepsEx') + ' ' + X(`Following the pattern from C gives <b>C ${L(sc).toLowerCase()}</b>:`, `Följer du mönstret från C får du <b>C ${L(sc).toLowerCase()}</b>:`)
+              + exChips(sc.iv.map(x => [spellScale(0, sc).get(x), scaleDegreeLabel(sc, x), x === 0])) });
       }
       const n = 1 + Math.floor(Math.random() * 12), a = pick(QUIZ_KEYS), sp = keySpell(a, false);
       return Object.assign(choices(ivName(n), [...Array(12).keys()].map(k => ivName(k + 1))),
-        { prompt: `<div class="qtext big">${t('qInterval', { a: `<b>${nn(a, sp)}</b>`, b: `<b>${nn(a + n, sp)}</b>` })}</div>`, explain: semis(n), small: true });
+        { prompt: `<div class="qtext big">${t('qInterval', { a: `<b>${nn(a, sp)}</b>`, b: `<b>${nn(a + n, sp)}</b>` })}</div>`, small: true,
+          explain: X(`Count semitones (frets) from ${nn(a, sp)}: ${semis(n)} = <b>${ivName(n)}</b>.`, `Räkna halvtoner (band) från ${nn(a, sp)}: ${semis(n)} = <b>${ivName(n)}</b>.`)
+            + exChips([...Array(n + 1).keys()].map(k => [nn(a + k, sp), String(k), k === n])) });
     },
   },
   intervals: {
@@ -2163,7 +2311,8 @@ const QUIZZES = {
         prompt: `<div class="qtext big">${t('qListen')}</div><div class="qear">${I.ear}</div>`,
         play: () => { const t0 = Snd.now() + 0.05; Snd.pluck(lo, t0, -1); Snd.pluck(lo + n, t0 + 0.75, -1); setTimeout(() => {}, 0); },
         replayBoth: () => { const t0 = Snd.now() + 0.05; Snd.pluck(lo, t0, -1, 0.9); Snd.pluck(lo + n, t0, -1, 0.9); },
-        autoplay: true, small: true, explain: semis(n),
+        autoplay: true, small: true,
+        explain: `<b>${ivName(n)}</b> = ${semis(n)}. ` + X('Remember it by ', 'Kom ihåg det med ') + `<b>${pair(IV_SONG[n])}</b>.`,
       });
     },
   },
@@ -2175,11 +2324,16 @@ const QUIZZES = {
       const ti = pick(types), r = Math.floor(Math.random() * 12);
       const v = voicings(r, ti, null, CHORD_INSTS[0])[0];
       const lab = k => { const x = TYPES[k]; const w = L(x); return w.charAt(0).toUpperCase() + w.slice(1); };
-      return Object.assign(choices(lab(ti), types.map(lab)), {
+      const ch = choices(lab(ti), types.map(lab));
+      const tOf = label => types.find(k => lab(k) === label);
+      return Object.assign(ch, {
         prompt: `<div class="qtext big">${t('qListenChord')}</div><div class="qear">${I.ear}</div>`,
         play: () => Snd.chord(v.frets, STD, 0, 'arp'),
         replayBoth: () => Snd.chord(v.frets, STD, 0, 'strum'),
-        autoplay: true, small: true, explain: cname(r, ti),
+        autoplay: true, small: true,
+        explain: k => `<b>${lab(ti)}</b> ${X('sounds', 'låter')} ${pair(SOUND[TYPES[ti].sfx])} (${cname(r, ti)}).`
+          + (k >= 0 && k !== ch.correct ? `<br>${X('You chose', 'Du valde')} <b>${ch.options[k]}</b>, ${X('which sounds', 'som låter')} ${pair(SOUND[TYPES[tOf(ch.options[k])].sfx])}.` : '')
+          + chordChips(r, ti),
       });
     },
   },
@@ -2217,7 +2371,7 @@ const QuizRun = {
         ${c.replayBoth ? `<button class="btn small" data-a="qplay2">${t(this.id === 'intervals' ? 'together' : 'strummed')}</button>` : ''}</div>` : ''}
       ${opts}
       ${done ? `<div class="qfeed ${this.ok ? 'good' : 'bad'}">${this.ok ? t('right') : t('wrongIs', { c: correctText })}</div>
-        ${c.explain ? `<div class="small muted" style="text-align:center;margin-top:4px">${c.explain}</div>` : ''}
+        ${c.explain ? `<div class="qexplain">${typeof c.explain === 'function' ? c.explain(this.answered) : c.explain}</div>` : ''}
         <div class="row" style="margin-top:10px"><button class="btn primary grow" data-a="qnext">${t('next')}</button></div>` : ''}
     </div>`;
   },
@@ -2311,8 +2465,17 @@ const Practice = {
     const l = LESSONS[this.lesson], i0 = this.lesson;
     const play = `<span class="pl">${I.play}</span>`;
     const body = l.blocks.map((b, bi) => {
+      const md = x => esc(L(x)).replace(/\*([^*]+)\*/g, '<b>$1</b>');
+      const lbl = x => x == null ? '' : typeof x === 'string' ? x : L(x);
+      if (b.goal) return `<p class="lgoal">${md(b.goal)}</p>`;
       if (b.h) return `<h3>${L(b.h)}</h3>`;
-      if (b.p) return `<p class="lp">${esc(L(b.p))}</p>`;
+      if (b.p) return `<p class="lp">${md(b.p)}</p>`;
+      if (b.try) return `<div class="ltry"><div class="lbl">${t('lTry')}</div>${md(b.try)}</div>`;
+      if (b.key) return `<div class="lkey"><div class="lbl">${t('lKey')}</div><ul>${b.key.map(k => `<li>${md(k)}</li>`).join('')}</ul></div>`;
+      if (b.chips) {
+        const c = b.chips, chips = `<div class="notes lchips">${c.row.map(([n, l, hi]) => `<div class="note ${hi ? 'r' : ''}"><b>${typeof n === 'number' ? nn(n) : lbl(n)}</b>${lbl(l) ? `<span>${lbl(l)}</span>` : ''}</div>`).join('')}</div>`;
+        return `<div class="lex">${c.play ? `<button class="lrow" data-a="lp" data-v="${bi}">${play}<b>${b.label ? L(b.label) : t('hear')}</b></button>` : ''}${chips}</div>`;
+      }
       if (b.scale) {
         const sc = SCALES.find(x => x.id === b.scale.id), sp = spellScale(b.scale.root, sc);
         const nm = pc => (sp && sp.get(pc)) || nn(pc);
@@ -2347,7 +2510,8 @@ const Practice = {
     Snd.setTimbre('guitar');
     const now = Snd.now() + 0.05;
     const chord = name => { const p = parseChord(name); const vv = p && voicings(p.r, p.t, p.b, CHORD_INSTS[0])[0]; if (vv) Snd.chord(vv.frets, STD, 0, 'strum'); };
-    if (b.scale) {
+    if (b.chips) { b.chips.play.forEach((m, i) => Snd.pluck(m, now + i * (b.chips.play.length > 3 ? 0.26 : 0.5), -1, 0.9)); if (b.chips.play.length === 3) b.chips.play.forEach(m => Snd.pluck(m, now + 1.6, -1, 0.7)); }
+    else if (b.scale) {
       const sc = SCALES.find(x => x.id === b.scale.id), m0 = 48 + b.scale.root + (b.scale.root < 4 ? 12 : 0);
       const up = sc.iv.concat([12]).map(x => m0 + x), all = up.concat(up.slice(0, -1).reverse());
       all.forEach((m, i) => Snd.pluck(m, now + i * 0.22, -1, 0.9));
@@ -2395,6 +2559,7 @@ function settingsHtml() {
     <div class="setgroup">
       ${toggle(t('lefty'), 'lefty', S.lefty, t('leftyD'))}
       ${toggle(t('hNot'), 'hNotation', S.hNotation, t('hNotD'))}
+      ${toggle(t('showTun'), 'showTuning', S.showTuning, t('showTunD'))}
       ${stack(t('playStyle'), seg('sstyle', [['strum', t('strum')], ['arp', t('arp')]], S.style))}
     </div>
     <div class="sethead">${t('sound')}</div>

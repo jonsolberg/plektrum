@@ -1,25 +1,33 @@
 # Plektrum (Android)
 
-A toolbox for string players – guitar, bass, ukulele, mandolin, banjo, violin and more: chords,
-progressions with strumming and drum backing, the circle of fifths, scales, a tuner and a metronome.
+A toolbox for string players – guitar, bass, ukulele, mandolin, banjo, violin and more: chords (also
+in alternative tunings), progressions with strumming and drum backing, the circle of fifths, scales,
+a tuner, a metronome, and music theory lessons and quizzes that explain every answer.
 Fully offline – no internet permission, no ads, no accounts. Everything lives in `app/src/main/assets/`.
 
 <p align="center">
   <img src="docs/screenshot-chords.png" width="200" alt="Chord library">
   <img src="docs/screenshot-circle.png" width="200" alt="Circle of fifths">
   <img src="docs/screenshot-scales.png" width="200" alt="Scales on the fretboard">
-  <img src="docs/screenshot-tuner.png" width="200" alt="Tuner in dark mode">
+  <img src="docs/screenshot-tuner.png" width="200" alt="Tuner">
+</p>
+<p align="center">
+  <img src="docs/screenshot-studio.png" width="200" alt="Studio">
+  <img src="docs/screenshot-practice.png" width="200" alt="Quiz with explanation">
+  <img src="docs/screenshot-lessons.png" width="200" alt="Music theory lesson">
 </p>
 
 ## What's inside
 
 **Chords**
 - Guitar, ukulele (standard and baritone), mandolin, 5-string banjo, tenor banjo and bass
+- Alternative tunings – open G, open D, DADGAD, drop D, low-G ukulele, banjo tunings and more
+  (e.g. how to play Cm in open G), with each string's tuning shown above the chart (can be hidden)
 - 36 chord types in all 12 keys, plus slash chords over any bass note
 - Fingerings worked out on the device for each instrument – up to 24 per chord, easiest first
 - Charts show fingers, note names or intervals (1, 3, 5 …), with the starting fret up the neck
 - Search by name (`Am7`, `C/G`, `F#m7b5`, `Bbmaj7` …), swipe between fingerings
-- Strum or arpeggio playback with a synthesised plucked-string sound
+- Strum or arpeggio playback with an instrument-specific sound; the dots light up as each string sounds
 - Unlimited favourites (they remember the instrument)
 
 **Studio** – build progressions of up to 16 chords, pick any fingering, reorder, transpose and save
@@ -41,9 +49,10 @@ Japanese scales, and arpeggios. Shown on the fretboard of any of 14 instruments 
 tunings – guitar, 7-string, bass, ukulele, mandolin, mandola, banjo, tenor banjo, violin, viola,
 cello, double bass (fretless ones with semitone lines). Positions (the five pentatonic boxes and
 three-notes-per-string on guitar and bass), notes or degrees, step pattern (W W H …), correctly
-spelled note names, the chords of the scale as triads or 7th chords, tap to hear any note.
+spelled note names, the chords of the scale as triads or 7th chords, tap to hear any note – notes
+light up as they play.
 
-**Tuner** – needle, strobe wheel or strobe bands, with a pitch history trace and signal level.
+**Tuner** – needle, strobe wheel or strobe bands, with an optional pitch history trace.
 Fifteen instruments, each with its own headstock and common tunings: guitar (17 tunings), 7-string
 and 12-string guitar, 4-, 5- and 6-string bass, ukulele, mandolin, mandola, 5-string and tenor banjo,
 violin, viola, cello and double bass – plus a custom tuning for each. Tap a peg to tune one string;
@@ -53,9 +62,10 @@ Werckmeister III–V, Kirnberger II–III, Vallotti, Young II, Kellner) on any k
 holds the last note for a moment after it fades.
 
 **Practice** – a start page with music theory lessons and separate exercises (ten questions each, best score kept):
-- Music theory: 12 short lessons – notes, intervals, the major scale, keys, minor scales, triads, seventh
-  chords, chords in a key, modes, pentatonic & blues, rhythm, reading chord charts and tab – with examples
-  to play and links to the matching quiz or tool
+- Music theory for beginners: 12 short lessons – notes, intervals, the major scale, keys, minor scales,
+  how chords are built, 7th chords, chords in a key, pentatonic & blues, modes, rhythm, reading chord
+  charts and tab. One idea at a time, examples to play, a "Try it" exercise and a "Remember" summary,
+  and links to the matching quiz or tool
 - Metronome in 2/4 to 12/8 plus 5/8 and 7/8 (with groupings such as 2 + 2 + 3), subdivisions, swing,
   tap tempo and accent patterns for syncopation (backbeat, offbeats, Charleston, tresillo, son/rumba/
   bossa clave, shuffle, gallop) – tap any step to accent, soften or silence it
@@ -63,7 +73,9 @@ holds the last note for a moment after it fades.
 - Name the note marked on the fretboard, and find a named note on a given string (any fretted instrument)
 - Scales & keys: notes of a key, key signatures, relative minors, chords in a key, modes, step
   patterns, chord tones and intervals
-- Intervals by ear and chord types by ear
+- Intervals by ear (with a song to remember each one) and chord types by ear
+- After every answer an explanation shows *why* – counting the frets, walking the circle of fifths,
+  building the chord – so the quizzes teach even if you know no theory
 
 Plus left-handed mode, light/dark/automatic theme, English and Swedish (follows the phone), and
 optional Swedish note names (H and B).

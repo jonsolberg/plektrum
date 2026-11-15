@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <title>Plektrum</title>
 <style>
@@ -19,7 +19,7 @@
   --str:#7a827e;--fret:#3d4743;--wood:#1f2624;--dim:#a98bd6;--shadow:none;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-user-select:none;user-select:none}
+html,body{touch-action:pan-x pan-y;margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-user-select:none;user-select:none}
 body{padding-bottom:calc(68px + env(safe-area-inset-bottom))}
 button{font:inherit;color:inherit}
 header{position:sticky;top:0;z-index:7;background:var(--bg);display:flex;align-items:center;gap:6px;padding:10px 12px 6px 16px}
@@ -73,6 +73,8 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .chordname{font-size:34px;font-weight:750;line-height:1.05;letter-spacing:-.5px}
 .chordlong{color:var(--muted);font-size:14px;margin-top:2px}
 .star{margin-left:0}
+.instrow{display:flex;gap:8px;margin:8px 0 0}
+.instrow select{flex:1;min-width:0;padding:7px 28px 7px 10px;font-size:14px;border-radius:12px}
 .instsel{width:auto;max-width:42%;padding:6px 26px 6px 10px;font-size:13.5px;border-radius:999px;margin-left:auto;flex:none}
 .fav small{display:block;font-size:10.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .star.on svg{fill:var(--root);color:var(--root)}
@@ -101,6 +103,14 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .fav svg{width:64px;display:block;margin:0 auto}
 .fav b{font-size:13px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .empty{color:var(--muted);font-size:14px;padding:6px 0}
+
+/* blinking notes */
+.hl{fill:none;stroke:var(--ink);stroke-width:3;opacity:0;transform-box:fill-box;transform-origin:center;pointer-events:none}
+.hl.on{animation:hlb .55s ease-out}
+@keyframes hlb{0%{opacity:1;transform:scale(1.25)}100%{opacity:0;transform:scale(1)}}
+#boardSvg g{transform-box:fill-box;transform-origin:center}
+#boardSvg g.on{animation:nb .5s ease-out}
+@keyframes nb{0%{transform:scale(1.45);filter:brightness(1.35) drop-shadow(0 0 6px var(--accent))}100%{transform:none;filter:none}}
 
 /* studio */
 .slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
@@ -260,6 +270,13 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .lrow .pl svg{width:14px;height:14px}
 .lrow small{display:block;color:var(--muted);font-size:12.5px;font-weight:400}
 .ltab{font:13px/1.35 ui-monospace,Menlo,Consolas,monospace;background:var(--card);border-radius:10px;padding:10px;overflow-x:auto;margin:0 0 8px}
+.lgoal{font-size:15px;color:var(--muted);margin:6px 0 4px;font-style:italic}
+.lesson .lp b{color:var(--ink)}
+.ltry{border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:4px 14px 14px 4px;padding:10px 14px;margin:12px 0;font-size:14.5px;line-height:1.55}
+.lkey{border:1px dashed var(--line);border-radius:14px;padding:10px 14px;margin:16px 0 4px;font-size:14.5px;line-height:1.5}
+.ltry .lbl,.lkey .lbl{margin:0 0 4px}
+.lkey ul{margin:0;padding-left:18px}.lkey li{margin:3px 0}
+.lchips{justify-content:flex-start;margin-top:6px}.lchips .note{min-width:34px;padding:3px 6px}
 .lgo{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
 .lnav{display:flex;gap:8px;margin-top:12px}
 .lnav .btn{flex:1;font-size:14px}
@@ -280,6 +297,9 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .qboard{display:block;width:100%;margin:4px 0}
 .qhead{font-size:40px;font-weight:750;text-align:center}
 .qfeed{text-align:center;margin-top:10px;font-weight:650}.qfeed.good{color:var(--good)}.qfeed.bad{color:var(--warn)}
+.qexplain{background:var(--card2);border-radius:14px;padding:12px 14px;margin-top:10px;font-size:14.5px;line-height:1.55}
+.qexplain .exchips{justify-content:flex-start;margin:8px 0 6px}
+.qexplain .exchips .note{min-width:36px;padding:3px 7px}
 .quizopts.small .btn{font-size:15px;font-weight:600}
 .quizopts.g12{grid-template-columns:repeat(4,1fr)}
 .quizopts.g12 .btn{min-height:44px;font-size:16px}

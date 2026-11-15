@@ -58,6 +58,9 @@ public class MainActivity extends Activity {
         s.setMediaPlaybackRequiresUserGesture(false);   // chord playback and metronome (Web Audio)
         s.setBlockNetworkLoads(true);                   // belt and braces: never touch the network
         s.setTextZoom(100);
+        s.setSupportZoom(false);                        // no pinch zoom
+        s.setBuiltInZoomControls(false);
+        s.setDisplayZoomControls(false);
 
         web.setWebViewClient(new WebViewClient() {
             @Override
