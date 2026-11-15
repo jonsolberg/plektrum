@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.11';
+const VERSION = '1.12';
 const REPO = 'https://github.com/jonsolberg/guitarchords';
 
 const store = {
@@ -2641,15 +2641,29 @@ const RENDER = { chords: () => Chords.render(), studio: () => Studio.render(), c
 function soundFor(tab) {
   Snd.setTimbre(tab === 'tuner' ? S.instrument : tab === 'scales' ? (Scales.instId ? Scales.instId() : 'guitar') : S.chordInst);
 }
+const tabScroll = {};
 function showTab(k) {
+  const same = S.tab === k;
+  tabScroll[S.tab] = window.scrollY;
   soundFor(k);
   if (S.tab === 'tuner' && k !== 'tuner') { if (Pitch.running) Tuner.stop(); Tuner.stopPipe(); }
   S.tab = k; saveS();
   document.querySelectorAll('main > section').forEach(s => s.classList.toggle('on', s.id === 'tab-' + k));
   document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('on', b.dataset.tab === k));
   RENDER[k]();
-  window.scrollTo(0, 0);
+  // like a native app: each tab keeps its place; tapping the current tab again goes to the top
+  window.scrollTo(0, same ? 0 : (tabScroll[k] || 0));
 }
+/* hide the bottom bar while the keyboard is open instead of letting it ride up on top of it */
+(function () {
+  let full = window.innerHeight;
+  const check = () => {
+    if (window.innerHeight > full) full = window.innerHeight;
+    document.body.classList.toggle('kb', window.innerHeight < full * 0.78);
+  };
+  window.addEventListener('resize', check);
+  window.addEventListener('orientationchange', () => { full = 0; setTimeout(check, 300); });
+})();
 function renderAll() {
   renderChrome();
   RENDER[S.tab]();

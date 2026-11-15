@@ -59,6 +59,9 @@ public class MainActivity extends Activity {
         s.setBlockNetworkLoads(true);                   // belt and braces: never touch the network
         s.setTextZoom(100);
         s.setSupportZoom(false);                        // no pinch zoom
+        web.setOverScrollMode(View.OVER_SCROLL_NEVER);   // no stretch/glow at the ends – feels native
+        web.setVerticalScrollBarEnabled(false);          // no scroll bars
+        web.setHorizontalScrollBarEnabled(false);
         s.setBuiltInZoomControls(false);
         s.setDisplayZoomControls(false);
 
