@@ -92,6 +92,12 @@ const Snd = {
     }
     const fade = Math.floor(sr * 0.25);
     for (let i = 0; i < fade; i++) d[len - 1 - i] *= i / fade;
+    // level-match: the random excitation (and the pick position) made some notes much quieter
+    // than their neighbours – in a chord that note could all but disappear (e.g. the ♭5 of a dim chord)
+    const win = Math.min(len, Math.floor(sr * 0.35));
+    let e = 0; for (let i = 0; i < win; i++) e += d[i] * d[i];
+    const rms = Math.sqrt(e / win), norm = rms > 1e-6 ? 0.18 / rms : 1;
+    for (let i = 0; i < len; i++) d[i] *= norm;
     this.bufs.set(key, b);
     return b;
   },

@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.23';
+const VERSION = '1.24';
 const REPO = 'https://github.com/jonsolberg/guitarchords';
 
 const store = {
