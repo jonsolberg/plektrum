@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.19';
+const VERSION = '1.20';
 const REPO = 'https://github.com/jonsolberg/guitarchords';
 
 const store = {
@@ -58,7 +58,7 @@ const STR = {
     sens: 'Sensitivity', sensD: 'Raise it for quiet acoustics, lower it in noisy rooms',
     grouping: 'Grouping', subdiv: 'Subdivision', swingD: 'Plays the off-beats late, like a shuffle', accentPat: 'Accent pattern',
     customPat: 'Custom', resetAcc: 'Reset accents', stepHint: 'Tap a step: normal → accent → soft → silent',
-    learn: 'Music theory', learnDesc: 'Short lessons with examples you can play', lessonsN: '{n} lessons', lessonN: 'Lesson {n} of {of}', lTry: 'Try it', lKey: 'Remember', lPiano: 'On the piano', lGuitar: 'On the guitar neck', lPrintAll: 'Print all / save as PDF', lPrintOne: 'Print / PDF', lPdfTitle: 'Music theory', lPdfSub: '{n} lessons for string players – from the twelve notes to the CAGED system', lPdfToc: 'Contents', lPdfHint: 'Every example can be played in the app: Practice → Music theory.',
+    learn: 'Music theory', learnDesc: 'Short lessons with examples you can play', lessonsN: '{n} lessons', lessonN: 'Lesson {n} of {of}', lTry: 'Try it', lKey: 'Remember', lPiano: 'On the piano', lGuitar: 'On the guitar neck', lPrintAll: 'Print all / save as PDF', lPrintOne: 'Print / PDF', lPdfTitle: 'Music theory', lPdfSub: '{n} lessons for string players – from the twelve notes to the CAGED system', lPdfToc: 'Contents', lPdfHint: 'Every example can be played in the app: Practice → Music theory.', lPdfIntro: 'Music theory explained for guitarists and other string players – one idea at a time, with examples on the piano and the guitar neck, a short exercise and a summary in every lesson. No previous knowledge needed.', lPdfFoot: 'a toolbox for string players',
     metroDesc: 'Time signatures, subdivisions, accents', qWhichNote: 'Which note is marked?', qFindNote: 'Find {n} on string {k} ({s})',
     qDegree: 'What is the {d} of {k} major?', qScaleIs: '{k} major: {s}', qSig: 'How many sharps or flats in {k} major?',
     qRel: 'What is the relative minor of {k} major?', qRelEx: 'The relative minor starts on the 6th note of the major scale.',
@@ -107,7 +107,7 @@ const STR = {
     sens: 'Känslighet', sensD: 'Höj för tysta akustiska gitarrer, sänk i stökiga rum',
     grouping: 'Gruppering', subdiv: 'Underdelning', swingD: 'Spelar offbeat-slagen sent, som shuffle', accentPat: 'Betoningsmönster',
     customPat: 'Eget', resetAcc: 'Återställ betoningar', stepHint: 'Tryck på ett steg: normal → betonad → svag → tyst',
-    learn: 'Musikteori', learnDesc: 'Korta lektioner med exempel du kan spela', lessonsN: '{n} lektioner', lessonN: 'Lektion {n} av {of}', lTry: 'Prova', lKey: 'Kom ihåg', lPiano: 'På pianot', lGuitar: 'På gitarrhalsen', lPrintAll: 'Skriv ut alla / spara som PDF', lPrintOne: 'Skriv ut / PDF', lPdfTitle: 'Musikteori', lPdfSub: '{n} lektioner för stränginstrument – från de tolv tonerna till CAGED-systemet', lPdfToc: 'Innehåll', lPdfHint: 'Alla exempel kan spelas i appen: Öva → Musikteori.',
+    learn: 'Musikteori', learnDesc: 'Korta lektioner med exempel du kan spela', lessonsN: '{n} lektioner', lessonN: 'Lektion {n} av {of}', lTry: 'Prova', lKey: 'Kom ihåg', lPiano: 'På pianot', lGuitar: 'På gitarrhalsen', lPrintAll: 'Skriv ut alla / spara som PDF', lPrintOne: 'Skriv ut / PDF', lPdfTitle: 'Musikteori', lPdfSub: '{n} lektioner för stränginstrument – från de tolv tonerna till CAGED-systemet', lPdfToc: 'Innehåll', lPdfHint: 'Alla exempel kan spelas i appen: Öva → Musikteori.', lPdfIntro: 'Musikteori förklarad för gitarrister och andra som spelar stränginstrument – en sak i taget, med exempel på pianot och gitarrhalsen, en kort övning och en sammanfattning i varje lektion. Inga förkunskaper behövs.', lPdfFoot: 'en verktygslåda för stränginstrument',
     metroDesc: 'Taktarter, underdelningar, betoningar', qWhichNote: 'Vilken ton är markerad?', qFindNote: 'Hitta {n} på sträng {k} ({s})',
     qDegree: 'Vilken ton är {d} i {k}-dur?', qScaleIs: '{k}-dur: {s}', qSig: 'Hur många förtecken har {k}-dur?',
     qRel: 'Vilken är parallelltonarten i moll till {k}-dur?', qRelEx: 'Parallelltonarten i moll börjar på durskalans sjätte ton.',
@@ -204,49 +204,138 @@ function blink(el) {
   void el.getBoundingClientRect();
   el.classList.add('on');
 }
+/** chapters of the theory course (for the printed book) */
+const LESSON_CHAPTERS = [
+  { t: T2('The basics', 'Grunderna'), ids: ['notes', 'intervals', 'neck'] },
+  { t: T2('Scales and keys', 'Skalor och tonarter'), ids: ['major', 'keys', 'minor'] },
+  { t: T2('Chords', 'Ackord'), ids: ['triads', 'inversions', 'arpeggios', 'sevenths'] },
+  { t: T2('Harmony and songs', 'Harmonik och låtar'), ids: ['diatonic', 'minorkeys', 'cadences', 'secondary', 'borrowed', 'blues12', 'findkey', 'capo'] },
+  { t: T2('Soloing', 'Solospel'), ids: ['pent', 'pentboxes', 'modes'] },
+  { t: T2('Rhythm', 'Rytm'), ids: ['rhythm', 'strumming'] },
+  { t: T2('On the guitar', 'På gitarren'), ids: ['charts', 'barre', 'power', 'caged', 'fingerpicking', 'techniques', 'tunings'] },
+];
+const chapterOf = id => LESSON_CHAPTERS.find(c => c.ids.includes(id));
+const stripMd = x => esc(L(x)).replace(/\*([^*]+)\*/g, '$1');
+
+/** cover artwork: a guitar neck with the five CAGED shapes of C, drawn in white */
+function coverNeckSvg() {
+  const fw = 34, sy = 18, top = 14, left = 30, F = 15;
+  const shapes = [[[1, 3], [2, 2], [3, 0], [4, 1], [5, 0]], [[1, 3], [2, 5], [3, 5], [4, 5], [5, 3]], [[0, 8], [1, 7], [2, 5], [3, 5], [4, 5], [5, 8]],
+    [[0, 8], [1, 10], [2, 10], [3, 9], [4, 8], [5, 8]], [[2, 10], [3, 12], [4, 13], [5, 12]]];
+  const X = f => f === 0 ? left - 10 : left + (f - 0.5) * fw, Y = s => top + (5 - s) * sy;
+  let g = `<svg viewBox="0 0 ${left + F * fw + 12} ${top * 2 + sy * 5}" xmlns="http://www.w3.org/2000/svg">`;
+  for (let f = 0; f <= F; f++) g += `<line x1="${left + f * fw}" x2="${left + f * fw}" y1="${top - 6}" y2="${top + sy * 5 + 6}" stroke="#fff" stroke-opacity="${f ? 0.35 : 0.9}" stroke-width="${f ? 1.5 : 4}"/>`;
+  for (let s = 0; s < 6; s++) g += `<line x1="${left - 18}" x2="${left + F * fw}" y1="${Y(s)}" y2="${Y(s)}" stroke="#fff" stroke-opacity=".55" stroke-width="${1 + (5 - s) * 0.25}"/>`;
+  [3, 5, 7, 9, 15].forEach(f => { g += `<circle cx="${X(f)}" cy="${top + sy * 2.5}" r="3" fill="#fff" fill-opacity=".3"/>`; });
+  g += `<circle cx="${X(12)}" cy="${top + sy * 1.5}" r="3" fill="#fff" fill-opacity=".3"/><circle cx="${X(12)}" cy="${top + sy * 3.5}" r="3" fill="#fff" fill-opacity=".3"/>`;
+  const op = [1, 0.85, 0.7, 0.85, 1];
+  shapes.forEach((sh, k) => sh.forEach(([s, f]) => {
+    const root = (STD[s] + f) % 12 === 0;
+    g += `<circle cx="${X(f)}" cy="${Y(s)}" r="7.5" fill="${root ? '#fff' : 'none'}" stroke="#fff" stroke-width="2" opacity="${op[k]}"/>`;
+  }));
+  ['C', 'A', 'G', 'E', 'D'].forEach((l, k) => { const fx = [1.5, 4, 6.5, 9, 11.5][k]; g += `<text x="${left + fx * fw}" y="${top + sy * 5 + 22}" font-size="13" font-weight="700" fill="#fff" fill-opacity=".85" text-anchor="middle" font-family="system-ui,sans-serif">${l}</text>`; });
+  return g.replace(`viewBox="0 0 ${left + F * fw + 12} ${top * 2 + sy * 5}"`, `viewBox="0 0 ${left + F * fw + 12} ${top * 2 + sy * 5 + 16}"`) + '</svg>';
+}
+
 /** A4 print layout of the lessons (all, or one), for Android's print screen ("Save as PDF") */
 function lessonsPrintDoc(only) {
   const keep = Practice.lesson, idx = only == null ? LESSONS.map((_, i) => i) : [only];
   const tmp = document.createElement('div');
-  const parts = idx.map(i => { Practice.lesson = i; return `<div class="plesson">${Practice.lessonHtml()}</div>`; });
+  tmp.innerHTML = idx.map(i => { Practice.lesson = i; return `<div class="plesson" data-i="${i}">${Practice.lessonHtml()}</div>`; }).join('');
   Practice.lesson = keep;
-  tmp.innerHTML = parts.join('');
   tmp.querySelectorAll('.lnav, .lgo, .pl, .lprint1, .lcount').forEach(e => e.remove());
   tmp.querySelectorAll('button').forEach(b => { const d = document.createElement('div'); d.className = b.className; d.innerHTML = b.innerHTML; b.replaceWith(d); });
   tmp.querySelectorAll('.lon, .lplaying').forEach(e => e.classList.remove('lon', 'lplaying'));
+  // our own lesson header: chapter, number badge, title, goal
+  tmp.querySelectorAll('.plesson').forEach(sec => {
+    const i = +sec.dataset.i, l = LESSONS[i], ch = chapterOf(l.id), card = sec.querySelector('.lesson');
+    card.querySelectorAll(':scope > .lhead, :scope > h2, :scope > .lgoal').forEach(e => e.remove());
+    const goal = l.blocks.find(x => x.goal);
+    card.insertAdjacentHTML('afterbegin', `<div class="phead"><div class="pch">${ch ? esc(L(ch.t)) : ''}</div>
+      <div class="ptitle"><span class="pnum">${i + 1}</span><h1>${esc(L(l.title))}</h1></div>${goal ? `<p class="pgoal">${stripMd(goal.goal)}</p>` : ''}</div>`);
+  });
   const css = [...document.querySelectorAll('style')].map(x => x.textContent).join('\n');
-  const n = LESSONS.length;
-  const cover = only != null ? '' : `<div class="pcover">
-      <div class="pmark">${document.querySelector('#title svg') ? document.querySelector('#title svg').outerHTML : ''}<span>Plektrum</span></div>
-      <h1>${t('lPdfTitle')}</h1><p class="psub">${t('lPdfSub', { n })}</p>
-      <h2>${t('lPdfToc')}</h2>
-      <ol class="ptoc">${LESSONS.map(l => `<li><b>${esc(L(l.title))}</b>${l.blocks[0].goal ? `<span>${esc(L(l.blocks[0].goal).replace(/\*/g, ''))}</span>` : ''}</li>`).join('')}</ol>
-      <p class="phint">${t('lPdfHint')}</p></div>`;
-  const title = only == null ? `Plektrum – ${t('lPdfTitle')}` : `Plektrum – ${L(LESSONS[only].title)}`;
+  const n = LESSONS.length, book = only == null;
+  const ttl = t('lPdfTitle');
+  const cover = !book ? '' : `<div class="pcover">
+      <div class="pcband">
+        <div class="pmark">${document.querySelector('#title svg') ? document.querySelector('#title svg').outerHTML : ''}<span>Plektrum</span></div>
+        <h1>${ttl}</h1><p class="psub">${t('lPdfSub', { n })}</p>
+        <div class="pneck">${coverNeckSvg()}</div>
+      </div>
+      <div class="pcbody">
+        <div class="pcintro"><p>${t('lPdfIntro')}</p><p class="phint">${t('lPdfHint')}</p></div>
+        <ul class="pcinside">${LESSON_CHAPTERS.map(c => `<li><b>${esc(L(c.t))}</b><span>${c.ids.length}</span></li>`).join('')}</ul>
+      </div>
+      <div class="pcfoot">Plektrum ${VERSION} · ${t('lPdfFoot')}</div>
+    </div>
+    <div class="ptocpage"><h2>${t('lPdfToc')}</h2><div class="ptcols">${LESSON_CHAPTERS.map(c => `<div class="ptchap"><h3>${esc(L(c.t))}</h3>${c.ids.map(id => {
+      const i = LESSONS.findIndex(l => l.id === id); if (i < 0) return ''; const l = LESSONS[i], g = l.blocks.find(x => x.goal);
+      return `<div class="ptrow"><span class="pnum">${i + 1}</span><div><b>${esc(L(l.title))}</b>${g ? `<span>${stripMd(g.goal)}</span>` : ''}</div></div>`; }).join('')}</div>`).join('')}</div></div>`;
+  const title = book ? `Plektrum – ${ttl}` : `Plektrum – ${L(LESSONS[only].title)}`;
+  const A = '#0d6b61', R = '#c4552a';
   return { title, html: `<!DOCTYPE html><html lang="${lang()}"><head><meta charset="utf-8"><title>${esc(title)}</title><style>${css}
-@page{size:A4;margin:16mm 15mm 17mm;@bottom-center{content:counter(page);font:9pt system-ui,sans-serif;color:#8a8a8a}}
-html,body{background:#fff!important;color:#1e2422;margin:0;padding:0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:10.5pt;touch-action:auto}
+@page{size:A4;margin:18mm 17mm 18mm;
+  @bottom-left{content:"Plektrum · ${ttl}";font:8pt system-ui,sans-serif;color:#9a958a}
+  @bottom-right{content:counter(page);font:8.5pt system-ui,sans-serif;color:#9a958a}}
+${book ? '@page:first{margin:0;@bottom-left{content:none}@bottom-right{content:none}}' : ''}
+html,body{background:#fff!important;color:#23292a;margin:0;padding:0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;touch-action:auto}
+body{font:10.5pt/1.55 "Noto Serif",Georgia,"Times New Roman",serif}
+b,strong{color:#15191a}
 .card{box-shadow:none!important;border:0!important;background:#fff!important;padding:0!important;margin:0!important;border-radius:0}
 .plesson{break-before:page}
-.pdoc>.plesson:first-child{break-before:auto}
-.lesson h2{font-size:20pt!important;margin-top:2px!important}
-.lesson .lp{font-size:10.5pt;line-height:1.5;margin:7px 0}
-.lesson h3{font-size:12pt;break-after:avoid;margin:14px 0 4px}
+.pdoc>.plesson:first-child{break-before:${book ? 'page' : 'auto'}}
+/* lesson header */
+.phead{margin:0 0 6mm;padding-bottom:4mm;border-bottom:1.5px solid #e6dfd1}
+.pch{font:600 8pt system-ui,sans-serif;letter-spacing:1.6px;text-transform:uppercase;color:${R};margin-bottom:2mm}
+.ptitle{display:flex;align-items:center;gap:4mm}
+.pnum{flex:none;width:11mm;height:11mm;border-radius:50%;background:${A};color:#fff!important;display:flex;align-items:center;justify-content:center;font:700 13pt/1 system-ui,sans-serif;text-align:center}
+.ptitle h1{font:700 22pt/1.15 system-ui,sans-serif;margin:0;letter-spacing:-.3px;color:#15191a}
+.pgoal{margin:3mm 0 0;padding-left:4mm;border-left:3px solid ${A};font-style:italic;color:#4d5553;font-size:11pt}
+/* body */
+.lesson .lp{font-size:10.5pt;line-height:1.6;margin:0 0 3mm;text-align:justify;hyphens:auto}
+.lesson h3{font:700 12.5pt system-ui,sans-serif;color:${A};break-after:avoid;margin:6mm 0 2mm}
 .lex,.ltry,.lkey,.lvis,.dchords{break-inside:avoid}
-.lex{background:#f4f1ea;margin:8px 0;padding:8px 12px}
-.lrow{padding:5px 0;border-bottom-color:#e2dccf}
-.lvis .qkeys{max-width:360px}.lvis .qboard{max-height:190px;width:auto;max-width:100%}
-.diagwrap svg.big{width:150px;height:auto}
-.lgoal{font-size:11pt}
-.lhead{display:block}
-.pcover{padding-top:4mm}
-.pmark{display:flex;align-items:center;gap:10px;font-size:22pt;font-weight:700;color:#0d6b61}.pmark svg{width:34px;height:34px}
-.pcover h1{font-size:28pt;margin:6mm 0 2mm;letter-spacing:-.5px}
-.psub{font-size:11.5pt;color:#555;margin:0 0 7mm;max-width:150mm}
-.pcover h2{font-size:13pt;text-transform:uppercase;letter-spacing:1.2px;color:#0d6b61;margin:0 0 4mm}
-.ptoc{columns:2;column-gap:10mm;padding-left:6mm;margin:0;font-size:9.5pt;line-height:1.3}
-.ptoc li{break-inside:avoid;margin:0 0 1.5mm}.ptoc li b{display:block;font-size:9.5pt}.ptoc li span{color:#666;font-size:8pt;line-height:1.25;display:block}
-.phint{margin-top:6mm;color:#666;font-size:9.5pt}
+.lkey{break-before:avoid-page}
+.lex{background:#fff;border:1px solid #e3dccd;border-radius:3mm;margin:3mm 0 4mm;padding:3mm 4mm}
+.lex .lrow{padding:1.5mm 0;border-bottom:1px solid #eee7da}
+.lex .lrow:last-child{border-bottom:0}
+.lrow b{font:600 10pt system-ui,sans-serif}
+.lrow small{font:8.5pt system-ui,sans-serif;color:#7a7f7a}
+.lrow > span{font:9pt system-ui,sans-serif}
+.lvis{padding:2mm 0 0}
+.lvis .qkeys{max-width:330px}.lvis .qboard{max-height:170px;width:auto;max-width:100%}
+.diagwrap svg.big{width:140px;height:auto}
+.notes,.lchips{font-family:system-ui,sans-serif}
+.ltab{font-size:9pt;background:#f7f4ee}
+.ltry{background:#e5f1ee;border:0;border-radius:3mm;padding:3.5mm 5mm;margin:4mm 0;font-size:10.5pt}
+.lkey{background:#fbf1ea;border:0;border-radius:3mm;padding:3.5mm 5mm;margin:5mm 0 0;font-size:10.5pt}
+.ltry .lbl,.lkey .lbl{font:700 8pt system-ui,sans-serif;letter-spacing:1.4px;text-transform:uppercase;margin:0 0 1.5mm}
+.ltry .lbl{color:${A}}.lkey .lbl{color:${R}}
+.ltry .lbl::before{content:"✎  "}.lkey .lbl::before{content:"★  "}
+.lkey ul{padding-left:5mm;margin:0}.lkey li{margin:1mm 0}
+/* cover */
+.pcover{height:297mm;display:flex;flex-direction:column;break-after:page;font-family:system-ui,sans-serif;overflow:hidden}
+.pcband{background:linear-gradient(135deg,#0d6b61 0%,#2f6a5a 45%,#8a5a3a 80%,#c4552a 100%);color:#fff;padding:30mm 20mm 18mm;flex:none;min-height:175mm;box-sizing:border-box;display:flex;flex-direction:column}
+.pmark{display:flex;align-items:center;gap:3mm;font:700 16pt system-ui,sans-serif;opacity:.95}.pmark svg{width:9mm;height:9mm;color:#fff}
+.pcband h1{font:800 52pt/1 system-ui,sans-serif;letter-spacing:-1.4px;margin:22mm 0 5mm}
+.psub{font-size:14pt;margin:0;max-width:150mm;opacity:.92;line-height:1.35}
+.pneck{margin-top:auto}.pneck svg{width:100%;height:auto;display:block}
+.pcbody{flex:1;display:flex;gap:12mm;padding:14mm 20mm 0}
+.pcintro{flex:1.3;font:10.5pt/1.6 "Noto Serif",Georgia,serif;color:#333}
+.pcintro .phint{font:9pt system-ui,sans-serif;color:#777;margin-top:4mm}
+.pcinside{flex:1;list-style:none;margin:0;padding:0;font-size:10pt}
+.pcinside li{display:flex;justify-content:space-between;border-bottom:1px solid #e6dfd1;padding:2mm 0}
+.pcinside li span{color:${R};font-weight:700}
+.pcfoot{padding:0 20mm 12mm;font-size:8.5pt;color:#9a958a}
+/* contents */
+.ptocpage{break-after:page;font-family:system-ui,sans-serif}
+.ptocpage h2{font:800 26pt system-ui,sans-serif;margin:0 0 5mm;color:#15191a}
+.ptcols{columns:2;column-gap:8mm}.ptchap{break-inside:avoid;margin-bottom:3mm}
+.ptchap h3{font:700 8.5pt system-ui,sans-serif;letter-spacing:1.6px;text-transform:uppercase;color:${R};margin:0 0 1.5mm;padding-bottom:1mm;border-bottom:1px solid #e6dfd1}
+.ptrow{display:flex;gap:2.6mm;align-items:flex-start;padding:.35mm 0}
+.ptrow .pnum{width:6.5mm;height:6.5mm;font-size:8.5pt;margin-top:.3mm;color:#fff!important}
+.ptrow > div b{display:block;font-size:9.5pt;line-height:1.3;color:#15191a}.ptrow > div span{display:block;font-size:7.6pt;color:#7a7f7a;line-height:1.22}
 </style></head><body><div class="pdoc">${cover}${tmp.innerHTML}</div></body></html>` };
 }
 function printLessons(only) {
