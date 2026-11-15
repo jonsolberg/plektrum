@@ -72,9 +72,9 @@ holds the last note for a moment after it fades.
   tunings). One idea at a time, with piano, guitar-neck and sheet-music examples you can play (notes, dots,
   chords and strum arrows light up as they sound), a "Try it" exercise, a "Remember" summary and links to
   the matching quiz or tool
-- Print the lessons or save them as a nicely laid-out A4 book – cover, contents in seven chapters and
-  all 40 lessons, or just the one you are reading (uses Android's print screen, which has "Save as
-  PDF"). See the [sample PDF](docs/plektrum-music-theory.pdf)
+- Save the lessons as a nicely laid-out A4 PDF book – cover, contents in seven chapters and all 40
+  lessons, or just the one you are reading. It goes straight to Downloads and opens in your PDF viewer,
+  ready to print or share. See the [sample PDF](docs/plektrum-music-theory.pdf)
 - Metronome in 2/4 to 12/8 plus 5/8 and 7/8 (with groupings such as 2 + 2 + 3), subdivisions, swing,
   tap tempo and accent patterns for syncopation (backbeat, offbeats, Charleston, tresillo, son/rumba/
   bossa clave, shuffle, gallop) – tap any step to accent, soften or silence it
