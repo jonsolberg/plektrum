@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.22';
+const VERSION = '1.23';
 const REPO = 'https://github.com/jonsolberg/guitarchords';
 
 const store = {
@@ -356,52 +356,103 @@ function parseNoteName(n) {
   const li = 'CDEFGAB'.indexOf(m[1]), oct = +m[3], acc = m[2] === '#' || m[2] === '♯' ? 1 : m[2] ? -1 : 0;
   return { step: oct * 7 + li, midi: 12 * (oct + 1) + [0, 2, 4, 5, 7, 9, 11][li] + acc, acc };
 }
-/** items: {n:'C4', d:'q', dot, label} | {r:'q'} (rest) | {bar:true}; opt: {time:'4/4', labels} */
+/**
+ * Sheet music. items: {n:'C4', d:'q', dot, label, hl} | {r:'q', dot} (rest) | {bar:true}
+ * opt: {time:'4/4', labels (note names), count: true | 'and' (beat numbers), bars (length bars),
+ *       unit (px per beat), lines / spaces (highlight the lines or the spaces)}
+ * Notes are spaced by their length, so a half note really takes two beats of room.
+ */
 function staffSvg(items, opt = {}) {
-  const sp = 9, top = 26, bot = top + 4 * sp, H = bot + (opt.labels ? 44 : 30);
+  const sp = 9, top = 22, bot = top + 4 * sp, unit = opt.unit || 30;
   const yOf = step => bot - (step - 30) * sp / 2;            // E4 (step 30) on the bottom line
-  let x = 47, body = '';
-  if (opt.time) { const [a, b] = opt.time.split('/'); body += `<text x="${x + 6}" y="${top + sp * 1.55}" font-size="17" font-weight="800" text-anchor="middle" fill="currentColor" font-family="system-ui,sans-serif">${a}</text><text x="${x + 6}" y="${top + sp * 3.6}" font-size="17" font-weight="800" text-anchor="middle" fill="currentColor" font-family="system-ui,sans-serif">${b}</text>`; x += 22; }
-  x += 6;
-  items.forEach((it, i) => {
-    if (it.bar) { body += `<line x1="${x}" x2="${x}" y1="${top}" y2="${bot}" stroke="currentColor" stroke-width="1.2"/>`; x += 14; return; }
+  const per = opt.time ? +opt.time.split('/')[0] : 4;
+  // layout
+  let x = opt.time ? 70 : 50, t = 0, minStep = 30, maxStep = 38, lowY = bot, highY = top;
+  const laid = items.map(it => {
+    if (it.bar) { const o = { bar: true, x: x + 2 }; x += 14; return o; }
     const beats = (DUR_BEATS[it.d || it.r] || 1) * (it.dot ? 1.5 : 1);
-    const adv = 22 + Math.min(4, beats) * 7;
-    let g = `<g class="sn" data-i="${i}">`;
-    if (it.r) {
-      const cy = top + 2 * sp;
-      if (it.r === 'w') g += `<rect x="${x - 6}" y="${top + sp}" width="12" height="${sp / 2}" fill="currentColor"/>`;
-      else if (it.r === 'h') g += `<rect x="${x - 6}" y="${top + 1.5 * sp}" width="12" height="${sp / 2}" fill="currentColor"/>`;
-      else if (it.r === 'q') g += `<path d="M${x - 3} ${cy - 13} l6 7 l-5 5 l5 6 c-4 -2 -7 0 -3 5 c-7 -3 -6 -9 0 -8 l-6 -7 l5 -5 z" fill="currentColor"/>`;
-      else g += `<circle cx="${x - 2}" cy="${cy - 3}" r="2.6" fill="currentColor"/><path d="M${x - 2} ${cy - 1} q4 1 6 -3 l-6 15" fill="none" stroke="currentColor" stroke-width="1.6"/>`;
-      if (it.dot) g += `<circle cx="${x + 9}" cy="${cy}" r="1.8" fill="currentColor"/>`;
-    } else {
-      const p = parseNoteName(it.n), y = yOf(p.step), hollow = it.d === 'w' || it.d === 'h';
-      for (let st = 28; st >= p.step; st -= 2) if (st < 30) g += `<line x1="${x - 9}" x2="${x + 9}" y1="${yOf(st)}" y2="${yOf(st)}" stroke="currentColor" stroke-width="1"/>`;
-      for (let st = 40; st <= p.step; st += 2) g += `<line x1="${x - 9}" x2="${x + 9}" y1="${yOf(st)}" y2="${yOf(st)}" stroke="currentColor" stroke-width="1"/>`;
-      if (p.acc) g += `<text x="${x - 12}" y="${y + 4.5}" font-size="14" text-anchor="middle" fill="currentColor">${p.acc > 0 ? '♯' : '♭'}</text>`;
-      g += `<ellipse class="snh" cx="${x}" cy="${y}" rx="${hollow ? 5.6 : 5.2}" ry="3.9" transform="rotate(-20 ${x} ${y})" fill="${hollow ? 'none' : 'currentColor'}" stroke="currentColor" stroke-width="${hollow ? 1.8 : 1}"/>`;
-      if (it.d !== 'w') {
-        const up = p.step < 34, sx = up ? x + 4.9 : x - 4.9, sy2 = up ? y - 30 : y + 30;
-        g += `<line x1="${sx}" x2="${sx}" y1="${y}" y2="${sy2}" stroke="currentColor" stroke-width="1.3"/>`;
-        const flags = it.d === 'e' ? 1 : it.d === 's' ? 2 : 0;
-        for (let k = 0; k < flags; k++) { const fy = sy2 + (up ? k * 7 : -k * 7); g += `<path d="M${sx} ${fy} q${up ? 9 : 9} ${up ? 7 : -7} ${up ? 6 : 6} ${up ? 18 : -18}" fill="none" stroke="currentColor" stroke-width="1.6"/>`; }
-      }
-      if (it.dot) g += `<circle cx="${x + 9}" cy="${y - ((p.step - 30) % 2 === 0 ? sp / 2 : 0)}" r="1.8" fill="currentColor"/>`;
-      if (opt.labels) g += `<text x="${x}" y="${bot + 32}" font-size="11" font-weight="700" text-anchor="middle" class="snl" fill="currentColor" font-family="system-ui,sans-serif">${it.label != null ? it.label : nn(p.midi, p.acc < 0 ? 'f' : p.acc > 0 ? 's' : undefined)}</text>`;
+    const p = it.n ? parseNoteName(it.n) : null;
+    if (p) {
+      minStep = Math.min(minStep, p.step); maxStep = Math.max(maxStep, p.step);
+      const y = yOf(p.step), stem = it.d !== 'w', down = p.step >= 34;
+      lowY = Math.max(lowY, y + 5, stem && down ? y + 31 : 0); highY = Math.min(highY, y - 5, stem && !down ? y - 31 : 1e9);
     }
-    body += g + '</g>';
-    x += adv;
+    const o = { it, p, beats, t, x: x + 9 + (p && p.acc ? 6 : 0) };
+    x += Math.max(opt.minW || 13, beats * unit) + (p && p.acc ? 6 : 0); t += beats;
+    return o;
   });
-  const W = Math.max(x + 6, 200);
-  let g = `<svg class="qstaff" viewBox="0 0 ${W} ${H}" style="width:${Math.round(W * 1.15)}px" xmlns="http://www.w3.org/2000/svg">`;
-  for (let k = 0; k < 5; k++) g += `<line x1="4" x2="${W - 2}" y1="${top + k * sp}" y2="${top + k * sp}" stroke="currentColor" stroke-opacity=".55" stroke-width="1"/>`;
+  const W = x + 8;
+  const yLow = Math.max(bot, lowY) + 4, yTop = Math.min(top - 8, highY - 4);
+  const nameY = yLow + 18, countY = nameY + (opt.labels ? 16 : 0), barY = countY + 7;
+  const H = (opt.bars ? barY + 10 : opt.count ? countY + 8 : opt.labels ? nameY + 8 : yLow + 10) - yTop + 4;
+  const oy = -yTop + 4;
+  let g = `<svg class="qstaff" viewBox="0 ${-oy} ${W} ${H}" style="width:${Math.round(W * 1.15)}px" xmlns="http://www.w3.org/2000/svg">`;
+  for (let k = 0; k < 5; k++) g += `<line x1="4" x2="${W - 2}" y1="${top + k * sp}" y2="${top + k * sp}" stroke="${opt.lines ? 'var(--accent)' : 'currentColor'}" stroke-opacity="${opt.lines ? 1 : 0.55}" stroke-width="${opt.lines ? 1.4 : 1}"/>`;
+  if (opt.spaces) for (let k = 0; k < 4; k++) g += `<rect x="40" y="${top + k * sp + 1.5}" width="${W - 44}" height="${sp - 3}" rx="2" fill="var(--accent)" fill-opacity=".16"/>`;
   g += `<line x1="${W - 2}" x2="${W - 2}" y1="${top}" y2="${bot}" stroke="currentColor" stroke-width="1.6"/>`;
-  // treble clef: a spiral round the G line, a loop above the staff and a tail below
+  // treble clef
   const gy = yOf(32), cx = 20;
-  g += `<path d="M${cx + 3} ${gy + 2} c0 -5 -8 -5 -8 1 c0 7 12 8 13 -1 c1 -9 -9 -13 -15 -7 c-6 6 -4 19 7 21 c10 2 16 -9 9 -27 c-4 -10 -4 -22 1 -29 c4 -5 8 -1 6 6 c-2 8 -12 14 -12 25 l5 34 c1 6 -7 9 -10 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>`;
-  g += `<circle cx="${cx - 4}" cy="${gy + 39}" r="3.3" fill="currentColor"/>`;
-  return g + body + '</svg>';
+  g += `<path d="M${cx + 3} ${gy + 2} c0 -5 -8 -5 -8 1 c0 7 12 8 13 -1 c1 -9 -9 -13 -15 -7 c-6 6 -4 19 7 21 c10 2 16 -9 9 -27 c-4 -10 -4 -22 1 -29 c4 -5 8 -1 6 6 c-2 8 -12 14 -12 25 l5 34 c1 6 -7 9 -10 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="${cx - 4}" cy="${gy + 39}" r="3.3" fill="currentColor"/>`;
+  if (opt.time) { const [a, b2] = opt.time.split('/'); g += `<text x="${50}" y="${top + sp * 1.62}" font-size="17" font-weight="800" text-anchor="middle" fill="currentColor" font-family="system-ui,sans-serif">${a}</text><text x="${50}" y="${top + sp * 3.62}" font-size="17" font-weight="800" text-anchor="middle" fill="currentColor" font-family="system-ui,sans-serif">${b2}</text>`; }
+  // beams: pairs of eighth notes that start on a beat
+  const beamed = new Set();
+  laid.forEach((o, i) => {
+    const n = laid[i + 1];
+    if (o.p && n && n.p && o.it.d === 'e' && n.it.d === 'e' && !o.it.dot && !n.it.dot && Math.abs(o.t - Math.round(o.t)) < 1e-6) { beamed.add(i); beamed.add(i + 1); o.beamWith = n; }
+  });
+  laid.forEach((o, i) => {
+    if (o.bar) { g += `<line x1="${o.x}" x2="${o.x}" y1="${top}" y2="${bot}" stroke="currentColor" stroke-width="1.2"/>`; return; }
+    const it = o.it, X = o.x;
+    let e = `<g class="sn" data-i="${i}">`;
+    if (it.r) {
+      const mid = top + 2 * sp;
+      if (it.r === 'w') e += `<rect x="${X - 6}" y="${top + sp}" width="12" height="${sp * 0.55}" fill="currentColor"/>`;
+      else if (it.r === 'h') e += `<rect x="${X - 6}" y="${mid - sp * 0.55}" width="12" height="${sp * 0.55}" fill="currentColor"/>`;
+      else if (it.r === 'q') e += `<path d="M${X - 2} ${mid - 15} l6 7.5 q-4 3 -3 7 l5 6.5 q-5 -2 -6 2 q0 3 3 5 q-8 -2 -6 -8 q2 -3 5 -1 l-6 -7 q4 -3 3 -7 z" fill="currentColor"/>`;
+      else e += `<circle cx="${X - 3}" cy="${mid - 4}" r="2.4" fill="currentColor"/><path d="M${X - 4} ${mid - 2.5} q4 2 7 -3 l-5 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>`;
+      if (it.dot) e += `<circle cx="${X + 10}" cy="${mid - sp / 2}" r="1.8" fill="currentColor"/>`;
+      if (opt.labels && it.label != null) e += `<text x="${X}" y="${nameY}" font-size="11" font-weight="700" text-anchor="middle" fill="currentColor" font-family="system-ui,sans-serif">${typeof it.label === 'string' ? it.label : L(it.label)}</text>`;
+    } else {
+      const p = o.p, y = yOf(p.step), hollow = it.d === 'w' || it.d === 'h';
+      for (let st = 28; st >= p.step; st -= 2) e += `<line x1="${X - 9}" x2="${X + 9}" y1="${yOf(st)}" y2="${yOf(st)}" stroke="currentColor" stroke-width="1.1"/>`;
+      for (let st = 40; st <= p.step; st += 2) e += `<line x1="${X - 9}" x2="${X + 9}" y1="${yOf(st)}" y2="${yOf(st)}" stroke="currentColor" stroke-width="1.1"/>`;
+      if (p.acc) e += `<text x="${X - 13}" y="${y + 5}" font-size="15" text-anchor="middle" fill="currentColor">${p.acc > 0 ? '♯' : '♭'}</text>`;
+      const col = it.hl ? 'var(--root)' : 'currentColor';
+      e += `<ellipse cx="${X}" cy="${y}" rx="${hollow ? 5.7 : 5.3}" ry="3.9" transform="rotate(-20 ${X} ${y})" fill="${hollow ? 'none' : col}" stroke="${col}" stroke-width="${hollow ? 1.9 : 1}"/>`;
+      if (it.d !== 'w') {
+        let up = p.step < 34;
+        if (beamed.has(i)) { const pair = o.beamWith || laid[i - 1]; up = (p.step + pair.p.step) / 2 < 34; }
+        const sx = up ? X + 5 : X - 5, sy2 = up ? y - 30 : y + 30;
+        if (beamed.has(i)) {
+          const a2 = o.beamWith ? o : laid[i - 1], b3 = o.beamWith ? o.beamWith : o;
+          const ya = yOf(a2.p.step), yb = yOf(b3.p.step);
+          const uu = (a2.p.step + b3.p.step) / 2 < 34;
+          const ly = uu ? Math.min(ya, yb) - 30 : Math.max(ya, yb) + 30;
+          e += `<line x1="${sx}" x2="${sx}" y1="${y}" y2="${ly}" stroke="${col}" stroke-width="1.3"/>`;
+          if (o.beamWith) { const sx2 = uu ? b3.x + 5 : b3.x - 5; e += `<line x1="${sx}" x2="${sx2}" y1="${ly}" y2="${ly}" stroke="currentColor" stroke-width="4.2"/>`; }
+        } else {
+          e += `<line x1="${sx}" x2="${sx}" y1="${y}" y2="${sy2}" stroke="${col}" stroke-width="1.3"/>`;
+          const flags = it.d === 'e' ? 1 : it.d === 's' ? 2 : 0;
+          for (let k = 0; k < flags; k++) { const fy = sy2 + (up ? k * 7 : -k * 7); e += `<path d="M${sx} ${fy} q9 ${up ? 7 : -7} 6 ${up ? 18 : -18}" fill="none" stroke="currentColor" stroke-width="1.7"/>`; }
+        }
+      }
+      if (it.dot) e += `<circle cx="${X + 10}" cy="${y - ((p.step - 30) % 2 === 0 ? sp / 2 : 0)}" r="1.9" fill="currentColor"/>`;
+      if (opt.labels) e += `<text x="${X}" y="${nameY}" font-size="11" font-weight="700" text-anchor="middle" fill="${it.hl ? 'var(--root)' : 'currentColor'}" font-family="system-ui,sans-serif">${it.label != null ? (typeof it.label === 'string' ? it.label : L(it.label)) : nn(p.midi, p.acc < 0 ? 'f' : p.acc > 0 ? 's' : undefined)}</text>`;
+    }
+    if (opt.bars) e += `<rect x="${X - 6}" y="${barY}" width="${Math.max(6, o.beats * unit - 6)}" height="5" rx="2.5" fill="${it.r ? 'none' : 'var(--accent)'}" stroke="${it.r ? 'var(--muted)' : 'none'}" stroke-dasharray="${it.r ? '3 2' : ''}" fill-opacity=".85"/>`;
+    g += e + '</g>';
+    // the count: every beat (and "&") under the note or rest; held beats are greyed
+    if (opt.count) {
+      const step = opt.count === 'and' ? 0.5 : 1;
+      for (let k = 0; k < o.beats - 1e-6; k += step) {
+        const at = o.t + k, inBar = ((at % per) + per) % per, whole = Math.abs(inBar - Math.round(inBar)) < 1e-6;
+        const txt = whole ? String(Math.round(inBar) + 1) : '&';
+        const held = k > 0 || !!it.r;
+        g += `<text class="scn" data-at="${at}" x="${X + k * unit}" y="${countY}" font-size="${whole ? 12 : 10.5}" font-weight="${held ? 500 : 800}" text-anchor="middle" fill="${held ? 'var(--muted)' : 'currentColor'}" font-family="system-ui,sans-serif">${txt}</text>`;
+      }
+    }
+  });
+  return g + '</svg>';
 }
 /** keep lesson fretboards at a sensible height whatever their number of frets */
 function lessonBoardScale(fz) { const F = clamp(Math.max(...fz.dots.map(d => d[1])) + 1, 5, 15), H = 20 + 34 * 5 + 26; return Math.min(1.35, 170 / H) * (F >= 9 ? 1.5 : 1); }
@@ -2832,6 +2883,7 @@ const Practice = {
         mark(q(`.sn[data-i="${i}"]`), now + tt);
         tt += len;
       });
+      (box ? box.querySelectorAll('.scn') : []).forEach(el => mark(el, now + +el.dataset.at * beat));
     } else if (b.strum) {
       const [, pat, name, bpm] = b.strum[k], p = parseChord(name || 'G'), vv = p && voicings(p.r, p.t, p.b, CHORD_INSTS[0])[0];
       const step = 60 / (bpm || 90) / 2, bars = 2;
