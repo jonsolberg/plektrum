@@ -196,6 +196,8 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .mstep.l1 i{height:34%;opacity:.55}
 .mstep.l0 i{height:0}
 .mstep.on{outline:3px solid var(--ink);outline-offset:1px}
+.btn.flash{animation:tapflash .35s ease-out}
+@keyframes tapflash{0%,35%{background:var(--accent);color:var(--on-accent);transform:scale(.96)}100%{background:var(--card2);color:var(--ink);transform:none}}
 .row.tempo{flex-wrap:nowrap;gap:6px}
 .row.tempo .btn{min-width:0;padding:0 9px;flex:none}
 .row.tempo input{min-width:60px}

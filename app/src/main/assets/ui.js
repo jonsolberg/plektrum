@@ -1632,6 +1632,8 @@ const Metro = {
         if (this.clock.running) this.clock.stop(); else this.clock.start(this.m.bpm);
         keepAwake(); Practice.render(); break;
       case 'mtap': {
+        const btn = document.querySelector('[data-a=mtap]');
+        if (btn) { btn.classList.remove('flash'); void btn.offsetWidth; btn.classList.add('flash'); }
         const now = performance.now();
         this.taps = this.taps.filter(x => now - x < 2500);
         this.taps.push(now);
