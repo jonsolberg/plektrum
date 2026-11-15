@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.2';
+const VERSION = '1.3';
 const REPO = 'https://github.com/jonsolberg/guitarchords';
 
 const store = {
@@ -28,7 +28,7 @@ const saveS = () => store.set('settings', S);
 const STR = {
   en: {
     chords: 'Chords', studio: 'Studio', circle: 'Circle', scales: 'Scales', tuner: 'Tuner', practice: 'Practice',
-    search: 'Find a chord – Am7, C/G, F♯m7♭5 …', searchL: 'Search', favourites: 'Favourites', noFavs: 'Tap ☆ on a chord to keep it here.',
+    search: 'Find a chord – Am7, C/G, F♯m7♭5 …', searchL: 'Search', searchShort: 'Find chord', favourites: 'Favourites', noFavs: 'Tap ☆ on a chord to keep it here.',
     root: 'Root', type: 'Type', bass: 'Bass note', none: 'none', strum: 'Strum', arp: 'Arpeggio',
     fingering: 'Fingering {i} of {n}', atFret: 'from fret {n}', openPos: 'open position', noVoicing: 'No playable fingering for this one.',
     favAdded: 'Saved to favourites', favRemoved: 'Removed from favourites', swipe: 'swipe or tap the arrows for more', otherFing: 'Other fingerings', fingers: 'Fingers', bassShort: 'bass',
@@ -68,7 +68,7 @@ const STR = {
   },
   sv: {
     chords: 'Ackord', studio: 'Studio', circle: 'Kvintcirkel', scales: 'Skalor', tuner: 'Stämapparat', practice: 'Öva',
-    search: 'Sök ackord – Am7, C/G, F♯m7♭5 …', searchL: 'Sök', favourites: 'Favoriter', noFavs: 'Tryck på ☆ vid ett ackord för att spara det här.',
+    search: 'Sök ackord – Am7, C/G, F♯m7♭5 …', searchL: 'Sök', searchShort: 'Sök ackord', favourites: 'Favoriter', noFavs: 'Tryck på ☆ vid ett ackord för att spara det här.',
     root: 'Grundton', type: 'Typ', bass: 'Bastone', none: 'ingen', strum: 'Slag', arp: 'Arpeggio',
     fingering: 'Grepp {i} av {n}', atFret: 'från band {n}', openPos: 'öppet läge', noVoicing: 'Inget spelbart grepp för det här ackordet.',
     favAdded: 'Sparat bland favoriter', favRemoved: 'Borttaget från favoriter', swipe: 'svep eller tryck på pilarna för fler', otherFing: 'Fler grepp', fingers: 'Fingrar', bassShort: 'bas',
@@ -293,18 +293,11 @@ const Chords = {
     const posTxt = v ? (v.pos <= 1 && v.frets.some(f => f === 0) ? t('openPos') : t('atFret', { n: v.pos })) : '';
     $('#tab-chords').innerHTML = `
       <div class="card">
-        ${this.searching ? `
-        <div class="search row" style="flex-wrap:nowrap">
-          <input type="search" id="csearch" class="grow" placeholder="${esc(t('search'))}" autocomplete="off" autocapitalize="off" spellcheck="false">
-          <button class="iconbtn" data-a="searchClose" aria-label="close">${I.close}</button>
-          <div class="sugg" id="csugg"></div>
-        </div>` : `
         <div class="chordhead">
           <div class="grow" style="min-width:0"><div class="chordname">${cname(c.r, c.t, c.b)}</div>
           <div class="chordlong">${nn(c.r)} ${L(T)}${c.b != null ? ' / ' + nn(c.b) : ''}</div></div>
-          <button class="iconbtn" data-a="searchOpen" aria-label="${esc(t('searchL'))}">${I.search}</button>
           <button class="iconbtn star ${this.isFav() ? 'on' : ''}" data-a="fav" aria-label="favourite">${I.star}</button>
-        </div>`}
+        </div>
         ${v ? `
         <div class="diagwrap">
           <button class="iconbtn" data-a="vprev" ${c.v === 0 ? 'disabled style="opacity:.25"' : ''}>${I.left}</button>
@@ -337,7 +330,6 @@ const Chords = {
       </div>`;
     const th = $('#thumbs .thumb.on'), row = $('#thumbs');
     if (th) row.scrollLeft = th.offsetLeft - row.offsetLeft - (row.clientWidth - th.clientWidth) / 2;
-    if (this.searching) this.bindSearch();
     this.bindSwipe();
   },
 
@@ -379,8 +371,9 @@ const Chords = {
     }
     return out.slice(0, 8);
   },
+  /** Search field in the top bar: picking a chord opens it on the Chords tab. */
   bindSearch() {
-    const inp = $('#csearch'), box = $('#csugg');
+    const inp = $('#hsearch'), box = $('#hsugg');
     let list = [], hi = 0;
     const show = () => {
       list = this.suggestions(inp.value);
@@ -388,17 +381,22 @@ const Chords = {
       box.innerHTML = list.map((s, i) => `<button data-i="${i}" class="${i === hi ? 'hi' : ''}">${s.n}</button>`).join('');
       box.style.display = list.length ? 'block' : 'none';
     };
-    const pick = s => { this.searching = false; this.set({ r: s.r, t: s.t, b: s.b, v: 0 }, true); };
+    const pick = s => {
+      inp.value = ''; box.style.display = 'none'; inp.blur();
+      Object.assign(this.c, { r: s.r, t: s.t, b: s.b, v: 0 });
+      this.save();
+      if (S.tab !== 'chords') showTab('chords'); else { this.render(); window.scrollTo(0, 0); }
+      this.play();
+    };
     inp.addEventListener('input', show);
-    inp.addEventListener('keydown', e => { if (e.key === 'Enter' && list[hi]) pick(list[hi]); });
+    inp.addEventListener('focus', show);
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && list[hi]) pick(list[hi]);
+      else if (e.key === 'Escape') { inp.value = ''; inp.blur(); }
+    });
     box.addEventListener('mousedown', e => e.preventDefault());
     box.addEventListener('click', e => { const b = e.target.closest('button'); if (b) pick(list[+b.dataset.i]); });
-    inp.addEventListener('keydown', e => { if (e.key === 'Escape') { this.searching = false; this.render(); } });
-    inp.addEventListener('blur', () => setTimeout(() => {
-      box.style.display = 'none';
-      if (this.searching && !inp.value.trim()) { this.searching = false; this.render(); }
-    }, 200));
-    setTimeout(() => inp.focus(), 30);
+    inp.addEventListener('blur', () => setTimeout(() => { box.style.display = 'none'; }, 150));
   },
   bindSwipe() {
     const el = $('#bigdiag');
@@ -431,8 +429,6 @@ const Chords = {
       case 'strum': this.play('strum'); break;
       case 'arp': this.play('arp'); break;
       case 'fav': this.toggleFav(); break;
-      case 'searchOpen': this.searching = true; this.render(); break;
-      case 'searchClose': this.searching = false; this.render(); break;
       case 'openFav': { const f = this.favs[+v]; this.set({ r: f.r, t: f.t, b: f.b, v: f.v }, true); window.scrollTo({ top: 0, behavior: 'smooth' }); break; }
       default: return false;
     }
@@ -1861,6 +1857,8 @@ function applySettings() {
 function renderChrome() {
   $('#title').innerHTML = I.logo + 'Plektrum';
   $('#settingsBtn').innerHTML = I.settings;
+  $('#hsearch').placeholder = t('searchShort');
+  $('#hsearchIcon').innerHTML = I.search;
   $('#settingsBtn').setAttribute('aria-label', t('settings'));
   $('#nav').innerHTML = TABS.map(k => `<button data-tab="${k}" class="${S.tab === k ? 'on' : ''}">${I[k]}<span>${t('nav_' + k) !== 'nav_' + k ? t('nav_' + k) : t(k)}</span></button>`).join('');
 }
@@ -1912,6 +1910,7 @@ window.onAppPause = () => { if (Pitch.running) Tuner.stop(); Tuner.stopPipe(); }
 
 /* boot */
 Studio.init();
+Chords.bindSearch();
 if (!TABS.includes(S.tab)) S.tab = 'chords';
 applySettings();
 renderChrome();
