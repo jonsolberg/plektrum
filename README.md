@@ -15,6 +15,7 @@ Fully offline – no internet permission, no ads, no accounts. Everything lives 
   <img src="docs/screenshot-studio.png" width="200" alt="Studio">
   <img src="docs/screenshot-practice.png" width="200" alt="Quiz with explanation">
   <img src="docs/screenshot-lessons.png" width="200" alt="Music theory lesson with piano example">
+  <img src="docs/screenshot-listen.png" width="200" alt="Listen: chords found in a song, with key and Roman numerals">
 </p>
 
 ## What's inside
@@ -77,6 +78,14 @@ holds the last note for a moment after it fades.
   ready to print or share. See the [sample PDF](docs/plektrum-music-theory.pdf), also as an
   [e-book (EPUB)](docs/plektrum-music-theory.epub) for phones and e-readers
 - Lesson texts, mnemonics and tab follow the note-name setting: B (international) or H (Swedish/German)
+- **Listen (experimental):** play a song to the phone and Plektrum tries to work out
+  - the **chords** – live, with a chord chart, the likely key and Roman numerals (I–V–vi–IV); a repeating
+    progression can be sent straight to Studio to play along
+  - the **bass line** or a **melody / solo** – note names and tab, the scale it fits (e.g. A minor pentatonic,
+    one tap to show it on the neck) and playback
+
+  It listens through the microphone and runs entirely on the phone – nothing is recorded or sent anywhere.
+  It hears the whole sound, so loud vocals, drums and dense mixes confuse it: a starting point to check by ear.
 - Metronome in 2/4 to 12/8 plus 5/8 and 7/8 (with groupings such as 2 + 2 + 3), subdivisions, swing,
   tap tempo and accent patterns for syncopation (backbeat, offbeats, Charleston, tresillo, son/rumba/
   bossa clave, shuffle, gallop) – tap any step to accent, soften or silence it

@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.29';
+const VERSION = '1.30';
 const REPO = 'https://github.com/jonsolberg/plektrum';
 const KOFI = 'https://ko-fi.com/jonsolberg';
 
@@ -59,6 +59,16 @@ const STR = {
     sens: 'Sensitivity', sensD: 'Raise it for quiet acoustics, lower it in noisy rooms',
     grouping: 'Grouping', subdiv: 'Subdivision', swingD: 'Plays the off-beats late, like a shuffle', accentPat: 'Accent pattern',
     customPat: 'Custom', resetAcc: 'Reset accents', stepHint: 'Tap a step: normal → accent → soft → silent',
+    listenT: 'Listen', listenDesc: 'Play a song to the phone – get its chords, bass line or melody', lExp: 'Experimental',
+    lModeChords: 'Chords', lModeBass: 'Bass line', lModeMelody: 'Melody / solo', lStart: 'Start listening', lStop: 'Stop', lClear: 'Clear',
+    lWaiting: 'Play some music near the phone…', lQuiet: 'Too quiet – turn it up or move closer', lsKey: 'Key', lKeyGuess: 'probably',
+    lTimeline: 'Heard so far', lToProg: 'Open in Progressions', lSent: 'Sent to Progressions', lNotes: 'Notes heard', lFits: 'Fits',
+    lShowScale: 'Show scale', lPlayBack: 'Play back', lNone: 'Nothing yet',
+    lExpNote: 'Experimental: this guesses by listening to the whole sound, so it gets confused by loud vocals, drums and dense mixes. Use it as a starting point and check by ear. Everything stays on the phone – nothing is recorded or sent anywhere.',
+    lTipChords: 'Works best with one guitar or piano, or a song where the chords are clear. Hold the phone near the speaker.',
+    lTipBass: 'Listens to the lowest note. Works best when the bass is clear, or when you play the line yourself.',
+    lTipMelody: 'Listens for one note at a time – a solo, a sung melody or a riff. Works best when that part is the loudest.',
+    lMicDenied: 'Plektrum needs the microphone to listen.',
     learn: 'Music theory', learnDesc: 'Short lessons with examples you can play', lessonsN: '{n} lessons', lessonN: 'Lesson {n} of {of}', inListening: 'Listening to', inBuiltin: 'phone microphone', inUsb: 'USB input', inHeadset: 'headset / cable input', inBt: 'Bluetooth headset', inOther: 'external input', inDefault: 'default input', inNotUsed: '{d} is connected but not being used – choose it under Input below, or unplug and plug it in again with the tuner running.', inAuto: 'Automatic', inLabel: 'Input', inLabelD: 'Phone microphone or a cable (USB-C adapter)', inN: 'Input {n}', inSaved: 'Saved choice (not connected)', inNoMatch: 'This input could not be selected directly – Android uses a connected cable automatically.', lTry: 'Try it', lKey: 'Remember', lPiano: 'On the piano', lGuitar: 'On the guitar neck', lPrintAll: 'Save all lessons as PDF', lPrintOne: 'PDF', lPdfBusy: 'Creating PDF…', lPdfDone: 'Saved to Downloads: {f}', lPdfFail: 'Could not save the PDF – opening the print screen instead', lPdfTitle: 'Music theory', lPdfSub: '{n} lessons for string players – from tuning your guitar to CAGED and jazz chords', lPdfToc: 'Contents', lPdfHint: 'Every example can be played in the app: Practice → Music theory.', lPdfIntro: 'Music theory explained for guitarists and other string players – one idea at a time, with examples on the piano and the guitar neck, a short exercise and a summary in every lesson. No previous knowledge needed.', lPdfFoot: 'a toolbox for string players',
     metroDesc: 'Time signatures, subdivisions, accents', qWhichNote: 'Which note is marked?', qFindNote: 'Find {n} on string {k} ({s})',
     qDegree: 'What is the {d} of {k} major?', qScaleIs: '{k} major: {s}', qSig: 'How many sharps or flats in {k} major?',
@@ -109,6 +119,16 @@ const STR = {
     sens: 'Känslighet', sensD: 'Höj för tysta akustiska gitarrer, sänk i stökiga rum',
     grouping: 'Gruppering', subdiv: 'Underdelning', swingD: 'Spelar offbeat-slagen sent, som shuffle', accentPat: 'Betoningsmönster',
     customPat: 'Eget', resetAcc: 'Återställ betoningar', stepHint: 'Tryck på ett steg: normal → betonad → svag → tyst',
+    listenT: 'Lyssna', listenDesc: 'Spela en låt för telefonen – få ackorden, baslinjen eller melodin', lExp: 'Experimentell',
+    lModeChords: 'Ackord', lModeBass: 'Baslinje', lModeMelody: 'Melodi / solo', lStart: 'Börja lyssna', lStop: 'Stoppa', lClear: 'Rensa',
+    lWaiting: 'Spela musik nära telefonen…', lQuiet: 'För tyst – höj ljudet eller gå närmare', lsKey: 'Tonart', lKeyGuess: 'troligen',
+    lTimeline: 'Hört hittills', lToProg: 'Öppna i Ackordföljder', lSent: 'Skickat till Ackordföljder', lNotes: 'Hörda toner', lFits: 'Passar',
+    lShowScale: 'Visa skalan', lPlayBack: 'Spela upp', lNone: 'Inget än',
+    lExpNote: 'Experimentell: den gissar genom att lyssna på hela ljudet, så den blir förvirrad av starka sångröster, trummor och täta mixar. Se det som en startpunkt och kontrollera med örat. Allt stannar i telefonen – inget spelas in eller skickas någonstans.',
+    lTipChords: 'Fungerar bäst med en gitarr eller ett piano, eller en låt där ackorden hörs tydligt. Håll telefonen nära högtalaren.',
+    lTipBass: 'Lyssnar på den lägsta tonen. Fungerar bäst när basen hörs tydligt, eller när du spelar linjen själv.',
+    lTipMelody: 'Lyssnar efter en ton i taget – ett solo, en sjungen melodi eller ett riff. Fungerar bäst när den stämman hörs mest.',
+    lMicDenied: 'Plektrum behöver mikrofonen för att kunna lyssna.',
     learn: 'Musikteori', learnDesc: 'Korta lektioner med exempel du kan spela', lessonsN: '{n} lektioner', lessonN: 'Lektion {n} av {of}', inListening: 'Lyssnar på', inBuiltin: 'telefonens mikrofon', inUsb: 'USB-ingång', inHeadset: 'headset-/kabelingång', inBt: 'Bluetooth-headset', inOther: 'extern ingång', inDefault: 'standardingång', inNotUsed: '{d} är ansluten men används inte – välj den under Ingång nedan, eller dra ur och sätt i den igen medan stämapparaten är igång.', inAuto: 'Automatisk', inLabel: 'Ingång', inLabelD: 'Telefonens mikrofon eller en kabel (USB-C-adapter)', inN: 'Ingång {n}', inSaved: 'Sparat val (inte anslutet)', inNoMatch: 'Den här ingången kunde inte väljas direkt – Android använder en ansluten kabel automatiskt.', lTry: 'Prova', lKey: 'Kom ihåg', lPiano: 'På pianot', lGuitar: 'På gitarrhalsen', lPrintAll: 'Spara alla lektioner som PDF', lPrintOne: 'PDF', lPdfBusy: 'Skapar PDF…', lPdfDone: 'Sparad i Nedladdningar: {f}', lPdfFail: 'Kunde inte spara PDF:en – öppnar utskrift i stället', lPdfTitle: 'Musikteori', lPdfSub: '{n} lektioner för stränginstrument – från att stämma gitarren till CAGED och jazzackord', lPdfToc: 'Innehåll', lPdfHint: 'Alla exempel kan spelas i appen: Öva → Musikteori.', lPdfIntro: 'Musikteori förklarad för gitarrister och andra som spelar stränginstrument – en sak i taget, med exempel på pianot och gitarrhalsen, en kort övning och en sammanfattning i varje lektion. Inga förkunskaper behövs.', lPdfFoot: 'en verktygslåda för stränginstrument',
     metroDesc: 'Taktarter, underdelningar, betoningar', qWhichNote: 'Vilken ton är markerad?', qFindNote: 'Hitta {n} på sträng {k} ({s})',
     qDegree: 'Vilken ton är {d} i {k}-dur?', qScaleIs: '{k}-dur: {s}', qSig: 'Hur många förtecken har {k}-dur?',
@@ -182,7 +202,7 @@ function toast(msg) {
   toast.tm = setTimeout(() => el.classList.remove('on'), 1800);
 }
 function keepAwake() {
-  const on = Studio.clock.running || Metro.clock.running || Pitch.running || CircleTab.clock.running;
+  const on = Studio.clock.running || Metro.clock.running || Pitch.running || CircleTab.clock.running || (typeof Listen !== 'undefined' && Listen.running);
   if (AND && AND.keepAwake) AND.keepAwake(on);
 }
 function seg(name, opts, cur) {
@@ -2760,7 +2780,7 @@ const QUIZZES = {
     },
   },
 };
-const PRACTICE_ITEMS = ['learn', 'metro', 'chords', 'noteName', 'findNote', 'theory', 'intervals', 'chordEar'];
+const PRACTICE_ITEMS = ['learn', 'metro', 'listen', 'chords', 'noteName', 'findNote', 'theory', 'intervals', 'chordEar'];
 
 const QuizRun = {
   start(id) {
@@ -2838,12 +2858,13 @@ const Practice = {
   },
   /** back one screen (Android back button or the ‹ button) */
   pop() {
+    if (this.view === 'listen') Listen.stop();
     if (this.stack.length > 1) this.stack.pop();
     this.started = false;
     if (S.tab === 'practice') { this.render(); window.scrollTo(0, 0); }
   },
   toHub() { this.pop(); },
-  title(v) { return v === 'metro' ? t('metronome') : v === 'learn' ? t('learn') : v === 'lesson' ? L(LESSONS[this.lesson].title) : L(QUIZZES[v]); },
+  title(v) { return v === 'metro' ? t('metronome') : v === 'learn' ? t('learn') : v === 'listen' ? t('listenT') : v === 'lesson' ? L(LESSONS[this.lesson].title) : L(QUIZZES[v]); },
   backLabel() { const p = this.stack[this.stack.length - 2]; return p === 'hub' ? t('practice') : this.title(p); },
   render() {
     const el = $('#tab-practice');
@@ -2851,15 +2872,17 @@ const Practice = {
       const best = store.get('best', {});
       el.innerHTML = `<div class="ptiles">${PRACTICE_ITEMS.map(v => {
         const q = QUIZZES[v];
-        const icon = v === 'metro' ? I.practice : v === 'learn' ? I.book : I[q.icon];
-        const desc = v === 'metro' ? t('metroDesc') : v === 'learn' ? t('learnDesc') : L(q.d);
-        const sub = v === 'metro' ? (Metro.clock.running ? '● ' + Metro.m.bpm + ' BPM' : '') : v === 'learn' ? t('lessonsN', { n: LESSONS.length }) : (best[v] ? t('best', { b: best[v] }) : '');
+        const icon = v === 'metro' ? I.practice : v === 'learn' ? I.book : v === 'listen' ? I.mic : I[q.icon];
+        const desc = v === 'metro' ? t('metroDesc') : v === 'learn' ? t('learnDesc') : v === 'listen' ? t('listenDesc') : L(q.d);
+        const sub = v === 'metro' ? (Metro.clock.running ? '● ' + Metro.m.bpm + ' BPM' : '') : v === 'learn' ? t('lessonsN', { n: LESSONS.length })
+          : v === 'listen' ? (Listen.running ? '● ' + t('lStop') : `<span class="xbadge">${t('lExp')}</span>`) : (best[v] ? t('best', { b: best[v] }) : '');
         return `<button class="ptile" data-a="popen" data-v="${v}">${icon}<b>${this.title(v)}</b><span>${desc}</span>${sub ? `<em>${sub}</em>` : ''}</button>`;
       }).join('')}</div>`;
       return;
     }
     const head = `<div class="pback"><button class="btn small" data-a="pback">${I.left}${this.backLabel()}</button><b>${this.view === 'lesson' ? '' : this.title(this.view)}</b></div>`;
     if (this.view === 'metro') { el.innerHTML = head + Metro.html(); Metro.bind(); return; }
+    if (this.view === 'listen') { el.innerHTML = head + Listen.html(); Listen.bind(); return; }
     if (this.view === 'learn') {
       el.innerHTML = head + `<button class="btn lprint" data-a="lprint" data-v="all">${I.print}${t('lPrintAll')}</button><div class="lessons">${LESSON_CHAPTERS.map(c => `<div class="lchap">${L(c.t)}</div>` + c.ids.map(id => { const i = LESSONS.findIndex(l => l.id === id); return i < 0 ? '' : `<button class="lesson-item" data-a="lopen" data-v="${i}"><i>${i + 1}</i><b>${L(LESSONS[i].title)}</b>${I.right}</button>`; }).join('')).join('')}</div>`;
       return;
@@ -3054,6 +3077,243 @@ const Practice = {
 };
 
 /* =======================================================================
+   LISTEN (experimental) – chords, bass lines and melodies from the microphone
+   ======================================================================= */
+const LISTEN_SCALES = ['pmin', 'pmaj', 'blues', 'major', 'minor', 'dor', 'mix', 'harm'];
+const Listen = {
+  mode: store.get('listenMode', 'chords'),
+  running: false, stream: null, src: null, an: null, anLow: null, raf: 0, last: 0, lastDraw: 0,
+  cf: new ChordFinder(), nt: new NoteTracker(), db: -99, freqBuf: null, timeBuf: null, lowBuf: null, mag: null,
+  chroma: new Float64Array(12), bassC: new Float64Array(12), nsdf: null,
+
+  async start() {
+    if (this.running) return;
+    if (Pitch.running) { Tuner.stop(); Tuner.stopPipe(); }
+    const ctx = Snd.init();
+    if (ctx.state === 'suspended') await ctx.resume();
+    const audio = { echoCancellation: false, noiseSuppression: false, autoGainControl: false };
+    const dev = Tuner.resolveInput();
+    if (dev) audio.deviceId = { exact: dev };
+    try { this.stream = await navigator.mediaDevices.getUserMedia({ audio }); }
+    catch (e) {
+      try { delete audio.deviceId; this.stream = await navigator.mediaDevices.getUserMedia({ audio }); }
+      catch (e2) { toast(t('lMicDenied')); return; }
+    }
+    this.src = ctx.createMediaStreamSource(this.stream);
+    const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 30;
+    this.an = ctx.createAnalyser(); this.an.fftSize = 16384; this.an.smoothingTimeConstant = 0;
+    // the bass line is followed in a low-passed copy, so guitars and voices don't pull the pitch up
+    const lp1 = ctx.createBiquadFilter(), lp2 = ctx.createBiquadFilter();
+    lp1.type = lp2.type = 'lowpass'; lp1.frequency.value = lp2.frequency.value = 260;
+    this.anLow = ctx.createAnalyser(); this.anLow.fftSize = 8192;
+    this.src.connect(hp); hp.connect(this.an); hp.connect(lp1); lp1.connect(lp2); lp2.connect(this.anLow);
+    this.freqBuf = new Float32Array(this.an.frequencyBinCount);
+    this.mag = new Float64Array(this.an.frequencyBinCount);
+    this.timeBuf = new Float32Array(this.an.fftSize);
+    this.lowBuf = new Float32Array(this.anLow.fftSize);
+    this.nsdf = new Float32Array(Math.ceil(ctx.sampleRate / 28) + 4);
+    this.running = true; this.last = performance.now();
+    keepAwake();
+    const loop = () => { this.raf = requestAnimationFrame(loop); this.frame(); };
+    loop();
+    this.render();
+  },
+  stop() {
+    cancelAnimationFrame(this.raf);
+    if (this.src) this.src.disconnect();
+    if (this.stream) this.stream.getTracks().forEach(x => x.stop());
+    this.stream = this.src = this.an = this.anLow = null;
+    if (!this.running) return;
+    this.running = false;
+    this.cf.close();
+    this.nt.push(0, 0);
+    keepAwake();
+    if (S.tab === 'practice' && Practice.view === 'listen') this.render();
+  },
+  clear() { this.cf.reset(); this.nt.reset(); this.render(); },
+
+  frame() {
+    if (!this.an) return;
+    const now = performance.now(), dt = (now - this.last) / 1000;
+    if (dt < 0.045) return;                       // about 20 analyses a second is plenty
+    this.last = now;
+    const sr = Snd.ctx.sampleRate;
+    this.an.getFloatTimeDomainData(this.timeBuf);
+    let sum = 0;
+    for (let i = this.timeBuf.length - 4096; i < this.timeBuf.length; i++) sum += this.timeBuf[i] * this.timeBuf[i];
+    this.db = 20 * Math.log10(Math.sqrt(sum / 4096) + 1e-9);
+    if (this.mode === 'chords') {
+      this.an.getFloatFrequencyData(this.freqBuf);
+      for (let k = 0; k < this.freqBuf.length; k++) this.mag[k] = Math.pow(10, this.freqBuf[k] / 20);
+      Hear.chroma(this.mag, sr, this.an.fftSize, 65, 2100, this.chroma);
+      Hear.bass(this.mag, sr, this.an.fftSize, this.bassC);
+      this.cf.push(this.chroma, this.bassC, dt, this.db);
+    } else {
+      let r;
+      if (this.mode === 'bass') { this.anLow.getFloatTimeDomainData(this.lowBuf); r = Pitch.detect(this.lowBuf, sr, this.nsdf, 28); }
+      else r = Pitch.detect(this.timeBuf.subarray(this.timeBuf.length - 4096), sr, this.nsdf, 70);
+      const ok = r.freq && r.clarity > (this.mode === 'bass' ? 0.8 : 0.85) && (this.mode !== 'bass' || r.freq < 400);
+      this.nt.push(ok ? r.freq : 0, dt, this.db);   // the short full-band level shows new attacks best
+    }
+    if (now - this.lastDraw > 150) { this.lastDraw = now; this.draw(); }
+  },
+
+  /* ---------- results ---------- */
+  key() {
+    const segs = this.cf.timeline();
+    if (this.mode === 'chords' && segs.length >= 2) return Hear.keyFromChords(segs, this.cf.long)[0];
+    return null;
+  },
+  chordLabel(c) { return chordName(c.r, Math.max(0, typeIndex(c.sfx)), c.b); },
+  roman(c, k) {
+    const deg = (c.r - k.tonic + 12) % 12;
+    const R = ['I', '♭II', 'II', '♭III', 'III', 'IV', '♯IV', 'V', '♭VI', 'VI', '♭VII', 'VII'][deg];
+    const minor = /^m(?!aj)/.test(c.sfx), dim = c.sfx === 'dim';
+    return (minor || dim ? R.toLowerCase() : R) + (dim ? '°' : '') + (/7/.test(c.sfx) ? (c.sfx === 'maj7' ? 'maj7' : '7') : '');
+  },
+  keyName(k) { return nn(k.tonic, keySpell(k.tonic, k.minor)) + ' ' + (k.minor ? t('minor') : t('major')).toLowerCase(); },
+  notes() { return this.nt.all().filter(n => n.dur >= 0.06); },
+  fit(notes) {
+    if (notes.length < 4) return null;
+    const scales = LISTEN_SCALES.map(id => SCALES.find(x => x.id === id)).filter(Boolean);
+    return Hear.scaleFit(notes, scales)[0] || null;
+  },
+  tuning() { return this.mode === 'bass' ? [28, 33, 38, 43] : [40, 45, 50, 55, 59, 64]; },
+
+  /* ---------- screen ---------- */
+  html() {
+    const M = this.mode, tip = t(M === 'chords' ? 'lTipChords' : M === 'bass' ? 'lTipBass' : 'lTipMelody');
+    return `<div class="card listen">
+      <div class="lhead2"><span class="xbadge">${t('lExp')}</span>${seg('lmode', [['chords', t('lModeChords')], ['bass', t('lModeBass')], ['melody', t('lModeMelody')]], M)}</div>
+      <div class="lnow" id="lnow"></div>
+      <div class="lmeter"><i id="lmeter"></i></div>
+      <div class="row">
+        <button class="btn ${this.running ? '' : 'primary'} grow" data-a="lrun">${this.running ? I.stop + t('lStop') : I.mic + t('lStart')}</button>
+        <button class="btn" data-a="lclear">${I.trash}${t('lClear')}</button>
+      </div>
+      <p class="small muted" style="margin:10px 2px 0">${tip}</p>
+    </div>
+    <div id="lres"></div>
+    <p class="small muted lexp">${t('lExpNote')}</p>`;
+  },
+  render() {
+    if (!(S.tab === 'practice' && Practice.view === 'listen')) return;
+    Practice.render();
+  },
+  bind() { this.draw(); },
+
+  /** Updates the live parts without rebuilding the whole page. */
+  draw() {
+    const now = $('#lnow'), res = $('#lres'), meter = $('#lmeter');
+    if (!now || !res) return;
+    const level = clamp((this.db + 60) / 50, 0, 1);
+    if (meter) meter.style.width = (this.running ? level * 100 : 0) + '%';
+    const quiet = this.running && this.db < -55;
+    if (this.mode === 'chords') {
+      const c = this.cf.cur, k = this.key();
+      now.innerHTML = c ? `<b>${this.chordLabel(c)}</b>${k ? `<span>${this.roman(c, k)}</span>` : ''}`
+        : `<span class="muted">${this.running ? t(quiet ? 'lQuiet' : 'lWaiting') : t('lNone')}</span>`;
+      const segs = this.cf.timeline();
+      const sig = segs.map(x => x.r + x.sfx + (x.b == null ? '' : '/' + x.b)).join(',') + '|' + (c ? c.r + c.sfx : '') + '|' + (k ? k.tonic + ':' + k.minor : '');
+      if (sig === this._sig) return;
+      this._sig = sig;
+      const chart = c ? chordChart(c.r, Math.max(0, typeIndex(c.sfx)), CI()) : '';
+      res.innerHTML = (chart ? `<div class="card lchart">${chart}</div>` : '') + (segs.length ? `<div class="card">
+          ${k ? `<div class="lkeyl">${t('lsKey')}: <b>${this.keyName(k)}</b> <span class="muted">(${t('lKeyGuess')})</span></div>` : ''}
+          <div class="lbl">${t('lTimeline')}</div>
+          <div class="ltl">${segs.map((x, i) => `<button class="ltlc ${x.now ? 'on' : ''}" data-a="lchord" data-v="${i}"><b>${this.chordLabel(x)}</b>${k ? `<i>${this.roman(x, k)}</i>` : ''}</button>`).join('')}</div>
+          <div class="row" style="margin-top:10px"><button class="btn primary grow" data-a="lstudio">${I.send}${t('toStudio')}</button></div>
+        </div>` : '');
+    } else {
+      const notes = this.notes(), cur = this.nt.cur;
+      now.innerHTML = cur ? `<b>${nn(cur.ref % 12)}<sub>${Math.floor(cur.ref / 12) - 1}</sub></b>`
+        : `<span class="muted">${this.running ? t(quiet ? 'lQuiet' : 'lWaiting') : t('lNone')}</span>`;
+      const sig = notes.map(n => n.midi).join(',') + '|' + this.mode;
+      if (sig === this._sig) return;
+      this._sig = sig;
+      if (!notes.length) { res.innerHTML = ''; return; }
+      const shown = notes.slice(-24), tun = this.tuning();
+      const names = tun.map((m, i) => i === tun.length - 1 && this.mode !== 'bass' ? 'e' : nn(m % 12).replace('♭', 'b'));
+      const tab = Hear.tabText(Hear.toTab(shown, tun), names);
+      const f = this.fit(notes);
+      const sc = f && SCALES.find(x => x.id === f.id);
+      res.innerHTML = `<div class="card">
+          <div class="lbl">${t('lNotes')}</div>
+          <div class="lnotes">${shown.map(n => nn(n.midi % 12)).join(' ')}</div>
+          <pre class="ltab">${esc(tab)}</pre>
+          ${sc ? `<div class="lkeyl">${t('lFits')}: <b>${nn(f.root)} ${L(sc).toLowerCase()}</b></div>` : ''}
+          <div class="row" style="margin-top:10px">
+            <button class="btn grow" data-a="lplay">${I.play}${t('lPlayBack')}</button>
+            ${sc ? `<button class="btn grow" data-a="lscale">${I.scales}${t('lShowScale')}</button>` : ''}
+          </div>
+        </div>`;
+    }
+  },
+
+  seg(k, v) {
+    if (k !== 'lmode') return false;
+    if (this.mode === v) return true;
+    this.mode = v; store.set('listenMode', v);
+    this._sig = null;
+    this.cf.reset(); this.nt.reset();
+    this.render();
+    return true;
+  },
+  action(a, v) {
+    switch (a) {
+      case 'lrun': if (this.running) this.stop(); else this.start(); return true;
+      case 'lclear': this._sig = null; this.clear(); return true;
+      case 'lchord': {
+        const c = this.cf.timeline()[+v];
+        if (c) { const x = vfor({ r: c.r, t: Math.max(0, typeIndex(c.sfx)), b: null, v: 0 }); if (x) Snd.chord(x.frets, CI().n, 0); }
+        return true;
+      }
+      case 'lstudio': {
+        const segs = this.cf.timeline(), k = this.key() || { tonic: segs[0] ? segs[0].r : 0, minor: false };
+        // the last few chords, at most eight, without repeats next to each other
+        const list = [];
+        for (const x of segs) { const last = list[list.length - 1]; if (!last || last.r !== x.r || last.sfx !== x.sfx) list.push(x); }
+        // a progression that repeats is sent once: the shortest loop the chords follow
+        const same = (a, b) => a.r === b.r && a.sfx === b.sfx;
+        let loop = list;
+        for (let p = 2; p <= Math.min(8, Math.floor(list.length / 2) + 1); p++) {
+          if (list.length > p && list.every((x, i) => i < p || same(x, list[i - p]))) { loop = list.slice(0, p); break; }
+        }
+        const pick = loop.slice(-8);
+        if (!pick.length) return true;
+        if (Studio.clock.running) Studio.stop();
+        Studio.p.key = k.tonic; Studio.p.minor = k.minor;
+        Studio.p.slots = pick.map(x => ({ r: x.r, t: Math.max(0, typeIndex(x.sfx)), b: x.b, v: 0 }));
+        Studio.save();
+        this.stop();
+        toast(t('sentStudio'));
+        showTab('studio');
+        return true;
+      }
+      case 'lplay': {
+        const notes = this.notes().slice(-24);
+        if (!notes.length) return true;
+        Snd.setTimbre(this.mode === 'bass' ? 'bass' : 'guitar');
+        const t0 = Snd.now() + 0.1, s0 = notes[0].start;
+        notes.forEach(n => Snd.pluck(n.midi, t0 + Math.min(n.start - s0, 30)));
+        return true;
+      }
+      case 'lscale': {
+        const f = this.fit(this.notes());
+        if (!f) return true;
+        this.stop();
+        Scales.s.root = f.root; Scales.s.id = f.id; Scales.s.pos = -1;
+        if (this.mode === 'bass' && Scales.insts.some(x => x.id === 'bass')) Scales.s.inst = 'bass';
+        Scales.save();
+        showTab('scales');
+        return true;
+      }
+    }
+    return false;
+  },
+};
+
+/* =======================================================================
    SETTINGS
    ======================================================================= */
 function settingsHtml() {
@@ -3162,6 +3422,7 @@ function showTab(k) {
   tabScroll[S.tab] = window.scrollY;
   soundFor(k);
   if (S.tab === 'tuner' && k !== 'tuner') { if (Pitch.running) Tuner.stop(); Tuner.stopPipe(); }
+  if (S.tab === 'practice' && k !== 'practice') Listen.stop();
   S.tab = k; saveS();
   document.querySelectorAll('main > section').forEach(s => s.classList.toggle('on', s.id === 'tab-' + k));
   document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('on', b.dataset.tab === k));
@@ -3195,7 +3456,7 @@ document.addEventListener('click', e => {
   Snd.init();
   if (a === 'seg') {
     const k = el.dataset.k;
-    if (settingsSeg(k, v) || Studio.seg(k, v) || CircleTab.seg(k, v) || Scales.seg(k, v) || Tuner.seg(k, v) || Metro.seg(k, v)) return;
+    if (settingsSeg(k, v) || Listen.seg(k, v) || Studio.seg(k, v) || CircleTab.seg(k, v) || Scales.seg(k, v) || Tuner.seg(k, v) || Metro.seg(k, v)) return;
     return;
   }
   if (a === 'openRepo') {
@@ -3208,7 +3469,7 @@ document.addEventListener('click', e => {
     if (AND && AND.openUrl) AND.openUrl(KOFI); else window.open(KOFI, '_blank');
     return;
   }
-  Chords.action(a, v) || Studio.action(a, v) || CircleTab.action(a, v) || Scales.action(a, v) ||
+  Listen.action(a, v) || Chords.action(a, v) || Studio.action(a, v) || CircleTab.action(a, v) || Scales.action(a, v) ||
     Tuner.action(a, v) || Metro.action(a, v) || Practice.action(a, v);
 });
 document.addEventListener('visibilitychange', () => {
@@ -3218,7 +3479,7 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 
-window.onAppPause = () => { if (Pitch.running) Tuner.stop(); Tuner.stopPipe(); };
+window.onAppPause = () => { if (Pitch.running) Tuner.stop(); Tuner.stopPipe(); Listen.stop(); };
 
 /* boot */
 soundFor(S.tab);
