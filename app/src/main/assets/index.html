@@ -256,6 +256,8 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 
 /* practice */
 .lessons{display:flex;flex-direction:column;gap:8px}
+.lchap{font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--root);margin:14px 4px 2px}
+.lchap:first-child{margin-top:2px}
 .lesson-item{display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:var(--card);border-radius:16px;padding:12px 14px;cursor:pointer;text-align:left;box-shadow:var(--shadow)}
 .lesson-item i{font-style:normal;width:28px;height:28px;border-radius:14px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
 .lesson-item b{flex:1;font-size:15px}
@@ -316,6 +318,13 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .lprint{width:100%;margin:0 0 10px;display:flex;align-items:center;justify-content:center;gap:8px}.lprint svg{width:18px;height:18px}
 .lhead{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .lprint1{display:flex;align-items:center;gap:5px;padding:4px 10px}.lprint1 svg{width:15px;height:15px}
+.lstaff{color:var(--ink);overflow-x:auto;justify-content:flex-start}
+.qstaff{max-width:100%;height:auto;display:block;margin:0 auto}
+.qstaff .sn{transform-box:fill-box;transform-origin:center}
+.qstaff .sn.lon{animation:snl .5s ease-out}
+@keyframes snl{0%{color:var(--accent);fill:var(--accent);transform:scale(1.25)}100%{transform:none}}
+.qstaff .sn.lon *{animation:snc .5s ease-out}
+@keyframes snc{0%,50%{fill:var(--accent);stroke:var(--accent)}}
 .lgo{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
 .lnav{display:flex;gap:8px;margin-top:12px}
 .lnav .btn{flex:1;font-size:14px}

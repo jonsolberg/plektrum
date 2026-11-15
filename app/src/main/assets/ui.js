@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.21';
+const VERSION = '1.22';
 const REPO = 'https://github.com/jonsolberg/guitarchords';
 
 const store = {
@@ -58,7 +58,7 @@ const STR = {
     sens: 'Sensitivity', sensD: 'Raise it for quiet acoustics, lower it in noisy rooms',
     grouping: 'Grouping', subdiv: 'Subdivision', swingD: 'Plays the off-beats late, like a shuffle', accentPat: 'Accent pattern',
     customPat: 'Custom', resetAcc: 'Reset accents', stepHint: 'Tap a step: normal → accent → soft → silent',
-    learn: 'Music theory', learnDesc: 'Short lessons with examples you can play', lessonsN: '{n} lessons', lessonN: 'Lesson {n} of {of}', lTry: 'Try it', lKey: 'Remember', lPiano: 'On the piano', lGuitar: 'On the guitar neck', lPrintAll: 'Save all lessons as PDF', lPrintOne: 'PDF', lPdfBusy: 'Creating PDF…', lPdfDone: 'Saved to Downloads: {f}', lPdfFail: 'Could not save the PDF – opening the print screen instead', lPdfTitle: 'Music theory', lPdfSub: '{n} lessons for string players – from the twelve notes to the CAGED system', lPdfToc: 'Contents', lPdfHint: 'Every example can be played in the app: Practice → Music theory.', lPdfIntro: 'Music theory explained for guitarists and other string players – one idea at a time, with examples on the piano and the guitar neck, a short exercise and a summary in every lesson. No previous knowledge needed.', lPdfFoot: 'a toolbox for string players',
+    learn: 'Music theory', learnDesc: 'Short lessons with examples you can play', lessonsN: '{n} lessons', lessonN: 'Lesson {n} of {of}', lTry: 'Try it', lKey: 'Remember', lPiano: 'On the piano', lGuitar: 'On the guitar neck', lPrintAll: 'Save all lessons as PDF', lPrintOne: 'PDF', lPdfBusy: 'Creating PDF…', lPdfDone: 'Saved to Downloads: {f}', lPdfFail: 'Could not save the PDF – opening the print screen instead', lPdfTitle: 'Music theory', lPdfSub: '{n} lessons for string players – from tuning your guitar to CAGED and jazz chords', lPdfToc: 'Contents', lPdfHint: 'Every example can be played in the app: Practice → Music theory.', lPdfIntro: 'Music theory explained for guitarists and other string players – one idea at a time, with examples on the piano and the guitar neck, a short exercise and a summary in every lesson. No previous knowledge needed.', lPdfFoot: 'a toolbox for string players',
     metroDesc: 'Time signatures, subdivisions, accents', qWhichNote: 'Which note is marked?', qFindNote: 'Find {n} on string {k} ({s})',
     qDegree: 'What is the {d} of {k} major?', qScaleIs: '{k} major: {s}', qSig: 'How many sharps or flats in {k} major?',
     qRel: 'What is the relative minor of {k} major?', qRelEx: 'The relative minor starts on the 6th note of the major scale.',
@@ -107,7 +107,7 @@ const STR = {
     sens: 'Känslighet', sensD: 'Höj för tysta akustiska gitarrer, sänk i stökiga rum',
     grouping: 'Gruppering', subdiv: 'Underdelning', swingD: 'Spelar offbeat-slagen sent, som shuffle', accentPat: 'Betoningsmönster',
     customPat: 'Eget', resetAcc: 'Återställ betoningar', stepHint: 'Tryck på ett steg: normal → betonad → svag → tyst',
-    learn: 'Musikteori', learnDesc: 'Korta lektioner med exempel du kan spela', lessonsN: '{n} lektioner', lessonN: 'Lektion {n} av {of}', lTry: 'Prova', lKey: 'Kom ihåg', lPiano: 'På pianot', lGuitar: 'På gitarrhalsen', lPrintAll: 'Spara alla lektioner som PDF', lPrintOne: 'PDF', lPdfBusy: 'Skapar PDF…', lPdfDone: 'Sparad i Nedladdningar: {f}', lPdfFail: 'Kunde inte spara PDF:en – öppnar utskrift i stället', lPdfTitle: 'Musikteori', lPdfSub: '{n} lektioner för stränginstrument – från de tolv tonerna till CAGED-systemet', lPdfToc: 'Innehåll', lPdfHint: 'Alla exempel kan spelas i appen: Öva → Musikteori.', lPdfIntro: 'Musikteori förklarad för gitarrister och andra som spelar stränginstrument – en sak i taget, med exempel på pianot och gitarrhalsen, en kort övning och en sammanfattning i varje lektion. Inga förkunskaper behövs.', lPdfFoot: 'en verktygslåda för stränginstrument',
+    learn: 'Musikteori', learnDesc: 'Korta lektioner med exempel du kan spela', lessonsN: '{n} lektioner', lessonN: 'Lektion {n} av {of}', lTry: 'Prova', lKey: 'Kom ihåg', lPiano: 'På pianot', lGuitar: 'På gitarrhalsen', lPrintAll: 'Spara alla lektioner som PDF', lPrintOne: 'PDF', lPdfBusy: 'Skapar PDF…', lPdfDone: 'Sparad i Nedladdningar: {f}', lPdfFail: 'Kunde inte spara PDF:en – öppnar utskrift i stället', lPdfTitle: 'Musikteori', lPdfSub: '{n} lektioner för stränginstrument – från att stämma gitarren till CAGED och jazzackord', lPdfToc: 'Innehåll', lPdfHint: 'Alla exempel kan spelas i appen: Öva → Musikteori.', lPdfIntro: 'Musikteori förklarad för gitarrister och andra som spelar stränginstrument – en sak i taget, med exempel på pianot och gitarrhalsen, en kort övning och en sammanfattning i varje lektion. Inga förkunskaper behövs.', lPdfFoot: 'en verktygslåda för stränginstrument',
     metroDesc: 'Taktarter, underdelningar, betoningar', qWhichNote: 'Vilken ton är markerad?', qFindNote: 'Hitta {n} på sträng {k} ({s})',
     qDegree: 'Vilken ton är {d} i {k}-dur?', qScaleIs: '{k}-dur: {s}', qSig: 'Hur många förtecken har {k}-dur?',
     qRel: 'Vilken är parallelltonarten i moll till {k}-dur?', qRelEx: 'Parallelltonarten i moll börjar på durskalans sjätte ton.',
@@ -206,13 +206,13 @@ function blink(el) {
 }
 /** chapters of the theory course (for the printed book) */
 const LESSON_CHAPTERS = [
-  { t: T2('The basics', 'Grunderna'), ids: ['notes', 'intervals', 'neck'] },
-  { t: T2('Scales and keys', 'Skalor och tonarter'), ids: ['major', 'keys', 'minor'] },
-  { t: T2('Chords', 'Ackord'), ids: ['triads', 'inversions', 'arpeggios', 'sevenths'] },
-  { t: T2('Harmony and songs', 'Harmonik och låtar'), ids: ['diatonic', 'minorkeys', 'cadences', 'secondary', 'borrowed', 'blues12', 'findkey', 'capo'] },
-  { t: T2('Soloing', 'Solospel'), ids: ['pent', 'pentboxes', 'modes'] },
-  { t: T2('Rhythm', 'Rytm'), ids: ['rhythm', 'strumming'] },
-  { t: T2('On the guitar', 'På gitarren'), ids: ['charts', 'barre', 'power', 'caged', 'fingerpicking', 'techniques', 'tunings'] },
+  { t: T2('Getting started', 'Kom igång'), ids: ['tuning', 'charts', 'firstchords', 'strumming'] },
+  { t: T2('Notes and rhythm', 'Toner och rytm'), ids: ['notes', 'neck', 'rhythm', 'staff', 'notevalues', 'groove'] },
+  { t: T2('Scales and keys', 'Skalor och tonarter'), ids: ['intervals', 'major', 'keys', 'minor'] },
+  { t: T2('Chords', 'Ackord'), ids: ['triads', 'inversions', 'arpeggios', 'sevenths', 'power', 'barre'] },
+  { t: T2('Harmony and songs', 'Harmonik och låtar'), ids: ['diatonic', 'minorkeys', 'cadences', 'secondary', 'borrowed', 'blues12', 'findkey', 'capo', 'songform', 'byear'] },
+  { t: T2('Soloing', 'Solospel'), ids: ['pent', 'pentboxes', 'techniques', 'improv', 'modes'] },
+  { t: T2('Further on the guitar', 'Vidare på gitarren'), ids: ['caged', 'triadsneck', 'shell', 'fingerpicking', 'tunings'] },
 ];
 const chapterOf = id => LESSON_CHAPTERS.find(c => c.ids.includes(id));
 const stripMd = x => esc(L(x)).replace(/\*([^*]+)\*/g, '$1');
@@ -347,6 +347,61 @@ function printLessons(only) {
   if (!w) return;
   w.document.open(); w.document.write(doc.html); w.document.close();
   setTimeout(() => w.print(), 400);
+}
+/* ---------- sheet music (treble clef) for the lessons ---------- */
+const DUR_BEATS = { w: 4, h: 2, q: 1, e: 0.5, s: 0.25 };
+/** 'C4', 'F#4', 'Bb3', 'E♭5' → {step (diatonic, C0 = 0), midi, acc} */
+function parseNoteName(n) {
+  const m = /^([A-G])([#♯b♭]?)(-?\d)$/.exec(n); if (!m) return null;
+  const li = 'CDEFGAB'.indexOf(m[1]), oct = +m[3], acc = m[2] === '#' || m[2] === '♯' ? 1 : m[2] ? -1 : 0;
+  return { step: oct * 7 + li, midi: 12 * (oct + 1) + [0, 2, 4, 5, 7, 9, 11][li] + acc, acc };
+}
+/** items: {n:'C4', d:'q', dot, label} | {r:'q'} (rest) | {bar:true}; opt: {time:'4/4', labels} */
+function staffSvg(items, opt = {}) {
+  const sp = 9, top = 26, bot = top + 4 * sp, H = bot + (opt.labels ? 44 : 30);
+  const yOf = step => bot - (step - 30) * sp / 2;            // E4 (step 30) on the bottom line
+  let x = 47, body = '';
+  if (opt.time) { const [a, b] = opt.time.split('/'); body += `<text x="${x + 6}" y="${top + sp * 1.55}" font-size="17" font-weight="800" text-anchor="middle" fill="currentColor" font-family="system-ui,sans-serif">${a}</text><text x="${x + 6}" y="${top + sp * 3.6}" font-size="17" font-weight="800" text-anchor="middle" fill="currentColor" font-family="system-ui,sans-serif">${b}</text>`; x += 22; }
+  x += 6;
+  items.forEach((it, i) => {
+    if (it.bar) { body += `<line x1="${x}" x2="${x}" y1="${top}" y2="${bot}" stroke="currentColor" stroke-width="1.2"/>`; x += 14; return; }
+    const beats = (DUR_BEATS[it.d || it.r] || 1) * (it.dot ? 1.5 : 1);
+    const adv = 22 + Math.min(4, beats) * 7;
+    let g = `<g class="sn" data-i="${i}">`;
+    if (it.r) {
+      const cy = top + 2 * sp;
+      if (it.r === 'w') g += `<rect x="${x - 6}" y="${top + sp}" width="12" height="${sp / 2}" fill="currentColor"/>`;
+      else if (it.r === 'h') g += `<rect x="${x - 6}" y="${top + 1.5 * sp}" width="12" height="${sp / 2}" fill="currentColor"/>`;
+      else if (it.r === 'q') g += `<path d="M${x - 3} ${cy - 13} l6 7 l-5 5 l5 6 c-4 -2 -7 0 -3 5 c-7 -3 -6 -9 0 -8 l-6 -7 l5 -5 z" fill="currentColor"/>`;
+      else g += `<circle cx="${x - 2}" cy="${cy - 3}" r="2.6" fill="currentColor"/><path d="M${x - 2} ${cy - 1} q4 1 6 -3 l-6 15" fill="none" stroke="currentColor" stroke-width="1.6"/>`;
+      if (it.dot) g += `<circle cx="${x + 9}" cy="${cy}" r="1.8" fill="currentColor"/>`;
+    } else {
+      const p = parseNoteName(it.n), y = yOf(p.step), hollow = it.d === 'w' || it.d === 'h';
+      for (let st = 28; st >= p.step; st -= 2) if (st < 30) g += `<line x1="${x - 9}" x2="${x + 9}" y1="${yOf(st)}" y2="${yOf(st)}" stroke="currentColor" stroke-width="1"/>`;
+      for (let st = 40; st <= p.step; st += 2) g += `<line x1="${x - 9}" x2="${x + 9}" y1="${yOf(st)}" y2="${yOf(st)}" stroke="currentColor" stroke-width="1"/>`;
+      if (p.acc) g += `<text x="${x - 12}" y="${y + 4.5}" font-size="14" text-anchor="middle" fill="currentColor">${p.acc > 0 ? '♯' : '♭'}</text>`;
+      g += `<ellipse class="snh" cx="${x}" cy="${y}" rx="${hollow ? 5.6 : 5.2}" ry="3.9" transform="rotate(-20 ${x} ${y})" fill="${hollow ? 'none' : 'currentColor'}" stroke="currentColor" stroke-width="${hollow ? 1.8 : 1}"/>`;
+      if (it.d !== 'w') {
+        const up = p.step < 34, sx = up ? x + 4.9 : x - 4.9, sy2 = up ? y - 30 : y + 30;
+        g += `<line x1="${sx}" x2="${sx}" y1="${y}" y2="${sy2}" stroke="currentColor" stroke-width="1.3"/>`;
+        const flags = it.d === 'e' ? 1 : it.d === 's' ? 2 : 0;
+        for (let k = 0; k < flags; k++) { const fy = sy2 + (up ? k * 7 : -k * 7); g += `<path d="M${sx} ${fy} q${up ? 9 : 9} ${up ? 7 : -7} ${up ? 6 : 6} ${up ? 18 : -18}" fill="none" stroke="currentColor" stroke-width="1.6"/>`; }
+      }
+      if (it.dot) g += `<circle cx="${x + 9}" cy="${y - ((p.step - 30) % 2 === 0 ? sp / 2 : 0)}" r="1.8" fill="currentColor"/>`;
+      if (opt.labels) g += `<text x="${x}" y="${bot + 32}" font-size="11" font-weight="700" text-anchor="middle" class="snl" fill="currentColor" font-family="system-ui,sans-serif">${it.label != null ? it.label : nn(p.midi, p.acc < 0 ? 'f' : p.acc > 0 ? 's' : undefined)}</text>`;
+    }
+    body += g + '</g>';
+    x += adv;
+  });
+  const W = Math.max(x + 6, 200);
+  let g = `<svg class="qstaff" viewBox="0 0 ${W} ${H}" style="width:${Math.round(W * 1.15)}px" xmlns="http://www.w3.org/2000/svg">`;
+  for (let k = 0; k < 5; k++) g += `<line x1="4" x2="${W - 2}" y1="${top + k * sp}" y2="${top + k * sp}" stroke="currentColor" stroke-opacity=".55" stroke-width="1"/>`;
+  g += `<line x1="${W - 2}" x2="${W - 2}" y1="${top}" y2="${bot}" stroke="currentColor" stroke-width="1.6"/>`;
+  // treble clef: a spiral round the G line, a loop above the staff and a tail below
+  const gy = yOf(32), cx = 20;
+  g += `<path d="M${cx + 3} ${gy + 2} c0 -5 -8 -5 -8 1 c0 7 12 8 13 -1 c1 -9 -9 -13 -15 -7 c-6 6 -4 19 7 21 c10 2 16 -9 9 -27 c-4 -10 -4 -22 1 -29 c4 -5 8 -1 6 6 c-2 8 -12 14 -12 25 l5 34 c1 6 -7 9 -10 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>`;
+  g += `<circle cx="${cx - 4}" cy="${gy + 39}" r="3.3" fill="currentColor"/>`;
+  return g + body + '</svg>';
 }
 /** keep lesson fretboards at a sensible height whatever their number of frets */
 function lessonBoardScale(fz) { const F = clamp(Math.max(...fz.dots.map(d => d[1])) + 1, 5, 15), H = 20 + 34 * 5 + 26; return Math.min(1.35, 170 / H) * (F >= 9 ? 1.5 : 1); }
@@ -2672,7 +2727,7 @@ const Practice = {
     const head = `<div class="pback"><button class="btn small" data-a="pback">${I.left}${this.backLabel()}</button><b>${this.view === 'lesson' ? '' : this.title(this.view)}</b></div>`;
     if (this.view === 'metro') { el.innerHTML = head + Metro.html(); Metro.bind(); return; }
     if (this.view === 'learn') {
-      el.innerHTML = head + `<button class="btn lprint" data-a="lprint" data-v="all">${I.print}${t('lPrintAll')}</button><div class="lessons">${LESSONS.map((l, i) => `<button class="lesson-item" data-a="lopen" data-v="${i}"><i>${i + 1}</i><b>${L(l.title)}</b>${I.right}</button>`).join('')}</div>`;
+      el.innerHTML = head + `<button class="btn lprint" data-a="lprint" data-v="all">${I.print}${t('lPrintAll')}</button><div class="lessons">${LESSON_CHAPTERS.map(c => `<div class="lchap">${L(c.t)}</div>` + c.ids.map(id => { const i = LESSONS.findIndex(l => l.id === id); return i < 0 ? '' : `<button class="lesson-item" data-a="lopen" data-v="${i}"><i>${i + 1}</i><b>${L(LESSONS[i].title)}</b>${I.right}</button>`; }).join('')).join('')}</div>`;
       return;
     }
     if (this.view === 'lesson') { el.innerHTML = head + this.lessonHtml(); return; }
@@ -2707,19 +2762,20 @@ const Practice = {
       if (b.key) return `<div class="lkey"><div class="lbl">${t('lKey')}</div><ul>${b.key.map(k => `<li>${md(k)}</li>`).join('')}</ul></div>`;
       if (b.strum) return `<div class="lex">${b.strum.map((r, k) => `<button class="lrow" data-a="lp" data-v="${bi}:${k}">${play}<b>${L(r[0])}<small class="lprog lstrum">${r[1].split('').map((c, i) => `<i class="lch ${c === '-' ? 'rest' : ''}" data-i="${i}">${c === 'D' ? '↓' : c === 'U' ? '↑' : c === 'x' ? '✕' : '·'}</i>`).join('')}</small><small class="lcount">${r[1].length === 8 ? '1 & 2 & 3 & 4 &' : r[1].length === 6 ? '1 2 3 4 5 6' : ''}</small></b></button>`).join('')}</div>`;
       if (b.prog) return `<div class="lex">${b.prog.map((r, k) => `<button class="lrow" data-a="lp" data-v="${bi}:${k}">${play}<b>${L(r[0])}<small class="lprog">${r[1].map((c, i) => (i && r[1].length > 8 && i % 4 === 0 ? '<span class="lbr"></span>' : '') + `<i class="lch" data-i="${i}">${pretty(c)}</i>`).join('')}</small></b></button>`).join('')}</div>`;
+      if (b.staff) return `<div class="lex">${b.staff.play === false ? '' : `<button class="lrow" data-a="lp" data-v="${bi}">${play}<b>${b.label ? lbl(b.label) : t('hear')}</b></button>`}<div class="lvis lstaff">${staffSvg(b.staff.items, b.staff)}</div></div>`;
       if (b.piano) {
         const pz = b.piano, marks = pz.keys.map(([m, l, k]) => ({ m, t: typeof l === 'number' ? nn(l) : lbl(l), k: k || 'n' }));
-        return `<div class="lex"><button class="lrow" data-a="lp" data-v="${bi}">${play}<b>${b.label ? L(b.label) : t('hear')}<small>${t('lPiano')}</small></b></button><div class="lvis">${keysSvg(marks, pz.lo, pz.hi)}</div></div>`;
+        return `<div class="lex"><button class="lrow" data-a="lp" data-v="${bi}">${play}<b>${b.label ? lbl(b.label) : t('hear')}<small>${t('lPiano')}</small></b></button><div class="lvis">${keysSvg(marks, pz.lo, pz.hi)}</div></div>`;
       }
       if (b.fret) {
         const fz = b.fret, tn = fz.tun || STD, tu = { n: tn, start: tn.map(() => 0) };
         const col = k => k === 'r' ? 'var(--root)' : k === 'n' ? 'var(--accent-soft)' : 'var(--accent)';
         const dots = fz.dots.map(([s, f, l, k]) => ({ s, f, label: typeof l === 'number' ? nn(l) : lbl(l), color: col(k), ink: k === 'n' ? 'var(--accent)' : '#fff' }));
-        return `<div class="lex"><button class="lrow" data-a="lp" data-v="${bi}">${play}<b>${b.label ? L(b.label) : t('hear')}<small>${t('lGuitar')}</small></b></button><div class="lvis">${quizBoard(tu, { dots, frets: clamp(Math.max(...fz.dots.map(d => d[1])) + 1, 5, 15), maxScale: lessonBoardScale(fz), names: true })}</div></div>`;
+        return `<div class="lex"><button class="lrow" data-a="lp" data-v="${bi}">${play}<b>${b.label ? lbl(b.label) : t('hear')}<small>${t('lGuitar')}</small></b></button><div class="lvis">${quizBoard(tu, { dots, frets: clamp(Math.max(...fz.dots.map(d => d[1])) + 1, 5, 15), maxScale: lessonBoardScale(fz), names: true })}</div></div>`;
       }
       if (b.chips) {
         const c = b.chips, chips = `<div class="notes lchips">${c.row.map(([n, l, hi], i) => `<div class="note ${hi ? 'r' : ''}" data-i="${i}" data-pc="${typeof n === 'number' ? n : pcOfName(lbl(n))}"><b>${typeof n === 'number' ? nn(n) : lbl(n)}</b>${lbl(l) ? `<span>${lbl(l)}</span>` : ''}</div>`).join('')}</div>`;
-        return `<div class="lex">${c.play ? `<button class="lrow" data-a="lp" data-v="${bi}">${play}<b>${b.label ? L(b.label) : t('hear')}</b></button>` : ''}${chips}</div>`;
+        return `<div class="lex">${c.play ? `<button class="lrow" data-a="lp" data-v="${bi}">${play}<b>${b.label ? lbl(b.label) : t('hear')}</b></button>` : ''}${chips}</div>`;
       }
       if (b.scale) {
         const sc = SCALES.find(x => x.id === b.scale.id), sp = spellScale(b.scale.root, sc);
@@ -2745,7 +2801,7 @@ const Practice = {
       if (b.go) return `<div class="lgo">${b.go.map(([target, label]) => `<button class="btn small" data-a="lgo" data-v="${target}">${L(label)}</button>`).join('')}</div>`;
       return '';
     }).join('');
-    return `<div class="card lesson"><div class="lhead"><div class="lbl" style="margin:0">${t('lessonN', { n: i0 + 1, of: LESSONS.length })}</div><button class="btn small lprint1" data-a="lprint" data-v="${i0}">${I.print}${t('lPrintOne')}</button></div>
+    return `<div class="card lesson"><div class="lhead"><div class="lbl" style="margin:0">${(chapterOf(l.id) ? L(chapterOf(l.id).t) + ' · ' : '')}${t('lessonN', { n: i0 + 1, of: LESSONS.length })}</div><button class="btn small lprint1" data-a="lprint" data-v="${i0}">${I.print}${t('lPrintOne')}</button></div>
       <h2 style="margin:4px 0 0;font-size:22px">${L(l.title)}</h2>${body}</div>
       <div class="lnav">${i0 > 0 ? `<button class="btn" data-a="lnav" data-v="-1">${I.left}${L(LESSONS[i0 - 1].title)}</button>` : ''}
         ${i0 < LESSONS.length - 1 ? `<button class="btn primary" data-a="lnav" data-v="1">${L(LESSONS[i0 + 1].title)}${I.right}</button>` : ''}</div>`;
@@ -2766,11 +2822,21 @@ const Practice = {
       if (box && box.querySelector('.hl')) sched.forEach(({ s, when }) => mark(box.querySelector(`.hl[data-s="${s}"]`), when));
       markRow(1.4);
     };
-    if (b.strum) {
+    if (b.staff) {
+      const beat = 60 / (b.staff.bpm || 84); let tt = 0;
+      b.staff.items.forEach((it, i) => {
+        if (it.bar) return;
+        const len = (DUR_BEATS[it.d || it.r] || 1) * (it.dot ? 1.5 : 1) * beat;
+        if (it.n) { const p = parseNoteName(it.n); Snd.pluck(p.midi - (b.staff.octaveDown ? 12 : 0), now + tt, -1, 0.9); }
+        if (b.staff.click) Snd.tick(now + tt, Number.isInteger(tt / beat) ? 1 : 0.4, false);
+        mark(q(`.sn[data-i="${i}"]`), now + tt);
+        tt += len;
+      });
+    } else if (b.strum) {
       const [, pat, name, bpm] = b.strum[k], p = parseChord(name || 'G'), vv = p && voicings(p.r, p.t, p.b, CHORD_INSTS[0])[0];
       const step = 60 / (bpm || 90) / 2, bars = 2;
       for (let bar = 0; bar < bars; bar++) pat.split('').forEach((c, i) => {
-        const at = now + (bar * pat.length + i) * step;
+        const at = now + (bar * pat.length + i) * step + (b.strum[k][4] && i % 2 ? step * 0.36 : 0);
         if (c !== '-') Snd.stroke(c === 'D' && i % 2 ? 'd' : c, vv.frets, STD, at);
         mark(btn && btn.querySelector(`.lch[data-i="${i}"]`), at);
       });
@@ -2841,7 +2907,7 @@ const Practice = {
       case 'lprint': printLessons(v === 'all' ? null : +v); break;
       case 'lgo':
         if (v.startsWith('tab:')) showTab(v.slice(4));
-        else if (LESSONS.some(l => l.id === v)) { this.lesson = LESSONS.findIndex(l => l.id === v); this.render(); window.scrollTo(0, 0); }
+        else if (v.startsWith('lesson:')) { this.lesson = Math.max(0, LESSONS.findIndex(l => l.id === v.slice(7))); this.render(); window.scrollTo(0, 0); }
         else this.open(v);
         break;
       case 'qgo': this.started = true; QuizRun.start(this.view); this.render(); if (QuizRun.cur.autoplay) setTimeout(() => QuizRun.cur.play(), 250); break;

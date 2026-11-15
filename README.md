@@ -62,16 +62,18 @@ Werckmeister III–V, Kirnberger II–III, Vallotti, Young II, Kellner) on any k
 holds the last note for a moment after it fades.
 
 **Practice** – a start page with music theory lessons and separate exercises (ten questions each, best score kept):
-- Music theory for beginners: 30 short lessons – notes, intervals, finding notes on the neck, the major
-  scale, keys, minor scales, how chords are built, inversions and slash chords, arpeggios, 7th chords,
-  chords in a key, chords in minor keys, cadences, secondary dominants, borrowed chords, the 12-bar
-  blues, finding the key of a song, transposing and the capo, pentatonic & blues, the five pentatonic
-  boxes, modes, rhythm, strumming patterns, reading chord charts and tab, barre chords, power chords
-  and riffs, the CAGED system, fingerpicking, tab techniques, and drop D and open tunings. One idea at
-  a time, with piano and guitar examples you can play (keys, dots, chords and strum arrows light up as
-  they sound), a "Try it" exercise, a "Remember" summary and links to the matching quiz or tool
+- Music theory for beginners: 40 short lessons in seven chapters, in an order you can follow from day one –
+  *Getting started* (tuning, chord charts and tab, first chords, strumming), *Notes and rhythm* (the twelve
+  notes, the neck, rhythm, reading the staff, note values, syncopation and swing), *Scales and keys*,
+  *Chords* (triads, inversions, arpeggios, 7th chords, power chords, barre chords), *Harmony and songs*
+  (chords in a key, minor keys, cadences, secondary dominants, borrowed chords, 12-bar blues, finding the
+  key, capo, song form, learning by ear), *Soloing* (pentatonic boxes, tab techniques, improvising, modes)
+  and *Further on the guitar* (CAGED, triads on the top strings, shell voicings, fingerpicking, open
+  tunings). One idea at a time, with piano, guitar-neck and sheet-music examples you can play (notes, dots,
+  chords and strum arrows light up as they sound), a "Try it" exercise, a "Remember" summary and links to
+  the matching quiz or tool
 - Print the lessons or save them as a nicely laid-out A4 book – cover, contents in seven chapters and
-  all 30 lessons, or just the one you are reading (uses Android's print screen, which has "Save as
+  all 40 lessons, or just the one you are reading (uses Android's print screen, which has "Save as
   PDF"). See the [sample PDF](docs/plektrum-music-theory.pdf)
 - Metronome in 2/4 to 12/8 plus 5/8 and 7/8 (with groupings such as 2 + 2 + 3), subdivisions, swing,
   tap tempo and accent patterns for syncopation (backbeat, offbeats, Charleston, tresillo, son/rumba/
