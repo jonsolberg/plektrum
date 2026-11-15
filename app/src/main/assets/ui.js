@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.13';
+const VERSION = '1.14';
 const REPO = 'https://github.com/jonsolberg/guitarchords';
 
 const store = {
@@ -202,6 +202,37 @@ function blink(el) {
   el.classList.remove('on');
   void el.getBoundingClientRect();
   el.classList.add('on');
+}
+/** the notes of a chord name as spans that can light up */
+function chordNoteSpans(name) {
+  const p = parseChord(name); if (!p) return '';
+  const T = TYPES[p.t], sp = chordSpell(p.r, p.t);
+  const ivs = T.req.concat(T.opt).sort((a, b) => a - b);
+  const lab = x => { const l = intervalLabel(p.t, x); return l[0] === '♯' ? 's' : l[0] === '♭' ? 'f' : sp; };
+  const items = ivs.map(x => ({ pc: mod12(p.r + x), sp: lab(x) }));
+  if (p.b != null && !items.some(i => i.pc === p.b)) items.unshift({ pc: p.b, sp });
+  if (p.b != null) items.sort((a, b) => (a.pc === p.b ? -1 : b.pc === p.b ? 1 : 0));
+  return items.map(i => `<i class="ln" data-pc="${i.pc}">${nn(i.pc, i.sp)}</i>`).join(' ');
+}
+/** restart a short highlight animation on an element */
+function blinkEl(el) { el.classList.remove('lon'); void el.getBoundingClientRect(); el.classList.add('lon'); }
+/** pitch class of a written note name such as "C♯/D♭" (first name counts) */
+function pcOfName(t) {
+  const m = /^([A-H])([♯#♭b]*)/.exec(String(t)); if (!m) return '';
+  return mod12({ C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11, H: 11 }[m[1]] + [...m[2]].reduce((a, c) => a + (c === '♯' || c === '#' ? 1 : -1), 0));
+}
+/** tab text with every fret number wrapped, numbered in playing order (left to right) */
+function tabHtml(tab) {
+  const lines = tab.split('\n'), toks = [];
+  lines.forEach((ln, li) => { const re = /\d+/g; let m; while ((m = re.exec(ln.slice(2)))) toks.push({ li, col: m.index + 2, len: m[0].length }); });
+  const cols = [...new Set(toks.map(x => x.col))].sort((a, b) => a - b);
+  return lines.map((ln, li) => {
+    let out = '', p = 0;
+    toks.filter(x => x.li === li).sort((a, b) => a.col - b.col).forEach(x => {
+      out += esc(ln.slice(p, x.col)) + `<span class="tn" data-i="${cols.indexOf(x.col)}">${ln.substr(x.col, x.len)}</span>`; p = x.col + x.len;
+    });
+    return out + esc(ln.slice(p));
+  }).join('\n');
 }
 /** blink the strings of the big chord chart in time with the sound */
 function blinkChord(sched, scope = '#bigdiag') {
@@ -2525,30 +2556,30 @@ const Practice = {
       if (b.try) return `<div class="ltry"><div class="lbl">${t('lTry')}</div>${md(b.try)}</div>`;
       if (b.key) return `<div class="lkey"><div class="lbl">${t('lKey')}</div><ul>${b.key.map(k => `<li>${md(k)}</li>`).join('')}</ul></div>`;
       if (b.chips) {
-        const c = b.chips, chips = `<div class="notes lchips">${c.row.map(([n, l, hi]) => `<div class="note ${hi ? 'r' : ''}"><b>${typeof n === 'number' ? nn(n) : lbl(n)}</b>${lbl(l) ? `<span>${lbl(l)}</span>` : ''}</div>`).join('')}</div>`;
+        const c = b.chips, chips = `<div class="notes lchips">${c.row.map(([n, l, hi], i) => `<div class="note ${hi ? 'r' : ''}" data-i="${i}" data-pc="${typeof n === 'number' ? n : pcOfName(lbl(n))}"><b>${typeof n === 'number' ? nn(n) : lbl(n)}</b>${lbl(l) ? `<span>${lbl(l)}</span>` : ''}</div>`).join('')}</div>`;
         return `<div class="lex">${c.play ? `<button class="lrow" data-a="lp" data-v="${bi}">${play}<b>${b.label ? L(b.label) : t('hear')}</b></button>` : ''}${chips}</div>`;
       }
       if (b.scale) {
         const sc = SCALES.find(x => x.id === b.scale.id), sp = spellScale(b.scale.root, sc);
         const nm = pc => (sp && sp.get(pc)) || nn(pc);
         return `<div class="lex"><button class="lrow" data-a="lp" data-v="${bi}">${play}<b>${nm(b.scale.root)} ${L(sc).toLowerCase()}<small>${stepPattern(sc)}</small></b></button>
-          <div class="notes">${sc.iv.map(x => `<div class="note ${x === 0 ? 'r' : ''}"><b>${nm(mod12(b.scale.root + x))}</b><span>${scaleDegreeLabel(sc, x)}</span></div>`).join('')}</div></div>`;
+          <div class="notes">${sc.iv.map((x, i) => `<div class="note ${x === 0 ? 'r' : ''}" data-i="${i}"><b>${nm(mod12(b.scale.root + x))}</b><span>${scaleDegreeLabel(sc, x)}</span></div>`).join('')}</div></div>`;
       }
-      if (b.notes && !b.tab) return `<div class="lex"><button class="lrow" data-a="lp" data-v="${bi}">${play}<b>${L(b.label)}<small>${b.notes.map(m => nn(m)).join(' ')}</small></b></button></div>`;
-      if (b.intervals) return `<div class="lex">${[...Array(12).keys()].map(k => `<button class="lrow" data-a="lp" data-v="${bi}:${k + 1}">${play}<b>${ivName(k + 1)}<small>C → ${nn(k + 1, 's')}</small></b><span>${semis(k + 1)}</span></button>`).join('')}</div>`;
-      if (b.table) return `<div class="lex">${b.table.map((r, k) => `<button class="lrow" data-a="lp" data-v="${bi}:${k}">${play}<b>${typeof r[0] === 'string' ? r[0] : L(r[0])}${r[1] ? `<small>${r[1]}</small>` : ''}</b><span>${pretty(r[2])}</span></button>`).join('')}</div>`;
+      if (b.notes && !b.tab) return `<div class="lex"><button class="lrow" data-a="lp" data-v="${bi}">${play}<b>${L(b.label)}<small>${b.notes.map((m, i) => `<i class="ln" data-i="${i}">${nn(m)}</i>`).join(' ')}</small></b></button></div>`;
+      if (b.intervals) return `<div class="lex">${[...Array(12).keys()].map(k => `<button class="lrow" data-a="lp" data-v="${bi}:${k + 1}">${play}<b>${ivName(k + 1)}<small><i class="ln" data-i="0">C</i> → <i class="ln" data-i="1">${nn(k + 1, 's')}</i></small></b><span>${semis(k + 1)}</span></button>`).join('')}</div>`;
+      if (b.table) return `<div class="lex">${b.table.map((r, k) => `<button class="lrow" data-a="lp" data-v="${bi}:${k}">${play}<b>${typeof r[0] === 'string' ? r[0] : L(r[0])}${r[1] ? `<small>${r[1]}</small>` : ''}<small class="lns">${chordNoteSpans(r[2])}</small></b><span>${pretty(r[2])}</span></button>`).join('')}</div>`;
       if (b.diatonic != null) {
         const sp = spellScale(b.diatonic, SCALES.find(x => x.id === 'major'));
         const chs = DIATONIC_MAJOR.map(r => romanChord(r, b.diatonic, false));
         return `<div class="lex"><div class="ttl" style="margin-bottom:8px">${sp.get(b.diatonic)} ${t('major').toLowerCase()}</div>
           <div class="dchords">${chs.map((c, k) => `<div class="dchord" data-a="lp" data-v="${bi}:${k}"><i>${c.roman}</i><b>${sp.get(c.r)}${pretty(TYPES[c.t].sfx)}</b></div>`).join('')}</div></div>`;
       }
-      if (b.modes) return `<div class="lex">${b.modes.map((m, k) => `<button class="lrow" data-a="lp" data-v="${bi}:${k}">${play}<b>C ${L(SCALES.find(x => x.id === m[0])).toLowerCase()}<small>${L(m[1])}</small></b></button>`).join('')}</div>`;
+      if (b.modes) return `<div class="lex">${b.modes.map((m, k) => `<button class="lrow" data-a="lp" data-v="${bi}:${k}">${play}<b>C ${L(SCALES.find(x => x.id === m[0])).toLowerCase()}<small>${L(m[1])}</small><small class="lns">${(() => { const sc = SCALES.find(x => x.id === m[0]), sp = spellScale(0, sc); return sc.iv.map((x, i) => `<i class="ln" data-i="${i}">${(sp && sp.get(x)) || nn(x)}</i>`).join(' '); })()}</small></b></button>`).join('')}</div>`;
       if (b.chart) {
         const p = parseChord(b.chart), v = voicings(p.r, p.t, p.b, CHORD_INSTS[0])[0];
         return `<div class="lex" style="text-align:center"><div class="diagwrap" data-a="lp" data-v="${bi}">${diagram(v, p.r, { cls: 'big', tuning: STD, dot: 'finger', labels: new Map() })}</div><div class="small muted">${pretty(b.chart)}</div></div>`;
       }
-      if (b.tab) return `<div class="lex"><pre class="ltab">${esc(b.tab)}</pre><button class="lrow" data-a="lp" data-v="${bi}">${play}<b>${t('hear')}</b></button></div>`;
+      if (b.tab) return `<div class="lex"><pre class="ltab">${tabHtml(b.tab)}</pre><button class="lrow" data-a="lp" data-v="${bi}">${play}<b>${t('hear')}</b></button></div>`;
       if (b.go) return `<div class="lgo">${b.go.map(([target, label]) => `<button class="btn small" data-a="lgo" data-v="${target}">${L(label)}</button>`).join('')}</div>`;
       return '';
     }).join('');
@@ -2561,20 +2592,51 @@ const Practice = {
     const [bi, k] = String(v).split(':').map(Number), b = LESSONS[this.lesson].blocks[bi];
     Snd.setTimbre('guitar');
     const now = Snd.now() + 0.05;
-    const chord = name => { const p = parseChord(name); const vv = p && voicings(p.r, p.t, p.b, CHORD_INSTS[0])[0]; if (vv) Snd.chord(vv.frets, STD, 0, 'strum'); };
-    if (b.chips) { b.chips.play.forEach((m, i) => Snd.pluck(m, now + i * (b.chips.play.length > 3 ? 0.26 : 0.5), -1, 0.9)); if (b.chips.play.length === 3) b.chips.play.forEach(m => Snd.pluck(m, now + 1.6, -1, 0.7)); }
-    else if (b.scale) {
+    const btn = document.querySelector(`.lesson [data-a=lp][data-v="${v}"]`), box = btn && (btn.closest('.lex') || btn.parentElement);
+    const q = sel => box ? box.querySelector(sel) : null;
+    const mark = (el, when) => { if (el) atTime(when, () => blinkEl(el)); };
+    const markRow = (dur) => { if (btn) { btn.classList.add('lplaying'); setTimeout(() => btn.classList.remove('lplaying'), dur * 1000); } };
+    const chord = name => {
+      const p = parseChord(name); const vv = p && voicings(p.r, p.t, p.b, CHORD_INSTS[0])[0];
+      if (!vv) return;
+      const sched = Snd.chord(vv.frets, STD, 0, 'strum');
+      if (btn) sched.forEach(({ s, when }) => mark(btn.querySelector(`.ln[data-pc="${mod12(STD[s] + vv.frets[s])}"]`), when));
+      if (box && box.querySelector('.hl')) sched.forEach(({ s, when }) => mark(box.querySelector(`.hl[data-s="${s}"]`), when));
+      markRow(1.4);
+    };
+    if (b.chips) {
+      const pl = b.chips.play, gap = pl.length > 3 ? 0.26 : 0.5;
+      const chipFor = (m, i) => q(`.note[data-pc="${m}"]`) || q(`.note[data-pc="${mod12(m)}"]`) || [...(box ? box.querySelectorAll('.note') : [])].find(el => mod12(+el.dataset.pc) === mod12(m) && el.dataset.used !== String(i));
+      pl.forEach((m, i) => { Snd.pluck(m, now + i * gap, -1, 0.9); mark(chipFor(m, i), now + i * gap); });
+      if (pl.length === 3) pl.forEach(m => { Snd.pluck(m, now + 1.6, -1, 0.7); mark(chipFor(m), now + 1.6); });
+    } else if (b.scale) {
       const sc = SCALES.find(x => x.id === b.scale.id), m0 = 48 + b.scale.root + (b.scale.root < 4 ? 12 : 0);
       const up = sc.iv.concat([12]).map(x => m0 + x), all = up.concat(up.slice(0, -1).reverse());
-      all.forEach((m, i) => Snd.pluck(m, now + i * 0.22, -1, 0.9));
-    } else if (b.intervals) { Snd.pluck(60, now, -1); Snd.pluck(60 + k, now + 0.7, -1); Snd.pluck(60, now + 1.6, -1, 0.8); Snd.pluck(60 + k, now + 1.6, -1, 0.8); }
+      const idx = up.map((_, i) => i % sc.iv.length), allI = idx.concat(idx.slice(0, -1).reverse());
+      all.forEach((m, i) => { Snd.pluck(m, now + i * 0.26, -1, 0.9); mark(q(`.note[data-i="${allI[i]}"]`), now + i * 0.26); });
+    } else if (b.intervals) {
+      Snd.pluck(60, now, -1); Snd.pluck(60 + k, now + 0.7, -1); Snd.pluck(60, now + 1.6, -1, 0.8); Snd.pluck(60 + k, now + 1.6, -1, 0.8); markRow(2.4);
+      const n0 = btn && btn.querySelector('.ln[data-i="0"]'), n1 = btn && btn.querySelector('.ln[data-i="1"]');
+      mark(n0, now); mark(n1, now + 0.7); mark(n0, now + 1.6); mark(n1, now + 1.6);
+    }
     else if (b.table) chord(b.table[k][2]);
-    else if (b.diatonic != null) { const c = romanChord(DIATONIC_MAJOR[k], b.diatonic, false); chord(nn(c.r, 's') + TYPES[c.t].sfx); }
-    else if (b.modes) {
+    else if (b.diatonic != null) {
+      const c = romanChord(DIATONIC_MAJOR[k], b.diatonic, false); chord(nn(c.r, 's') + TYPES[c.t].sfx);
+      const tile = box && box.querySelector(`.dchord[data-v="${v}"]`); if (tile) { tile.classList.add('lplaying'); setTimeout(() => tile.classList.remove('lplaying'), 1400); }
+    } else if (b.modes) {
       const sc = SCALES.find(x => x.id === b.modes[k][0]), up = sc.iv.concat([12]).map(x => 60 + x);
-      up.concat(up.slice(0, -1).reverse()).forEach((m, i) => Snd.pluck(m, now + i * 0.2, -1, 0.9));
+      const idx = up.map((_, i) => i % sc.iv.length), allI = idx.concat(idx.slice(0, -1).reverse());
+      up.concat(up.slice(0, -1).reverse()).forEach((m, i) => { Snd.pluck(m, now + i * 0.24, -1, 0.9); mark(btn && btn.querySelector(`.ln[data-i="${allI[i]}"]`), now + i * 0.24); });
+      markRow(up.length * 2 * 0.24);
     } else if (b.chart) chord(b.chart);
-    else if (b.notes) b.notes.forEach((m, i) => Snd.pluck(m, now + i * (b.tab ? 0.3 : b.notes.length > 2 ? 0.22 : 0.8), -1, 0.9));
+    else if (b.notes) {
+      const gap = b.tab ? 0.34 : b.notes.length > 2 ? 0.26 : 0.8;
+      b.notes.forEach((m, i) => {
+        Snd.pluck(m, now + i * gap, -1, 0.9);
+        if (b.tab) (box ? box.querySelectorAll(`.tn[data-i="${i}"]`) : []).forEach(el => mark(el, now + i * gap));
+        else mark(btn && btn.querySelector(`.ln[data-i="${i}"]`), now + i * gap);
+      });
+    }
   },
   action(a, v) {
     switch (a) {

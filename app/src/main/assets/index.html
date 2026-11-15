@@ -282,6 +282,21 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .ltry .lbl,.lkey .lbl{margin:0 0 4px}
 .lkey ul{margin:0;padding-left:18px}.lkey li{margin:3px 0}
 .lchips{justify-content:flex-start;margin-top:6px}.lchips .note{min-width:34px;padding:3px 6px}
+.lesson .note,.lesson .ln,.lesson .tn{transition:background .25s,color .25s}
+.lesson .note.lon{animation:lon .42s ease-out}
+@keyframes lon{0%{background:var(--accent);color:var(--on-accent);transform:scale(1.18)}100%{transform:none}}
+.lesson .note.lon b,.lesson .note.lon span{animation:lonc .42s ease-out}
+@keyframes lonc{0%,40%{color:var(--on-accent)}}
+.lesson .note.r.lon{animation-name:lonr}
+@keyframes lonr{0%{filter:brightness(1.3);transform:scale(1.18)}100%{transform:none}}
+.lesson .ln{font-style:normal;border-radius:5px;padding:0 2px}
+.lesson .ln.lon,.lesson .tn.lon{animation:lonx .45s ease-out}
+@keyframes lonx{0%{background:var(--accent);color:var(--on-accent)}100%{background:transparent}}
+.lesson .tn{border-radius:3px}
+.lrow.lplaying{background:var(--accent-soft);border-radius:10px}
+.dchord.lplaying{outline:2px solid var(--accent);outline-offset:1px}
+.lesson .lns{letter-spacing:.2px}
+.lesson .diagwrap .hl.lon{animation:hlb .55s ease-out}
 .lgo{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
 .lnav{display:flex;gap:8px;margin-top:12px}
 .lnav .btn{flex:1;font-size:14px}
