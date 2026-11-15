@@ -16,16 +16,24 @@ package se.jonsolberg.plektrum;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
+import android.print.PdfWriter;
 import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintManager;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
@@ -192,9 +200,43 @@ public class MainActivity extends Activity {
     /** Kept alive until the next print job – the print framework reads from it while the dialog is open. */
     private WebView printView;
 
-    private void printDocument(String title, String html) {
+    private static PrintAttributes a4() {
+        return new PrintAttributes.Builder()
+                .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
+                .setResolution(new PrintAttributes.Resolution("pdf", "pdf", 600, 600))
+                .setMinMargins(PrintAttributes.Margins.NO_MARGINS)
+                .setColorMode(PrintAttributes.COLOR_MODE_COLOR)
+                .build();
+    }
+
+    /** A fresh, invisible WebView attached behind the app (a detached one may never finish its layout). */
+    private WebView newPrintView() {
+        if (printView != null) {
+            ViewGroup parent = (ViewGroup) printView.getParent();
+            if (parent != null) parent.removeView(printView);
+            printView.destroy();
+        }
         WebView pv = new WebView(this);
+        pv.setVisibility(View.INVISIBLE);
         pv.getSettings().setJavaScriptEnabled(false);
+        addContentView(pv, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        web.bringToFront();
+        printView = pv;
+        return pv;
+    }
+
+    private void toast(String msg) {
+        if (msg != null && !msg.isEmpty()) Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+    }
+
+    /**
+     * Render the HTML off screen and write it as a PDF to Downloads, then open it.
+     * Falls back to the system print screen if that is not possible on this device.
+     */
+    private void savePdf(String title, String fileName, String html, String busy, String done, String failed) {
+        toast(busy);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) { printDocument(title, html); return; }
+        WebView pv = newPrintView();
         pv.setWebViewClient(new WebViewClient() {
             private boolean started;
             @Override
@@ -205,18 +247,82 @@ public class MainActivity extends Activity {
             public void onPageFinished(WebView view, String url) {
                 if (started) return;
                 started = true;
-                PrintManager pm = (PrintManager) getSystemService(Context.PRINT_SERVICE);
-                if (pm == null) return;
-                PrintDocumentAdapter adapter = view.createPrintDocumentAdapter(title);
-                PrintAttributes attrs = new PrintAttributes.Builder()
-                        .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
-                        .setColorMode(PrintAttributes.COLOR_MODE_COLOR)
-                        .build();
-                pm.print(title, adapter, attrs);
+                // give the layout a moment to settle before printing
+                view.postDelayed(() -> writePdf(view, title, fileName, html, done, failed), 400);
             }
         });
         pv.loadDataWithBaseURL("file:///android_asset/", html, "text/html", "utf-8", null);
-        printView = pv;
+    }
+
+    private void writePdf(WebView view, String title, String fileName, String html, String done, String failed) {
+        final ContentResolver cr = getContentResolver();
+        Uri uri = null;
+        try {
+            ContentValues v = new ContentValues();
+            v.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
+            v.put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf");
+            v.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+            v.put(MediaStore.MediaColumns.IS_PENDING, 1);
+            uri = cr.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, v);
+            if (uri == null) throw new IllegalStateException("no Downloads folder");
+            final Uri target = uri;
+            final ParcelFileDescriptor pfd = cr.openFileDescriptor(target, "w");
+            if (pfd == null) throw new IllegalStateException("cannot open file");
+            PrintDocumentAdapter adapter = view.createPrintDocumentAdapter(title);
+            PdfWriter.write(adapter, a4(), pfd, new PdfWriter.Result() {
+                @Override
+                public void done() {
+                    runOnUiThread(() -> {
+                        try { pfd.close(); } catch (Exception ignored) { }
+                        ContentValues fin = new ContentValues();
+                        fin.put(MediaStore.MediaColumns.IS_PENDING, 0);
+                        cr.update(target, fin, null, null);
+                        toast(done);
+                        Intent open = new Intent(Intent.ACTION_VIEW)
+                                .setDataAndType(target, "application/pdf")
+                                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+                        try { startActivity(Intent.createChooser(open, title)); } catch (Exception ignored) { /* no PDF viewer: the file is in Downloads */ }
+                    });
+                }
+                @Override
+                public void failed(String why) {
+                    runOnUiThread(() -> {
+                        try { pfd.close(); } catch (Exception ignored) { }
+                        try { cr.delete(target, null, null); } catch (Exception ignored) { }
+                        toast(failed + " (" + why + ")");
+                        printDocument(title, html);
+                    });
+                }
+            });
+        } catch (Throwable t) {
+            if (uri != null) { try { cr.delete(uri, null, null); } catch (Exception ignored) { } }
+            toast(failed + " (" + t.getClass().getSimpleName() + ")");
+            printDocument(title, html);
+        }
+    }
+
+    private void printDocument(String title, String html) {
+        WebView pv = newPrintView();
+        pv.setWebViewClient(new WebViewClient() {
+            private boolean started;
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                return true;
+            }
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                if (started) return;
+                started = true;
+                try {
+                    PrintManager pm = (PrintManager) getSystemService(Context.PRINT_SERVICE);
+                    if (pm == null) { toast("Printing is not available on this device"); return; }
+                    pm.print(title, view.createPrintDocumentAdapter(title), a4());
+                } catch (Throwable t) {
+                    toast("Printing failed: " + t.getMessage());
+                }
+            }
+        });
+        pv.loadDataWithBaseURL("file:///android_asset/", html, "text/html", "utf-8", null);
     }
 
     private class Bridge {
@@ -236,6 +342,14 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void setDark(boolean dark) {
             runOnUiThread(() -> applyBars(dark));
+        }
+
+        /** Save an HTML document as an A4 PDF in Downloads and open it. */
+        @JavascriptInterface
+        public void savePdf(String title, String fileName, String html, String busy, String done, String failed) {
+            if (html == null) return;
+            runOnUiThread(() -> MainActivity.this.savePdf(title == null ? "Plektrum" : title,
+                    fileName == null ? "Plektrum.pdf" : fileName, html, busy, done, failed));
         }
 
         /** Print an HTML document (A4) – Android's print screen also offers "Save as PDF". */

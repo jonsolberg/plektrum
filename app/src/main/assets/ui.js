@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.20';
+const VERSION = '1.21';
 const REPO = 'https://github.com/jonsolberg/guitarchords';
 
 const store = {
@@ -58,7 +58,7 @@ const STR = {
     sens: 'Sensitivity', sensD: 'Raise it for quiet acoustics, lower it in noisy rooms',
     grouping: 'Grouping', subdiv: 'Subdivision', swingD: 'Plays the off-beats late, like a shuffle', accentPat: 'Accent pattern',
     customPat: 'Custom', resetAcc: 'Reset accents', stepHint: 'Tap a step: normal → accent → soft → silent',
-    learn: 'Music theory', learnDesc: 'Short lessons with examples you can play', lessonsN: '{n} lessons', lessonN: 'Lesson {n} of {of}', lTry: 'Try it', lKey: 'Remember', lPiano: 'On the piano', lGuitar: 'On the guitar neck', lPrintAll: 'Print all / save as PDF', lPrintOne: 'Print / PDF', lPdfTitle: 'Music theory', lPdfSub: '{n} lessons for string players – from the twelve notes to the CAGED system', lPdfToc: 'Contents', lPdfHint: 'Every example can be played in the app: Practice → Music theory.', lPdfIntro: 'Music theory explained for guitarists and other string players – one idea at a time, with examples on the piano and the guitar neck, a short exercise and a summary in every lesson. No previous knowledge needed.', lPdfFoot: 'a toolbox for string players',
+    learn: 'Music theory', learnDesc: 'Short lessons with examples you can play', lessonsN: '{n} lessons', lessonN: 'Lesson {n} of {of}', lTry: 'Try it', lKey: 'Remember', lPiano: 'On the piano', lGuitar: 'On the guitar neck', lPrintAll: 'Save all lessons as PDF', lPrintOne: 'PDF', lPdfBusy: 'Creating PDF…', lPdfDone: 'Saved to Downloads: {f}', lPdfFail: 'Could not save the PDF – opening the print screen instead', lPdfTitle: 'Music theory', lPdfSub: '{n} lessons for string players – from the twelve notes to the CAGED system', lPdfToc: 'Contents', lPdfHint: 'Every example can be played in the app: Practice → Music theory.', lPdfIntro: 'Music theory explained for guitarists and other string players – one idea at a time, with examples on the piano and the guitar neck, a short exercise and a summary in every lesson. No previous knowledge needed.', lPdfFoot: 'a toolbox for string players',
     metroDesc: 'Time signatures, subdivisions, accents', qWhichNote: 'Which note is marked?', qFindNote: 'Find {n} on string {k} ({s})',
     qDegree: 'What is the {d} of {k} major?', qScaleIs: '{k} major: {s}', qSig: 'How many sharps or flats in {k} major?',
     qRel: 'What is the relative minor of {k} major?', qRelEx: 'The relative minor starts on the 6th note of the major scale.',
@@ -107,7 +107,7 @@ const STR = {
     sens: 'Känslighet', sensD: 'Höj för tysta akustiska gitarrer, sänk i stökiga rum',
     grouping: 'Gruppering', subdiv: 'Underdelning', swingD: 'Spelar offbeat-slagen sent, som shuffle', accentPat: 'Betoningsmönster',
     customPat: 'Eget', resetAcc: 'Återställ betoningar', stepHint: 'Tryck på ett steg: normal → betonad → svag → tyst',
-    learn: 'Musikteori', learnDesc: 'Korta lektioner med exempel du kan spela', lessonsN: '{n} lektioner', lessonN: 'Lektion {n} av {of}', lTry: 'Prova', lKey: 'Kom ihåg', lPiano: 'På pianot', lGuitar: 'På gitarrhalsen', lPrintAll: 'Skriv ut alla / spara som PDF', lPrintOne: 'Skriv ut / PDF', lPdfTitle: 'Musikteori', lPdfSub: '{n} lektioner för stränginstrument – från de tolv tonerna till CAGED-systemet', lPdfToc: 'Innehåll', lPdfHint: 'Alla exempel kan spelas i appen: Öva → Musikteori.', lPdfIntro: 'Musikteori förklarad för gitarrister och andra som spelar stränginstrument – en sak i taget, med exempel på pianot och gitarrhalsen, en kort övning och en sammanfattning i varje lektion. Inga förkunskaper behövs.', lPdfFoot: 'en verktygslåda för stränginstrument',
+    learn: 'Musikteori', learnDesc: 'Korta lektioner med exempel du kan spela', lessonsN: '{n} lektioner', lessonN: 'Lektion {n} av {of}', lTry: 'Prova', lKey: 'Kom ihåg', lPiano: 'På pianot', lGuitar: 'På gitarrhalsen', lPrintAll: 'Spara alla lektioner som PDF', lPrintOne: 'PDF', lPdfBusy: 'Skapar PDF…', lPdfDone: 'Sparad i Nedladdningar: {f}', lPdfFail: 'Kunde inte spara PDF:en – öppnar utskrift i stället', lPdfTitle: 'Musikteori', lPdfSub: '{n} lektioner för stränginstrument – från de tolv tonerna till CAGED-systemet', lPdfToc: 'Innehåll', lPdfHint: 'Alla exempel kan spelas i appen: Öva → Musikteori.', lPdfIntro: 'Musikteori förklarad för gitarrister och andra som spelar stränginstrument – en sak i taget, med exempel på pianot och gitarrhalsen, en kort övning och en sammanfattning i varje lektion. Inga förkunskaper behövs.', lPdfFoot: 'en verktygslåda för stränginstrument',
     metroDesc: 'Taktarter, underdelningar, betoningar', qWhichNote: 'Vilken ton är markerad?', qFindNote: 'Hitta {n} på sträng {k} ({s})',
     qDegree: 'Vilken ton är {d} i {k}-dur?', qScaleIs: '{k}-dur: {s}', qSig: 'Hur många förtecken har {k}-dur?',
     qRel: 'Vilken är parallelltonarten i moll till {k}-dur?', qRelEx: 'Parallelltonarten i moll börjar på durskalans sjätte ton.',
@@ -340,6 +340,8 @@ b,strong{color:#15191a}
 }
 function printLessons(only) {
   const doc = lessonsPrintDoc(only);
+  const file = (only == null ? `Plektrum - ${t('lPdfTitle')}` : `Plektrum - ${only + 1} ${L(LESSONS[only].title)}`).replace(/[\\/:*?"<>|]/g, '') + '.pdf';
+  if (AND && AND.savePdf) { AND.savePdf(doc.title, file, doc.html, t('lPdfBusy'), t('lPdfDone', { f: file }), t('lPdfFail')); return; }
   if (AND && AND.printHtml) { AND.printHtml(doc.title, doc.html); return; }
   const w = window.open('', '_blank');                       // browsers: the normal print dialog
   if (!w) return;
