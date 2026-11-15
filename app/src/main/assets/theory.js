@@ -249,75 +249,196 @@ function voicings(r, t, b = null, inst = CHORD_INSTS[0]) {
 }
 
 /* ---------- scales ---------- */
+const SCALE_GROUPS = [
+  { id: 'pent',  en: 'Pentatonic & blues',     sv: 'Pentatoniska & blues' },
+  { id: 'major', en: 'Major scale & modes',    sv: 'Durskalan & kyrkotonarter' },
+  { id: 'mel',   en: 'Melodic minor & modes',  sv: 'Melodisk moll & dess modus' },
+  { id: 'harm',  en: 'Harmonic & exotic',      sv: 'Harmoniska & exotiska' },
+  { id: 'bebop', en: 'Bebop',                  sv: 'Bebop' },
+  { id: 'sym',   en: 'Symmetric',              sv: 'Symmetriska' },
+  { id: 'world', en: 'Japanese & other',       sv: 'Japanska & andra' },
+  { id: 'arp',   en: 'Arpeggios',              sv: 'Arpeggion' },
+];
+// lab: degree names when the default (♭3, ♭5 …) would be misleading
 const SCALES = [
-  { id: 'pmin',   iv: [0, 3, 5, 7, 10],          en: 'Minor pentatonic',          sv: 'Mollpentatonisk' },
-  { id: 'pmaj',   iv: [0, 2, 4, 7, 9],           en: 'Major pentatonic',          sv: 'Durpentatonisk' },
-  { id: 'blues',  iv: [0, 3, 5, 6, 7, 10],       en: 'Blues',                     sv: 'Blues', base: 'pmin' },
-  { id: 'mblues', iv: [0, 2, 3, 4, 7, 9],        en: 'Major blues',               sv: 'Durblues', base: 'pmaj' },
-  { id: 'major',  iv: [0, 2, 4, 5, 7, 9, 11],    en: 'Major (Ionian)',            sv: 'Dur (jonisk)' },
-  { id: 'minor',  iv: [0, 2, 3, 5, 7, 8, 10],    en: 'Natural minor (Aeolian)',   sv: 'Ren moll (eolisk)' },
-  { id: 'harm',   iv: [0, 2, 3, 5, 7, 8, 11],    en: 'Harmonic minor',            sv: 'Harmonisk moll' },
-  { id: 'mel',    iv: [0, 2, 3, 5, 7, 9, 11],    en: 'Melodic minor',             sv: 'Melodisk moll' },
-  { id: 'dor',    iv: [0, 2, 3, 5, 7, 9, 10],    en: 'Dorian',                    sv: 'Dorisk' },
-  { id: 'phr',    iv: [0, 1, 3, 5, 7, 8, 10],    en: 'Phrygian',                  sv: 'Frygisk' },
-  { id: 'lyd',    iv: [0, 2, 4, 6, 7, 9, 11],    en: 'Lydian',                    sv: 'Lydisk' },
-  { id: 'mix',    iv: [0, 2, 4, 5, 7, 9, 10],    en: 'Mixolydian',                sv: 'Mixolydisk' },
-  { id: 'loc',    iv: [0, 1, 3, 5, 6, 8, 10],    en: 'Locrian',                   sv: 'Lokrisk' },
-  { id: 'phrdom', iv: [0, 1, 4, 5, 7, 8, 10],    en: 'Phrygian dominant',         sv: 'Frygisk dominant' },
-  { id: 'hung',   iv: [0, 2, 3, 6, 7, 8, 11],    en: 'Hungarian minor',           sv: 'Ungersk moll' },
-  { id: 'whole',  iv: [0, 2, 4, 6, 8, 10],       en: 'Whole tone',                sv: 'Heltonsskala' },
-  { id: 'dimhw',  iv: [0, 1, 3, 4, 6, 7, 9, 10], en: 'Diminished (half–whole)',   sv: 'Förminskad (halv–hel)' },
-  { id: 'dimwh',  iv: [0, 2, 3, 5, 6, 8, 9, 11], en: 'Diminished (whole–half)',   sv: 'Förminskad (hel–halv)' },
-  { id: 'hira',   iv: [0, 2, 3, 7, 8],           en: 'Hirajōshi',                 sv: 'Hirajōshi' },
-  { id: 'chrom',  iv: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], en: 'Chromatic', sv: 'Kromatisk' },
+  { id: 'pmin',   g: 'pent', iv: [0, 3, 5, 7, 10],          en: 'Minor pentatonic',          sv: 'Mollpentatonisk' },
+  { id: 'pmaj',   g: 'pent', iv: [0, 2, 4, 7, 9],           en: 'Major pentatonic',          sv: 'Durpentatonisk' },
+  { id: 'blues',  g: 'pent', iv: [0, 3, 5, 6, 7, 10],       en: 'Blues',                     sv: 'Blues', base: 'pmin' },
+  { id: 'mblues', g: 'pent', iv: [0, 2, 3, 4, 7, 9],        en: 'Major blues',               sv: 'Durblues', base: 'pmaj', lab: ['1', '2', '♭3', '3', '5', '6'] },
+  { id: 'dompent',g: 'pent', iv: [0, 2, 4, 7, 10],          en: 'Dominant pentatonic',       sv: 'Dominantpentatonisk' },
+  { id: 'egypt',  g: 'pent', iv: [0, 2, 5, 7, 10],          en: 'Suspended (Egyptian)',      sv: 'Suspenderad (egyptisk)' },
+  { id: 'm6pent', g: 'pent', iv: [0, 3, 5, 7, 9],           en: 'Minor 6 pentatonic',        sv: 'Moll 6-pentatonisk' },
+  { id: 'major',  g: 'major', iv: [0, 2, 4, 5, 7, 9, 11],   en: 'Major (Ionian)',            sv: 'Dur (jonisk)' },
+  { id: 'dor',    g: 'major', iv: [0, 2, 3, 5, 7, 9, 10],   en: 'Dorian',                    sv: 'Dorisk' },
+  { id: 'phr',    g: 'major', iv: [0, 1, 3, 5, 7, 8, 10],   en: 'Phrygian',                  sv: 'Frygisk' },
+  { id: 'lyd',    g: 'major', iv: [0, 2, 4, 6, 7, 9, 11],   en: 'Lydian',                    sv: 'Lydisk', lab: ['1', '2', '3', '♯4', '5', '6', '7'] },
+  { id: 'mix',    g: 'major', iv: [0, 2, 4, 5, 7, 9, 10],   en: 'Mixolydian',                sv: 'Mixolydisk' },
+  { id: 'minor',  g: 'major', iv: [0, 2, 3, 5, 7, 8, 10],   en: 'Natural minor (Aeolian)',   sv: 'Ren moll (eolisk)' },
+  { id: 'loc',    g: 'major', iv: [0, 1, 3, 5, 6, 8, 10],   en: 'Locrian',                   sv: 'Lokrisk' },
+  { id: 'mel',    g: 'mel', iv: [0, 2, 3, 5, 7, 9, 11],     en: 'Melodic minor',             sv: 'Melodisk moll' },
+  { id: 'dorb2',  g: 'mel', iv: [0, 1, 3, 5, 7, 9, 10],     en: 'Dorian ♭2',                 sv: 'Dorisk ♭2' },
+  { id: 'lydaug', g: 'mel', iv: [0, 2, 4, 6, 8, 9, 11],     en: 'Lydian augmented',          sv: 'Lydisk överstigande', lab: ['1', '2', '3', '♯4', '♯5', '6', '7'] },
+  { id: 'lyddom', g: 'mel', iv: [0, 2, 4, 6, 7, 9, 10],     en: 'Lydian dominant',           sv: 'Lydisk dominant', lab: ['1', '2', '3', '♯4', '5', '6', '♭7'] },
+  { id: 'mixb6',  g: 'mel', iv: [0, 2, 4, 5, 7, 8, 10],     en: 'Mixolydian ♭6',             sv: 'Mixolydisk ♭6' },
+  { id: 'locn2',  g: 'mel', iv: [0, 2, 3, 5, 6, 8, 10],     en: 'Locrian ♮2 (half-diminished)', sv: 'Lokrisk ♮2 (halvförminskad)' },
+  { id: 'altered',g: 'mel', iv: [0, 1, 3, 4, 6, 8, 10],     en: 'Altered (super Locrian)',   sv: 'Altererad (superlokrisk)', lab: ['1', '♭9', '♯9', '3', '♭5', '♯5', '♭7'] },
+  { id: 'harm',   g: 'harm', iv: [0, 2, 3, 5, 7, 8, 11],    en: 'Harmonic minor',            sv: 'Harmonisk moll' },
+  { id: 'harmmaj',g: 'harm', iv: [0, 2, 4, 5, 7, 8, 11],    en: 'Harmonic major',            sv: 'Harmonisk dur' },
+  { id: 'phrdom', g: 'harm', iv: [0, 1, 4, 5, 7, 8, 10],    en: 'Phrygian dominant',         sv: 'Frygisk dominant' },
+  { id: 'dblharm',g: 'harm', iv: [0, 1, 4, 5, 7, 8, 11],    en: 'Double harmonic (Byzantine)', sv: 'Dubbelharmonisk (bysantinsk)' },
+  { id: 'hung',   g: 'harm', iv: [0, 2, 3, 6, 7, 8, 11],    en: 'Hungarian minor',           sv: 'Ungersk moll', lab: ['1', '2', '♭3', '♯4', '5', '♭6', '7'] },
+  { id: 'ukrdor', g: 'harm', iv: [0, 2, 3, 6, 7, 9, 10],    en: 'Ukrainian Dorian',          sv: 'Ukrainsk dorisk', lab: ['1', '2', '♭3', '♯4', '5', '6', '♭7'] },
+  { id: 'neapmin',g: 'harm', iv: [0, 1, 3, 5, 7, 8, 11],    en: 'Neapolitan minor',          sv: 'Neapolitansk moll' },
+  { id: 'neapmaj',g: 'harm', iv: [0, 1, 3, 5, 7, 9, 11],    en: 'Neapolitan major',          sv: 'Neapolitansk dur' },
+  { id: 'persian',g: 'harm', iv: [0, 1, 4, 5, 6, 8, 11],    en: 'Persian',                   sv: 'Persisk' },
+  { id: 'bebdom', g: 'bebop', iv: [0, 2, 4, 5, 7, 9, 10, 11], en: 'Bebop dominant',          sv: 'Bebop dominant' },
+  { id: 'bebmaj', g: 'bebop', iv: [0, 2, 4, 5, 7, 8, 9, 11],  en: 'Bebop major',             sv: 'Bebop dur', lab: ['1', '2', '3', '4', '5', '♯5', '6', '7'] },
+  { id: 'bebdor', g: 'bebop', iv: [0, 2, 3, 4, 5, 7, 9, 10],  en: 'Bebop Dorian',            sv: 'Bebop dorisk' },
+  { id: 'whole',  g: 'sym', iv: [0, 2, 4, 6, 8, 10],        en: 'Whole tone',                sv: 'Heltonsskala', lab: ['1', '2', '3', '♯4', '♯5', '♭7'] },
+  { id: 'dimhw',  g: 'sym', iv: [0, 1, 3, 4, 6, 7, 9, 10],  en: 'Diminished (half–whole)',   sv: 'Förminskad (halv–hel)', lab: ['1', '♭9', '♯9', '3', '♯11', '5', '13', '♭7'] },
+  { id: 'dimwh',  g: 'sym', iv: [0, 2, 3, 5, 6, 8, 9, 11],  en: 'Diminished (whole–half)',   sv: 'Förminskad (hel–halv)' },
+  { id: 'augsc',  g: 'sym', iv: [0, 3, 4, 7, 8, 11],        en: 'Augmented',                 sv: 'Överstigande', lab: ['1', '♯2', '3', '5', '♯5', '7'] },
+  { id: 'chrom',  g: 'sym', iv: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], en: 'Chromatic',     sv: 'Kromatisk' },
+  { id: 'hira',   g: 'world', iv: [0, 2, 3, 7, 8],          en: 'Hirajōshi',                 sv: 'Hirajōshi' },
+  { id: 'insen',  g: 'world', iv: [0, 1, 5, 7, 10],         en: 'In-sen',                    sv: 'In-sen' },
+  { id: 'iwato',  g: 'world', iv: [0, 1, 5, 6, 10],         en: 'Iwato',                     sv: 'Iwato' },
+  { id: 'kumoi',  g: 'world', iv: [0, 2, 3, 7, 9],          en: 'Kumoi',                     sv: 'Kumoi' },
+  { id: 'prom',   g: 'world', iv: [0, 2, 4, 6, 9, 10],      en: 'Prometheus',                sv: 'Prometheus', lab: ['1', '2', '3', '♯4', '6', '♭7'] },
+  { id: 'arpmaj', g: 'arp', iv: [0, 4, 7],                  en: 'Major triad',               sv: 'Durtreklang' },
+  { id: 'arpmin', g: 'arp', iv: [0, 3, 7],                  en: 'Minor triad',               sv: 'Molltreklang' },
+  { id: 'arp7',   g: 'arp', iv: [0, 4, 7, 10],              en: 'Dominant 7th',              sv: 'Septimaackord' },
+  { id: 'arpmaj7',g: 'arp', iv: [0, 4, 7, 11],              en: 'Major 7th',                 sv: 'Stor septima' },
+  { id: 'arpm7',  g: 'arp', iv: [0, 3, 7, 10],              en: 'Minor 7th',                 sv: 'Moll med septima' },
+  { id: 'arpm7b5',g: 'arp', iv: [0, 3, 6, 10],              en: 'Half-diminished',           sv: 'Halvförminskad' },
+  { id: 'arpdim7',g: 'arp', iv: [0, 3, 6, 9],               en: 'Diminished 7th',            sv: 'Förminskad septima', lab: ['1', '♭3', '♭5', '♭♭7'] },
+  { id: 'arpaug', g: 'arp', iv: [0, 4, 8],                  en: 'Augmented triad',           sv: 'Överstigande treklang', lab: ['1', '3', '♯5'] },
 ];
 const SCALE_LABEL = { 0: '1', 1: '♭2', 2: '2', 3: '♭3', 4: '3', 5: '4', 6: '♭5', 7: '5', 8: '♭6', 9: '6', 10: '♭7', 11: '7' };
 function scaleDegreeLabel(sc, s) {
-  if (sc.id === 'lyd' || sc.id === 'whole') { if (s === 6) return '♯4'; if (s === 8 && sc.id === 'whole') return '♯5'; }
-  if (sc.id === 'hung' && s === 6) return '♯4';
-  if (sc.id === 'mblues' && s === 3) return '♭3';
+  if (sc.lab) { const i = sc.iv.indexOf(s); if (i >= 0) return sc.lab[i]; }
   return SCALE_LABEL[s];
+}
+/**
+ * Note names for a seven-note scale with every letter used once (A harmonic minor: … F G♯).
+ * Returns a Map pitch class → name, or null for other scales.
+ */
+function spellScale(root, sc) {
+  if (sc.iv.length !== 7) return null;
+  const LET = 'CDEFGAB', NAT = [0, 2, 4, 5, 7, 9, 11];
+  const L0 = LET.indexOf(MIXED[mod12(root)][0]);
+  const out = new Map();
+  for (let i = 0; i < 7; i++) {
+    const li = (L0 + i) % 7, pc = mod12(root + sc.iv[i]);
+    let d = pc - NAT[li];
+    if (d > 6) d -= 12;
+    if (d < -6) d += 12;
+    if (Math.abs(d) > 2) return null;
+    let name = LET[li] + ({ '-2': '♭♭', '-1': '♭', 0: '', 1: '♯', 2: '×' })[d];
+    if (Theory.hNotation) { if (name === 'B') name = 'H'; else if (name.startsWith('B♭')) name = 'B' + name.slice(2); else if (name.startsWith('B')) name = 'H' + name.slice(1); }
+    out.set(pc, name);
+  }
+  return out;
+}
+/** W W H W W W H – the steps between neighbouring notes (whole, half, 1½ …) */
+function stepPattern(sc) {
+  if (sc.iv.length < 5 || sc.g === 'arp') return '';
+  const n = { 1: 'H', 2: 'W', 3: 'W½', 4: '2W' };
+  return sc.iv.map((v, i) => n[(i + 1 < sc.iv.length ? sc.iv[i + 1] : 12) - v] || '?').join(' ');
 }
 const MAX_FRET = 17;
 
-/**
- * Box positions: two notes per string for five-note scales, three for seven-note scales.
- * Six-note blues scales use the pentatonic boxes plus the blue note inside each string's span.
+/*
+ * Instruments for the fretboard. Strings are listed from the bass side; `start` is the first fret a
+ * string can be played at (the 5-string banjo's short string begins at fret 5); fretless instruments
+ * get position lines instead of frets.
  */
-function scalePositions(root, sc) {
+function scaleInstruments() {
+  return INSTRUMENTS.filter(x => x.id !== 'guitar12').map(inst => {
+    const tunings = inst.tunings.map(tu => {
+      let n = tu.n.slice(), start = n.map(() => 0);
+      if (inst.id === 'mandolin' || inst.id === 'mandola') { n = n.filter((v, i) => i % 2 === 0); start = n.map(() => 0); }
+      if (inst.layout.side) { n[0] -= 5; start[0] = 5; }
+      return { id: tu.id, en: tu.en, sv: tu.sv, n, start };
+    });
+    return { id: inst.id, en: inst.en, sv: inst.sv, fretless: ['violin', 'viola', 'cello', 'dbass'].includes(inst.id), tunings };
+  });
+}
+
+/**
+ * Positions to play a scale in. On guitars and basses tuned in fourths the familiar boxes are used:
+ * two notes per string for five-note scales, three for seven-note scales (blues scales add the blue
+ * note inside each string's span). Elsewhere – ukulele, mandolin, banjo, violin family, open tunings,
+ * arpeggios – a position is a window of frets starting at each scale note on the lowest string.
+ */
+function scalePositions(root, sc, tun = { n: STD, start: STD.map(() => 0) }) {
+  const tuning = tun.n, N = tuning.length, start = tun.start;
   const base = sc.base ? SCALES.find(x => x.id === sc.base) : sc;
-  const n = base.iv.length;
-  if (n !== 5 && n !== 7) return [];
-  const nps = n === 5 ? 2 : 3;
-  const pcs = new Set(base.iv.map(s => mod12(root + s)));
-  const extra = new Set(sc.iv.filter(s => !base.iv.includes(s)).map(s => mod12(root + s)));
-  const pitches = [];
-  for (let m = STD[0]; m <= STD[5] + MAX_FRET + 12; m++) if (pcs.has(mod12(m))) pitches.push(m);
+  const nb = base.iv.length;
+  let fourths = start.every(x => x === 0);
+  for (let i = 1; i < N; i++) { const d = tuning[i] - tuning[i - 1]; if (d < 3 || d > 5) fourths = false; }
   const positions = [];
-  for (let k = 0; k < n; k++) {
-    let idx = k, notes = [];
-    for (let s = 0; s < 6; s++) for (let j = 0; j < nps; j++) {
-      const m = pitches[idx++];
-      notes.push({ s, f: m - STD[s] });
-    }
-    let lo = Math.min(...notes.map(x => x.f)), hi = Math.max(...notes.map(x => x.f));
-    if (lo < 0) { notes = notes.map(x => ({ s: x.s, f: x.f + 12 })); lo += 12; hi += 12; }
-    if (hi > MAX_FRET) {
-      if (lo >= 12) { notes = notes.map(x => ({ s: x.s, f: x.f - 12 })); }
-      else continue;
-    }
-    if (extra.size) {
-      for (let s = 0; s < 6; s++) {
+  if (fourths && (nb === 5 || nb === 7)) {
+    const nps = nb === 5 ? 2 : 3;
+    const pcs = new Set(base.iv.map(s => mod12(root + s)));
+    const extra = new Set(sc.iv.filter(s => !base.iv.includes(s)).map(s => mod12(root + s)));
+    const pitches = [];
+    for (let m = tuning[0]; m <= tuning[N - 1] + MAX_FRET + 12; m++) if (pcs.has(mod12(m))) pitches.push(m);
+    for (let k = 0; k < nb; k++) {
+      let idx = k, notes = [];
+      for (let s = 0; s < N; s++) for (let j = 0; j < nps; j++) notes.push({ s, f: pitches[idx++] - tuning[s] });
+      let lo = Math.min(...notes.map(x => x.f)), hi = Math.max(...notes.map(x => x.f));
+      if (lo < 0) { notes = notes.map(x => ({ s: x.s, f: x.f + 12 })); lo += 12; hi += 12; }
+      if (hi > MAX_FRET) { if (lo >= 12) notes = notes.map(x => ({ s: x.s, f: x.f - 12 })); else continue; }
+      if (extra.size) for (let s = 0; s < N; s++) {
         const fs = notes.filter(x => x.s === s).map(x => x.f);
-        const a = Math.min(...fs), z = Math.max(...fs);
-        for (let f = a; f <= z; f++) if (extra.has(mod12(STD[s] + f))) notes.push({ s, f });
+        for (let f = Math.min(...fs); f <= Math.max(...fs); f++) if (extra.has(mod12(tuning[s] + f))) notes.push({ s, f });
       }
+      lo = Math.min(...notes.map(x => x.f)); hi = Math.max(...notes.map(x => x.f));
+      positions.push({ notes, lo, hi });
     }
-    lo = Math.min(...notes.map(x => x.f)); hi = Math.max(...notes.map(x => x.f));
-    positions.push({ notes, lo, hi });
+  } else {
+    const pcs = new Set(sc.iv.map(s => mod12(root + s)));
+    let wide = false;
+    for (let i = 1; i < N; i++) if (tuning[i] - tuning[i - 1] > 5) wide = true;   // fifths (mandolin, violin)
+    const span = wide ? 6 : 4;
+    let anchor = 0;
+    for (let i = 0; i < N; i++) if (start[i] === 0 && tuning[i] < tuning[anchor]) anchor = i;
+    const seen = new Set();
+    for (let f0 = 0; f0 < 12; f0++) {
+      if (f0 > 0 && !pcs.has(mod12(tuning[anchor] + f0))) continue;     // always offer the open position
+      const lo = f0, hi = Math.min(MAX_FRET, f0 + span);
+      const notes = [];
+      for (let s = 0; s < N; s++) for (let f = Math.max(lo, start[s]); f <= hi; f++) if (pcs.has(mod12(tuning[s] + f))) notes.push({ s, f });
+      const key = notes.map(x => x.s + ':' + x.f).join(',');
+      if (seen.has(key)) continue;
+      seen.add(key);
+      positions.push({ notes, lo, hi });
+    }
   }
   positions.sort((a, c) => a.lo - c.lo);
   return positions;
+}
+
+/** The chords built on each note of a seven-note scale (triads or sevenths), with roman numerals. */
+function scaleChords(root, sc, sevenths) {
+  if (sc.iv.length !== 7) return [];
+  const MAJ = [0, 2, 4, 5, 7, 9, 11], ROM = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
+  return sc.iv.map((v, i) => {
+    const st = k => { const j = i + k; return sc.iv[j % 7] + (j >= 7 ? 12 : 0) - v; };
+    const th = st(2), fi = st(4), se = st(6);
+    let sfx;
+    if (sevenths) sfx = ({ '4,7,11': 'maj7', '4,7,10': '7', '3,7,10': 'm7', '3,6,10': 'm7b5', '3,6,9': 'dim7', '3,7,11': 'mmaj7', '4,8,10': 'aug7', '4,6,10': '7b5' })[th + ',' + fi + ',' + se];
+    if (sfx == null) sfx = ({ '4,7': '', '3,7': 'm', '3,6': 'dim', '4,8': 'aug', '2,7': 'sus2', '5,7': 'sus4' })[th + ',' + fi];
+    if (sfx == null) sfx = th === 3 ? 'm' : '';
+    const minor = /^m(?!aj)|dim/.test(sfx);
+    const acc = v - MAJ[i];
+    let roman = (acc < 0 ? '♭' : acc > 0 ? '♯' : '') + (minor ? ROM[i].toLowerCase() : ROM[i]);
+    if (sfx === 'dim' || sfx === 'dim7') roman += '°';
+    else if (sfx === 'm7b5') roman += 'ø';
+    else if (sfx.startsWith('aug')) roman += '+';
+    if (sevenths && /7/.test(sfx) && sfx !== 'm7b5') roman += sfx === 'maj7' || sfx === 'mmaj7' ? 'maj7' : '7';
+    return { r: mod12(root + v), t: typeIndex(sfx), roman };
+  });
 }
 
 /* ---------- keys, circle of fifths, progressions ---------- */
@@ -539,6 +660,6 @@ function targetFreq(m, a4, temp, root) {
 }
 
 if (typeof module !== 'undefined') module.exports = {
-  STD, CHORD_INSTS, TYPES, SCALES, TUNINGS, INSTRUMENTS, TEMPERAMENTS, TEMPER_GROUPS, PROGRESSIONS, CIRCLE, Theory, nn, voicings, parseChord, chordName,
+  STD, CHORD_INSTS, TYPES, SCALES, TUNINGS, INSTRUMENTS, TEMPERAMENTS, TEMPER_GROUPS, SCALE_GROUPS, scaleInstruments, scaleChords, stepPattern, spellScale, PROGRESSIONS, CIRCLE, Theory, nn, voicings, parseChord, chordName,
   scalePositions, romanChord, keySignature, targetFreq, typeIndex,
 };

@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.6';
+const VERSION = '1.7';
 const REPO = 'https://github.com/jonsolberg/guitarchords';
 
 const store = {
@@ -48,7 +48,7 @@ const STR = {
     sig0: 'No sharps or flats', sigN: '{n} {acc}', sharps: 'sharps', sharp: 'sharp', flats: 'flats', flat: 'flat',
     relMinor: 'Relative minor', relMajor: 'Relative major', showFing: 'Show fingerings',
     scale: 'Scale', position: 'Position', wholeNeck: 'Whole neck', showAs: 'Show', notesL: 'Notes', degrees: 'Degrees',
-    rootL: 'Root', noteL: 'Scale note', blueL: 'Blue note', frets: 'frets {a}–{b}', playScale: 'Play scale',
+    rootL: 'Root', noteL: 'Scale note', steps: 'Steps', scaleChords: 'Chords in the scale', triads: 'Triads', sevenths: '7th chords', fretlessNote: 'Fretless – lines mark semitones', blueL: 'Blue note', frets: 'frets {a}–{b}', playScale: 'Play scale',
     startTuner: 'Start tuner', stopTuner: 'Stop', tuning: 'Tuning', calib: 'Calibration A4', temperament: 'Temperament',
     tempRoot: 'Temperament key', pipe: 'Pitch pipe', pipeDesc: 'Tap a string to hear its note', mode: 'Mode', guitar: 'Guitar', chromatic: 'Chromatic',
     listen: 'Play a string', micDenied: 'The tuner needs the microphone. Allow it in Android settings.',
@@ -88,7 +88,7 @@ const STR = {
     sig0: 'Inga förtecken', sigN: '{n} {acc}', sharps: 'korsförtecken', sharp: 'korsförtecken', flats: 'b-förtecken', flat: 'b-förtecken',
     relMinor: 'Parallell moll', relMajor: 'Parallell dur', showFing: 'Visa grepp',
     scale: 'Skala', position: 'Läge', wholeNeck: 'Hela halsen', showAs: 'Visa', notesL: 'Toner', degrees: 'Steg',
-    rootL: 'Grundton', noteL: 'Skalton', blueL: 'Blue note', frets: 'band {a}–{b}', playScale: 'Spela skalan',
+    rootL: 'Grundton', noteL: 'Skalton', steps: 'Steg', scaleChords: 'Ackord i skalan', triads: 'Treklanger', sevenths: 'Fyrklanger', fretlessNote: 'Bandlöst – linjerna visar halvtoner', blueL: 'Blue note', frets: 'band {a}–{b}', playScale: 'Spela skalan',
     startTuner: 'Starta stämapparaten', stopTuner: 'Stopp', tuning: 'Stämning', calib: 'Kalibrering A4', temperament: 'Temperatur',
     tempRoot: 'Temperaturens tonart', pipe: 'Stämpipa', pipeDesc: 'Tryck på en sträng för att höra tonen', mode: 'Läge', guitar: 'Gitarr', chromatic: 'Kromatisk',
     listen: 'Spela på en sträng', micDenied: 'Stämapparaten behöver mikrofonen. Tillåt den i Androids inställningar.',
@@ -1032,76 +1032,113 @@ const CircleTab = {
    SCALES
    ======================================================================= */
 const Scales = {
-  s: Object.assign({ root: 9, id: 'pmin', pos: -1, labels: 'notes' }, store.get('scale', {})),
+  s: Object.assign({ root: 9, id: 'pmin', pos: -1, labels: 'notes', inst: 'guitar', tun: '', sev: false }, store.get('scale', {})),
+  insts: scaleInstruments(),
+  lastChord: null,
   save() { store.set('scale', this.s); },
   sc() { return SCALES.find(x => x.id === this.s.id) || SCALES[0]; },
+  si() { return this.insts.find(x => x.id === this.s.inst) || this.insts[0]; },
+  tu() { const si = this.si(); return si.tunings.find(x => x.id === this.s.tun) || si.tunings[0]; },
+  instId() { return this.si().id; },
 
   board() {
-    const sc = this.sc(), root = this.s.root;
+    const sc = this.sc(), root = this.s.root, si = this.si(), tu = this.tu(), N = tu.n.length;
     const pcs = new Map(sc.iv.map(s => [mod12(root + s), s]));
-    const positions = scalePositions(root, sc);
+    const sp = spellScale(root, sc);
+    const name = pc => (sp && sp.get(pc)) || nn(pc);
+    const positions = scalePositions(root, sc, tu);
     const pos = this.s.pos >= 0 ? positions[this.s.pos] : null;
     const inPos = pos ? new Set(pos.notes.map(n => n.s + ':' + n.f)) : null;
     const blue = sc.base ? new Set(sc.iv.filter(s => !SCALES.find(x => x.id === sc.base).iv.includes(s))) : new Set();
     const nut = 36, fw = 46, F = MAX_FRET, top = 22, sy = 27;
-    const W = nut + F * fw + 14, H = top + sy * 5 + 30;
+    const W = nut + F * fw + 14, H = top + sy * (N - 1) + 30;
     const X = x => S.lefty ? W - x : x;
     const fx = f => f === 0 ? nut - 18 : nut + (f - 0.5) * fw;
-    const sy_ = s => top + (5 - s) * sy;            // high e at the top
+    const Y = s => top + (N - 1 - s) * sy;                  // highest string at the top, as in tab
     let o = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" id="boardSvg">`;
-    o += `<rect x="${Math.min(X(nut), X(nut + F * fw))}" y="${top - 8}" width="${F * fw}" height="${sy * 5 + 16}" rx="4" style="fill:var(--wood)"/>`;
-    [3, 5, 7, 9, 15, 17].forEach(f => { o += `<circle cx="${X(nut + (f - 0.5) * fw)}" cy="${top + sy * 2.5}" r="5" style="fill:var(--fret)" opacity=".7"/>`; });
-    o += `<circle cx="${X(nut + 11.5 * fw)}" cy="${top + sy * 1.5}" r="5" style="fill:var(--fret)" opacity=".7"/><circle cx="${X(nut + 11.5 * fw)}" cy="${top + sy * 3.5}" r="5" style="fill:var(--fret)" opacity=".7"/>`;
+    o += `<rect x="${Math.min(X(nut), X(nut + F * fw))}" y="${top - 8}" width="${F * fw}" height="${sy * (N - 1) + 16}" rx="4" style="fill:var(--wood)"/>`;
+    if (!si.fretless) {
+      [3, 5, 7, 9, 15, 17].forEach(f => { o += `<circle cx="${X(nut + (f - 0.5) * fw)}" cy="${top + sy * (N - 1) / 2}" r="5" style="fill:var(--fret)" opacity=".7"/>`; });
+      o += `<circle cx="${X(nut + 11.5 * fw)}" cy="${top + sy * (N - 1) * 0.25}" r="5" style="fill:var(--fret)" opacity=".7"/><circle cx="${X(nut + 11.5 * fw)}" cy="${top + sy * (N - 1) * 0.75}" r="5" style="fill:var(--fret)" opacity=".7"/>`;
+    }
     for (let f = 0; f <= F; f++) {
       const xx = X(nut + f * fw);
-      o += `<line x1="${xx}" x2="${xx}" y1="${top - 8}" y2="${top + sy * 5 + 8}" style="stroke:${f === 0 ? 'var(--ink)' : 'var(--fret)'}" stroke-width="${f === 0 ? 5 : 2}"/>`;
+      if (f === 0) o += `<line x1="${xx}" x2="${xx}" y1="${top - 8}" y2="${top + sy * (N - 1) + 8}" style="stroke:var(--ink)" stroke-width="5"/>`;
+      else if (si.fretless) o += `<line x1="${xx}" x2="${xx}" y1="${top - 8}" y2="${top + sy * (N - 1) + 8}" style="stroke:var(--fret)" stroke-width="1" stroke-dasharray="2 5" opacity=".6"/>`;
+      else o += `<line x1="${xx}" x2="${xx}" y1="${top - 8}" y2="${top + sy * (N - 1) + 8}" style="stroke:var(--fret)" stroke-width="2"/>`;
       if (f) o += `<text x="${X(nut + (f - 0.5) * fw)}" y="${H - 4}" font-size="11" text-anchor="middle" style="fill:var(--muted)">${f}</text>`;
     }
     if (pos) {
       const a = X(pos.lo === 0 ? nut - 34 : nut + (pos.lo - 1) * fw), b = X(nut + pos.hi * fw);
-      o += `<rect x="${Math.min(a, b)}" y="${top - 11}" width="${Math.abs(b - a)}" height="${sy * 5 + 22}" rx="8" fill="none" style="stroke:var(--accent)" stroke-width="2" stroke-dasharray="5 4"/>`;
+      o += `<rect x="${Math.min(a, b)}" y="${top - 11}" width="${Math.abs(b - a)}" height="${sy * (N - 1) + 22}" rx="8" fill="none" style="stroke:var(--accent)" stroke-width="2" stroke-dasharray="5 4"/>`;
     }
-    for (let s = 0; s < 6; s++) o += `<line x1="${X(nut - 30)}" x2="${X(nut + F * fw)}" y1="${sy_(s)}" y2="${sy_(s)}" style="stroke:var(--str)" stroke-width="${1 + s * 0.3}"/>`;
-    for (let s = 0; s < 6; s++) for (let f = 0; f <= F; f++) {
-      const m = STD[s] + f, pc = mod12(m);
+    for (let s = 0; s < N; s++) {
+      const x0 = tu.start[s] ? nut + (tu.start[s] - 0.5) * fw : nut - 30;
+      o += `<line x1="${X(x0)}" x2="${X(nut + F * fw)}" y1="${Y(s)}" y2="${Y(s)}" style="stroke:var(--str)" stroke-width="${clamp(0.8 + (66 - tu.n[s] - tu.start[s]) / 20, 0.8, 2.6)}"/>`;
+      if (tu.start[s]) o += `<circle cx="${X(x0)}" cy="${Y(s)}" r="4" style="fill:var(--fret)"/>`;
+    }
+    for (let s = 0; s < N; s++) for (let f = tu.start[s]; f <= F; f++) {
+      const m = tu.n[s] + f, pc = mod12(m);
       if (!pcs.has(pc)) continue;
       const deg = pcs.get(pc);
       const faded = inPos && !inPos.has(s + ':' + f);
       const isRoot = deg === 0, isBlue = blue.has(deg);
       const fill = isRoot ? 'var(--root)' : isBlue ? 'var(--dim)' : 'var(--accent)';
-      const lab = this.s.labels === 'notes' ? nn(pc) : scaleDegreeLabel(sc, deg);
+      const lab = this.s.labels === 'notes' ? name(pc) : scaleDegreeLabel(sc, deg);
+      const xf = tu.start[s] && f === tu.start[s] ? nut + (f - 0.5) * fw : fx(f);
       o += `<g data-a="snote" data-v="${m},${s}" opacity="${faded ? 0.16 : 1}" style="cursor:pointer">
-        <circle cx="${X(fx(f))}" cy="${sy_(s)}" r="11" style="fill:${fill}"/>
-        <text x="${X(fx(f))}" y="${sy_(s) + 3.8}" font-size="${lab.length > 2 ? 9 : 10.5}" font-weight="700" text-anchor="middle" style="fill:${isRoot || isBlue ? '#fff' : 'var(--on-accent)'};pointer-events:none">${lab}</text></g>`;
+        <circle cx="${X(xf)}" cy="${Y(s)}" r="11" style="fill:${fill}"/>
+        <text x="${X(xf)}" y="${Y(s) + 3.8}" font-size="${lab.length > 2 ? 9 : 10.5}" font-weight="700" text-anchor="middle" style="fill:${isRoot || isBlue ? '#fff' : 'var(--on-accent)'};pointer-events:none">${lab}</text></g>`;
     }
     return { svg: o + '</svg>', positions, W, fw, nut, pos };
   },
 
   render() {
-    const sc = this.sc(), s = this.s;
+    const sc = this.sc(), s = this.s, si = this.si(), tu = this.tu();
     const b = this.board();
     if (s.pos >= b.positions.length) s.pos = -1;
+    const chords = scaleChords(s.root, sc, s.sev);
+    const sp = spellScale(s.root, sc);
+    const name = pc => (sp && sp.get(pc)) || nn(pc);
+    const steps = stepPattern(sc);
     $('#tab-scales').innerHTML = `
       <div class="card">
+        <div class="row" style="flex-wrap:nowrap">
+          <div class="grow" style="min-width:0"><div class="lbl" style="margin-top:0">${t('instrument')}</div>
+            <select id="scinst">${this.insts.map(x => `<option value="${x.id}" ${x.id === si.id ? 'selected' : ''}>${L(x)}</option>`).join('')}</select></div>
+          ${si.tunings.length > 1 ? `<div class="grow" style="min-width:0"><div class="lbl" style="margin-top:0">${t('tuning')}</div>
+            <select id="sctun">${si.tunings.map(x => `<option value="${x.id}" ${x === tu ? 'selected' : ''}>${L(x)}</option>`).join('')}</select></div>` : ''}
+        </div>
         <div class="lbl">${t('scale')}</div>
-        <select id="scsel">${SCALES.map(x => `<option value="${x.id}" ${x.id === s.id ? 'selected' : ''}>${L(x)}</option>`).join('')}</select>
+        <select id="scsel">${SCALE_GROUPS.map(g => `<optgroup label="${esc(L(g))}">${SCALES.filter(x => x.g === g.id).map(x => `<option value="${x.id}" ${x.id === s.id ? 'selected' : ''}>${L(x)}</option>`).join('')}</optgroup>`).join('')}</select>
         <div class="lbl">${t('key')}</div>
         ${rootGrid('skey', s.root)}
       </div>
       <div class="card">
         <div class="row" style="justify-content:space-between;margin-bottom:8px">
-          <b style="font-size:17px">${nn(s.root)} ${L(sc).toLowerCase()}</b>
+          <b style="font-size:17px">${name(s.root)} ${L(sc).toLowerCase()}</b>
           <button class="btn small primary" data-a="splay">${I.play}${t('playScale')}</button>
         </div>
-        <div class="notes" style="justify-content:flex-start">${sc.iv.map(x => `<div class="note ${x === 0 ? 'r' : ''}"><b>${nn(s.root + x)}</b><span>${scaleDegreeLabel(sc, x)}</span></div>`).join('')}</div>
+        <div class="notes" style="justify-content:flex-start">${sc.iv.map(x => `<div class="note ${x === 0 ? 'r' : ''}"><b>${name(mod12(s.root + x))}</b><span>${scaleDegreeLabel(sc, x)}</span></div>`).join('')}</div>
+        ${steps ? `<div class="small muted" style="margin:-4px 0 4px">${t('steps')}: <b style="color:var(--ink);letter-spacing:.04em">${steps}</b></div>` : ''}
         ${b.positions.length ? `<div class="lbl">${t('position')}</div>
         <div class="chips scroll"><button class="chip ${s.pos < 0 ? 'on' : ''}" data-a="spos" data-v="-1">${t('wholeNeck')}</button>${b.positions.map((p, i) => `<button class="chip ${i === s.pos ? 'on' : ''}" data-a="spos" data-v="${i}">${i + 1} <span class="muted small" style="${i === s.pos ? 'color:inherit;opacity:.8' : ''}">· ${t('frets', { a: p.lo, b: p.hi })}</span></button>`).join('')}</div>` : ''}
         <div style="height:12px"></div>
         <div class="board" id="board">${b.svg}</div>
-        <div class="legend"><span><i style="background:var(--root)"></i>${t('rootL')}</span><span><i style="background:var(--accent)"></i>${t('noteL')}</span>${sc.base ? `<span><i style="background:var(--dim)"></i>${t('blueL')}</span>` : ''}</div>
+        <div class="legend"><span><i style="background:var(--root)"></i>${t('rootL')}</span><span><i style="background:var(--accent)"></i>${t('noteL')}</span>${sc.base ? `<span><i style="background:var(--dim)"></i>${t('blueL')}</span>` : ''}${si.fretless ? `<span>${t('fretlessNote')}</span>` : ''}</div>
         <div style="margin-top:12px">${seg('slabels', [['notes', t('notesL')], ['degrees', t('degrees')]], s.labels)}</div>
-      </div>`;
-    $('#scsel').addEventListener('change', e => { s.id = e.target.value; s.pos = -1; this.save(); this.render(); });
+      </div>
+      ${chords.length ? `<div class="card">
+        <div class="row" style="justify-content:space-between"><div class="lbl" style="margin:0">${t('scaleChords')}</div>
+          <div style="width:170px">${seg('ssev', [['0', t('triads')], ['1', t('sevenths')]], s.sev ? '1' : '0')}</div></div>
+        <div class="dchords" style="margin-top:10px">${chords.map((c, i) => `<div class="dchord ${this.lastChord && this.lastChord.i === i ? 'lit' : ''}" data-a="schord" data-v="${i}"><i>${c.roman}</i><b>${name(c.r)}${c.t >= 0 ? pretty(TYPES[c.t].sfx) : ''}</b></div>`).join('')}</div>
+        <div class="row" style="margin-top:10px;justify-content:flex-end">
+          <button class="btn small" data-a="sfing" ${this.lastChord ? '' : 'disabled'}>${I.chords}${t('showFing')}</button></div>
+      </div>` : ''}`;
+    $('#scsel').addEventListener('change', e => { s.id = e.target.value; s.pos = -1; this.lastChord = null; this.save(); this.render(); });
+    $('#scinst').addEventListener('change', e => { s.inst = e.target.value; s.tun = ''; s.pos = -1; Snd.setTimbre(s.inst); this.save(); this.render(); });
+    const st = $('#sctun');
+    if (st) st.addEventListener('change', e => { s.tun = e.target.value; s.pos = -1; this.save(); this.render(); });
     const board = $('#board');
     if (b.pos) {
       const center = b.nut + ((b.pos.lo + b.pos.hi) / 2) * b.fw;
@@ -1109,36 +1146,70 @@ const Scales = {
       board.scrollLeft = x - board.clientWidth / 2;
     } else board.scrollLeft = S.lefty ? board.scrollWidth : 0;
   },
+  /** chord instrument matching the fretboard, if the chord library has it */
+  chordInst() { return CHORD_INSTS.find(x => x.id === this.si().id || (x.id === 'bass' && this.si().id.startsWith('bass'))) || null; },
+  playChord(c) {
+    const ci = this.chordInst() || CHORD_INSTS[0];
+    const v = c.t >= 0 ? voicings(c.r, c.t, null, ci)[0] : null;
+    if (v) Snd.chord(v.frets, ci.n, 0, 'strum');
+  },
   playScale() {
-    const sc = this.sc(), s = this.s;
+    const sc = this.sc(), s = this.s, tu = this.tu();
     const b = this.board();
     let notes;
     if (b.pos) {
-      notes = b.pos.notes.map(n => ({ m: STD[n.s] + n.f, s: n.s })).sort((a, c) => a.m - c.m);
+      notes = b.pos.notes.map(n => ({ m: tu.n[n.s] + n.f, s: n.s })).sort((a, c) => a.m - c.m);
       const seen = new Set();
       notes = notes.filter(n => !seen.has(n.m) && seen.add(n.m));
     } else {
-      // one octave up and back, from the lowest root on the low E or A string
-      let m0 = STD[0] + mod12(s.root - STD[0]);
-      const ivs = sc.iv.concat([12]);
-      notes = ivs.map(x => ({ m: m0 + x, s: -1 }));
+      // one octave up and back from the lowest root on the lowest open string
+      let lo = 0;
+      tu.n.forEach((m, i) => { if (!tu.start[i] && m < tu.n[lo]) lo = i; });
+      const m0 = tu.n[lo] + mod12(s.root - tu.n[lo]);
+      notes = sc.iv.concat([12]).map(x => ({ m: m0 + x, s: -1 }));
     }
-    const up = notes.slice(), down = notes.slice(0, -1).reverse();
-    const all = up.concat(down);
-    const now = Snd.now() + 0.05, step = 0.2;
-    all.forEach((n, i) => Snd.pluck(n.m, now + i * step, -1, 0.9));
+    const all = notes.concat(notes.slice(0, -1).reverse());
+    const now = Snd.now() + 0.05, step = TIMBRES[Snd.timbre].bow ? 0.42 : 0.2;
+    all.forEach((n, i) => TIMBRES[Snd.timbre].bow ? Snd.bowNote(n.m, now + i * step, -1, 0.9, step * 0.9) : Snd.pluck(n.m, now + i * step, -1, 0.9));
   },
   action(a, v) {
     switch (a) {
-      case 'skey': this.s.root = +v; this.save(); this.render(); break;
+      case 'skey': this.s.root = +v; this.lastChord = null; this.save(); this.render(); break;
       case 'spos': this.s.pos = +v; this.save(); this.render(); break;
       case 'splay': this.playScale(); break;
       case 'snote': { const [m, s] = v.split(',').map(Number); Snd.pluck(m, 0, s); break; }
+      case 'schord': {
+        const i = +v, c = scaleChords(this.s.root, this.sc(), this.s.sev)[i];
+        const keep = Snd.timbre;
+        Snd.setTimbre((this.chordInst() || CHORD_INSTS[0]).id);
+        this.playChord(c);
+        Snd.timbre = keep;
+        this.lastChord = Object.assign({ i }, c);
+        document.querySelectorAll('#tab-scales .dchord').forEach((el, k) => el.classList.toggle('lit', k === i));
+        const fb = document.querySelector('[data-a=sfing]'); if (fb) fb.disabled = false;
+        break;
+      }
+      case 'sfing': {
+        const c = this.lastChord;
+        if (!c || c.t < 0) break;
+        const ci = this.chordInst();
+        if (ci) S.chordInst = ci.id;
+        saveS();
+        Chords.set({ r: c.r, t: c.t, b: null, v: 0 });
+        showTab('chords');
+        break;
+      }
       default: return false;
     }
     return true;
   },
-  seg(k, v) { if (k !== 'slabels') return false; this.s.labels = v; this.save(); this.render(); return true; },
+  seg(k, v) {
+    if (k === 'slabels') this.s.labels = v;
+    else if (k === 'ssev') { this.s.sev = v === '1'; this.lastChord = null; }
+    else return false;
+    this.save(); this.render();
+    return true;
+  },
 };
 
 /* =======================================================================

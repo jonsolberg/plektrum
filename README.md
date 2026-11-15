@@ -34,10 +34,14 @@ Suggested progressions for any major or minor key.
 roman numerals. Key signature, relative key, the seven diatonic chords (tap to hear), and good
 progressions for that key that play on the circle or go straight to the Studio.
 
-**Scales** – 20 scales on a 17-fret fretboard: minor/major pentatonic, blues, major, minor, harmonic
-and melodic minor, all the modes, phrygian dominant, Hungarian minor, whole tone, diminished,
-hirajōshi and chromatic. The five pentatonic boxes (and three-notes-per-string positions for
-seven-note scales), notes or scale degrees, tap a note to hear it, play the scale.
+**Scales** – 51 scales and arpeggios in eight groups: pentatonic and blues, the major modes, melodic
+minor modes (altered, Lydian dominant …), harmonic and exotic scales (Phrygian dominant, double
+harmonic, Hungarian, Neapolitan, Persian …), bebop, symmetric (whole tone, diminished, augmented),
+Japanese scales, and arpeggios. Shown on the fretboard of any of 14 instruments in any of their
+tunings – guitar, 7-string, bass, ukulele, mandolin, mandola, banjo, tenor banjo, violin, viola,
+cello, double bass (fretless ones with semitone lines). Positions (the five pentatonic boxes and
+three-notes-per-string on guitar and bass), notes or degrees, step pattern (W W H …), correctly
+spelled note names, the chords of the scale as triads or 7th chords, tap to hear any note.
 
 **Tuner** – needle, strobe wheel or strobe bands, with a pitch history trace and signal level.
 Fifteen instruments, each with its own headstock and common tunings: guitar (17 tunings), 7-string
@@ -45,7 +49,7 @@ and 12-string guitar, 4-, 5- and 6-string bass, ukulele, mandolin, mandola, 5-st
 violin, viola, cello and double bass – plus a custom tuning for each. Tap a peg to tune one string;
 paired strings (12-string, mandolin) are marked together. Chromatic mode, A4 calibration
 (415–466 Hz), sensitivity, seven temperaments (equal, just, Pythagorean, ¼-comma meantone,
-Werckmeister III, Kirnberger III, Vallotti) on any key, and a pitch pipe. Steady read-out that
+Werckmeister III–V, Kirnberger II–III, Vallotti, Young, Kellner and five kinds of meantone – 16 in all) on any key, and a pitch pipe. Steady read-out that
 holds the last note for a moment after it fades.
 
 **Practice** – a metronome in 2/4, 3/4, 4/4, 5/4, 6/8, 9/8, 12/8, 5/8 and 7/8 (with groupings such as
