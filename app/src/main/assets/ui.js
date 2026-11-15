@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.5';
+const VERSION = '1.6';
 const REPO = 'https://github.com/jonsolberg/guitarchords';
 
 const store = {
@@ -19,7 +19,7 @@ const store = {
 };
 const S = Object.assign({
   lang: 'auto', theme: 'auto', lefty: false, names: false, hNotation: false, style: 'strum', volume: 0.8, sound: true,
-  a4: 440, temp: 'equal', tempRoot: 0, tuning: 'std', custom: [40, 45, 50, 55, 59, 64], tunerMode: 'guitar', tunerView: 'needle', tunerSens: 0.52, instrument: 'guitar', customs: {}, dotLabel: 'finger',
+  a4: 440, temp: 'equal', tempRoot: 0, tuning: 'std', custom: [40, 45, 50, 55, 59, 64], tunerMode: 'guitar', tunerView: 'needle', tunerSens: 0.52, instrument: 'guitar', customs: {}, tunerHist: false, chordInst: 'guitar', dotLabel: 'finger',
   tab: 'chords',
 }, store.get('settings', {}));
 const saveS = () => store.set('settings', S);
@@ -53,7 +53,7 @@ const STR = {
     tempRoot: 'Temperament key', pipe: 'Pitch pipe', pipeDesc: 'Tap a string to hear its note', mode: 'Mode', guitar: 'Guitar', chromatic: 'Chromatic',
     listen: 'Play a string', micDenied: 'The tuner needs the microphone. Allow it in Android settings.',
     lockHint: 'Tap a string to tune only that one. Tap again for automatic.', customT: 'Custom tuning', inTune: 'In tune',
-    instrument: 'Instrument', needle: 'Needle', strobe: 'Strobe', strobeWheel: 'Strobe wheel', strobeBands: 'Strobe bands', tapStart: 'Press Start and play a string', tuneUp: 'Tune up', tuneDown: 'Tune down',
+    instrument: 'Instrument', histOpt: 'Show pitch history', histOptD: 'A graph of the last seconds – handy for vibrato and notes that drift', needle: 'Needle', strobe: 'Strobe', strobeWheel: 'Strobe wheel', strobeBands: 'Strobe bands', tapStart: 'Press Start and play a string', tuneUp: 'Tune up', tuneDown: 'Tune down',
     semisLow: '{n} semitone(s) low – tune up', semisHigh: '{n} semitone(s) high – tune down',
     sens: 'Sensitivity', sensD: 'Raise it for quiet acoustics, lower it in noisy rooms',
     grouping: 'Grouping', subdiv: 'Subdivision', swingD: 'Plays the off-beats late, like a shuffle', accentPat: 'Accent pattern',
@@ -64,7 +64,7 @@ const STR = {
     settings: 'Settings', setDisplay: 'Display', soundOn: 'Play sounds', language: 'Language', auto: 'Automatic', theme: 'Theme', light: 'Light', dark: 'Dark',
     lefty: 'Left-handed', leftyD: 'Mirror diagrams and fretboards', namesS: 'Note names on diagrams',
     hNot: 'Swedish note names', hNotD: 'B is called H, B♭ is called B', playStyle: 'Tapping a chord chart plays', sound: 'Sound', volume: 'Volume',
-    about: 'About', aboutT: 'A toolbox for guitarists: chords, progressions, the circle of fifths, scales, a tuner and a metronome. Works fully offline.',
+    about: 'About', aboutT: 'A toolbox for string players: chords for guitar, ukulele, mandolin, banjo and bass, a tuner for fifteen instruments, chord progressions with strumming and drum backing, the circle of fifths, scales and a metronome. Works fully offline.',
     license: 'Free software under the GNU GPL v3.', source: 'Source code',
   },
   sv: {
@@ -93,7 +93,7 @@ const STR = {
     tempRoot: 'Temperaturens tonart', pipe: 'Stämpipa', pipeDesc: 'Tryck på en sträng för att höra tonen', mode: 'Läge', guitar: 'Gitarr', chromatic: 'Kromatisk',
     listen: 'Spela på en sträng', micDenied: 'Stämapparaten behöver mikrofonen. Tillåt den i Androids inställningar.',
     lockHint: 'Tryck på en sträng för att bara stämma den. Tryck igen för automatiskt.', customT: 'Egen stämning', inTune: 'Stämd',
-    instrument: 'Instrument', needle: 'Visare', strobe: 'Stroboskop', strobeWheel: 'Strobohjul', strobeBands: 'Strobeband', tapStart: 'Tryck på Starta och spela en sträng', tuneUp: 'Stäm upp', tuneDown: 'Stäm ner',
+    instrument: 'Instrument', histOpt: 'Visa tonhöjdshistorik', histOptD: 'En graf över de senaste sekunderna – bra för vibrato och toner som glider', needle: 'Visare', strobe: 'Stroboskop', strobeWheel: 'Strobohjul', strobeBands: 'Strobeband', tapStart: 'Tryck på Starta och spela en sträng', tuneUp: 'Stäm upp', tuneDown: 'Stäm ner',
     semisLow: '{n} halvton(er) för lågt – stäm upp', semisHigh: '{n} halvton(er) för högt – stäm ner',
     sens: 'Känslighet', sensD: 'Höj för tysta akustiska gitarrer, sänk i stökiga rum',
     grouping: 'Gruppering', subdiv: 'Underdelning', swingD: 'Spelar offbeat-slagen sent, som shuffle', accentPat: 'Betoningsmönster',
@@ -104,7 +104,7 @@ const STR = {
     nav_tuner: 'Stämma', nav_circle: 'Kvintcirkel', settings: 'Inställningar', setDisplay: 'Visning', soundOn: 'Spela upp ljud', language: 'Språk', auto: 'Automatiskt', theme: 'Tema', light: 'Ljust', dark: 'Mörkt',
     lefty: 'Vänsterhänt', leftyD: 'Spegelvänd diagram och greppbräda', namesS: 'Tonnamn i diagrammen',
     hNot: 'Svenska tonnamn', hNotD: 'B heter H, B♭ heter B', playStyle: 'Ett tryck på ackorddiagrammet spelar', sound: 'Ljud', volume: 'Volym',
-    about: 'Om', aboutT: 'En verktygslåda för gitarrister: ackord, progressioner, kvintcirkeln, skalor, stämapparat och metronom. Fungerar helt utan nätverk.',
+    about: 'Om', aboutT: 'En verktygslåda för dig som spelar stränginstrument: ackord för gitarr, ukulele, mandolin, banjo och elbas, stämapparat för femton instrument, ackordföljder med komp och trummor, kvintcirkeln, skalor och metronom. Fungerar helt utan nätverk.',
     license: 'Fri programvara under GNU GPL v3.', source: 'Källkod',
   },
 };
@@ -163,8 +163,11 @@ function seg(name, opts, cur) {
 function rootGrid(action, cur, extra = '') {
   return `<div class="grid12">${[...Array(12).keys()].map(pc => `<button class="chip ${pc === cur ? 'on' : ''}" data-a="${action}" data-v="${pc}" ${extra}>${nn(pc)}</button>`).join('')}</div>`;
 }
+/** the instrument the chord library is showing */
+const CI = () => CHORD_INSTS.find(x => x.id === S.chordInst) || CHORD_INSTS[0];
+const instOf = c => (c && c.inst && CHORD_INSTS.find(x => x.id === c.inst)) || CI();
 function vfor(c) {
-  const vs = voicings(c.r, c.t, c.b);
+  const vs = voicings(c.r, c.t, c.b, instOf(c));
   return vs[clamp(c.v || 0, 0, vs.length - 1)] || null;
 }
 
@@ -189,29 +192,30 @@ function diagram(v, root, opt = {}) {
   const W = 124, padL = 23, sx = 16, top = 26, sy = 22, rows = 5;
   const H = top + sy * rows + (names ? 22 : 10);
   const dotText = (i, f) => {
-    const pc = mod12(STD[i] + f);
+    const pc = mod12(tun[i] + f);
     if (mode === 'note') return nn(pc, opt.spell);
     if (mode === 'interval') return labels.get(pc) || '';
     return v.fing[i] ? String(v.fing[i]) : '';
   };
   const fs = txt => txt.length > 1 ? 8 : 10;
   if (!v) return `<svg viewBox="0 0 ${W} ${H}" class="${opt.cls || ''}"></svg>`;
-  const x = i => padL + (S.lefty ? 5 - i : i) * sx;
+  const tun = opt.tuning || CI().n, NS = tun.length;
+  const x = i => padL + (S.lefty ? NS - 1 - i : i) * (80 / (NS - 1));
   const fretted = v.frets.filter(f => f > 0);
   const maxF = fretted.length ? Math.max(...fretted) : 0;
   const minF = fretted.length ? Math.min(...fretted) : 0;
   const base = maxF <= rows ? 1 : minF;
   const y = f => top + (f - base + 0.5) * sy;
   let s = `<svg viewBox="0 0 ${W} ${H}" class="${opt.cls || ''}" xmlns="http://www.w3.org/2000/svg">`;
-  for (let j = 0; j <= rows; j++) s += `<line x1="${x(0) - (S.lefty ? -0 : 0)}" x2="${x(5)}" y1="${top + j * sy}" y2="${top + j * sy}" style="stroke:var(--fret)" stroke-width="1.4"/>`;
-  for (let i = 0; i < 6; i++) s += `<line x1="${x(i)}" x2="${x(i)}" y1="${top}" y2="${top + rows * sy}" style="stroke:var(--str)" stroke-width="${1 + (5 - i) * 0.16}"/>`;
-  if (base === 1) s += `<rect x="${Math.min(x(0), x(5)) - 1}" y="${top - 4}" width="${Math.abs(x(5) - x(0)) + 2}" height="5" rx="1.5" style="fill:var(--ink)"/>`;
+  for (let j = 0; j <= rows; j++) s += `<line x1="${x(0) - (S.lefty ? -0 : 0)}" x2="${x(NS - 1)}" y1="${top + j * sy}" y2="${top + j * sy}" style="stroke:var(--fret)" stroke-width="1.4"/>`;
+  for (let i = 0; i < NS; i++) s += `<line x1="${x(i)}" x2="${x(i)}" y1="${top}" y2="${top + rows * sy}" style="stroke:var(--str)" stroke-width="${clamp(0.8 + (66 - tun[i]) / 22, 0.8, 2.2)}"/>`;
+  if (base === 1) s += `<rect x="${Math.min(x(0), x(NS - 1)) - 1}" y="${top - 4}" width="${Math.abs(x(NS - 1) - x(0)) + 2}" height="5" rx="1.5" style="fill:var(--ink)"/>`;
   else s += `<text x="${S.lefty ? W - 2 : 2}" y="${top + sy * 0.5 + 4}" font-size="11" font-weight="700" text-anchor="${S.lefty ? 'end' : 'start'}" style="fill:var(--muted)">${base}</text>`;
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < NS; i++) {
     const f = v.frets[i];
     if (f < 0) s += `<path d="M${x(i) - 4} ${top - 16}l8 8M${x(i) + 4} ${top - 16}l-8 8" style="stroke:var(--muted)" stroke-width="1.6" stroke-linecap="round"/>`;
     else if (f === 0) {
-      const isR = mod12(STD[i]) === root;
+      const isR = mod12(tun[i]) === root;
       if (mode === 'finger') s += `<circle cx="${x(i)}" cy="${top - 12}" r="4.2" fill="none" style="stroke:${isR ? 'var(--root)' : 'var(--ink)'}" stroke-width="1.6"/>`;
       else {
         const txt = dotText(i, 0);
@@ -225,11 +229,11 @@ function diagram(v, root, opt = {}) {
     s += `<rect x="${xa - 7}" y="${y(v.barre.fret) - 7}" width="${xb - xa + 14}" height="14" rx="7" style="fill:var(--accent)"/>`;
     if (!mini && mode === 'finger') s += `<text x="${(xa + xb) / 2}" y="${y(v.barre.fret) + 3.6}" font-size="10" font-weight="700" text-anchor="middle" style="fill:var(--on-accent)">1</text>`;
   }
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < NS; i++) {
     const f = v.frets[i];
     if (f <= 0) continue;
     const inBarre = v.barre && f === v.barre.fret && i >= v.barre.from && i <= v.barre.to;
-    const isRoot = mod12(STD[i] + f) === root;
+    const isRoot = mod12(tun[i] + f) === root;
     if (inBarre) {
       if (mode !== 'finger') {
         s += `<circle cx="${x(i)}" cy="${y(f)}" r="7" style="fill:${isRoot ? 'var(--root)' : 'var(--accent)'}"/>`;
@@ -241,10 +245,10 @@ function diagram(v, root, opt = {}) {
     s += `<circle cx="${x(i)}" cy="${y(f)}" r="7" style="fill:${isRoot ? 'var(--root)' : 'var(--accent)'}"/>`;
     if (!mini) { const txt = dotText(i, f); if (txt) s += `<text x="${x(i)}" y="${y(f) + 3.4}" font-size="${fs(txt)}" font-weight="700" text-anchor="middle" style="fill:${isRoot ? '#fff' : 'var(--on-accent)'}">${txt}</text>`; }
   }
-  if (names) for (let i = 0; i < 6; i++) {
+  if (names) for (let i = 0; i < NS; i++) {
     const f = v.frets[i];
     if (f < 0) continue;
-    s += `<text x="${x(i)}" y="${top + rows * sy + 16}" font-size="9.5" text-anchor="middle" style="fill:var(--muted)">${nn(STD[i] + f, opt.spell)}</text>`;
+    s += `<text x="${x(i)}" y="${top + rows * sy + 16}" font-size="9.5" text-anchor="middle" style="fill:var(--muted)">${nn(tun[i] + f, opt.spell)}</text>`;
   }
   return s + '</svg>';
 }
@@ -279,10 +283,10 @@ const Chords = {
   c: Object.assign({ r: 0, t: 0, b: null, v: 0 }, store.get('chord', {})),
   favs: store.get('favs', []),
   save() { store.set('chord', this.c); },
-  isFav() { return this.favs.some(f => f.r === this.c.r && f.t === this.c.t && f.b === this.c.b && f.v === this.c.v); },
+  isFav() { const ii = CI().id; return this.favs.some(f => f.r === this.c.r && f.t === this.c.t && f.b === this.c.b && f.v === this.c.v && (f.inst || 'guitar') === ii); },
 
   render() {
-    const c = this.c, vs = voicings(c.r, c.t, c.b);
+    const c = this.c, inst = CI(), vs = voicings(c.r, c.t, c.b, inst);
     c.v = clamp(c.v, 0, Math.max(0, vs.length - 1));
     const v = vs[c.v];
     const T = TYPES[c.t];
@@ -291,12 +295,14 @@ const Chords = {
     if (c.b != null && !pcs.some(p => p.pc === c.b)) pcs.unshift({ pc: c.b, lab: t('bassShort') });
     const labels = new Map(pcs.map(p => [p.pc, p.lab]));
     const sp = chordSpell(c.r, c.t);
-    const posTxt = v ? (v.pos <= 1 && v.frets.some(f => f === 0) ? t('openPos') : t('atFret', { n: v.pos })) : '';
+    const openShape = v && v.frets.some(f => f === 0) && Math.max(0, ...v.frets) <= 5;
+    const posTxt = v ? (openShape ? t('openPos') : t('atFret', { n: v.pos })) : '';
     $('#tab-chords').innerHTML = `
       <div class="card">
         <div class="chordhead">
           <div class="grow" style="min-width:0"><div class="chordname">${cname(c.r, c.t, c.b)}</div>
           <div class="chordlong">${nn(c.r)} ${L(T)}${c.b != null ? ' / ' + nn(c.b) : ''}</div></div>
+          <select id="cinst" class="instsel" aria-label="${esc(t('instrument'))}">${CHORD_INSTS.map(x => `<option value="${x.id}" ${x.id === inst.id ? 'selected' : ''}>${L(x)}</option>`).join('')}</select>
           <button class="iconbtn star ${this.isFav() ? 'on' : ''}" data-a="fav" aria-label="favourite">${I.star}</button>
         </div>
         ${v ? `
@@ -318,7 +324,7 @@ const Chords = {
       <div class="card">
         <div class="lbl">${t('favourites')}</div>
         <div class="favs">${this.favs.length ? this.favs.map((f, i) => `
-          <div class="fav" data-a="openFav" data-v="${i}">${diagram(vfor(f), f.r, { mini: true })}<b>${cname(f.r, f.t, f.b)}</b></div>`).join('')
+          <div class="fav" data-a="openFav" data-v="${i}">${diagram(vfor(Object.assign({ inst: 'guitar' }, f)), f.r, { mini: true, tuning: instOf(Object.assign({ inst: 'guitar' }, f)).n })}<b>${cname(f.r, f.t, f.b)}</b>${(f.inst || 'guitar') !== 'guitar' ? `<small>${L(instOf(f))}</small>` : ''}</div>`).join('')
           : `<div class="empty">${t('noFavs')}</div>`}</div>
       </div>
       <div class="card">
@@ -329,6 +335,7 @@ const Chords = {
         <div class="lbl">${t('bass')}</div>
         <div class="chips scroll"><button class="chip ${c.b == null ? 'on' : ''}" data-a="cbass" data-v="">${t('none')}</button>${[...Array(12).keys()].filter(pc => pc !== c.r).map(pc => `<button class="chip ${pc === c.b ? 'on' : ''}" data-a="cbass" data-v="${pc}">/${nn(pc)}</button>`).join('')}</div>
       </div>`;
+    $('#cinst').addEventListener('change', e => { S.chordInst = e.target.value; saveS(); this.c.v = 0; this.save(); this.render(); this.play(); });
     const th = $('#thumbs .thumb.on'), row = $('#thumbs');
     if (th) row.scrollLeft = th.offsetLeft - row.offsetLeft - (row.clientWidth - th.clientWidth) / 2;
     this.bindSwipe();
@@ -342,13 +349,14 @@ const Chords = {
   },
   play(style) {
     const v = vfor(this.c);
-    if (v) Snd.chord(v.frets, STD, 0, style || S.style);
+    if (v) Snd.chord(v.frets, CI().n, 0, style || S.style);
   },
   toggleFav() {
     const c = this.c;
-    const i = this.favs.findIndex(f => f.r === c.r && f.t === c.t && f.b === c.b && f.v === c.v);
+    const ii = CI().id;
+    const i = this.favs.findIndex(f => f.r === c.r && f.t === c.t && f.b === c.b && f.v === c.v && (f.inst || 'guitar') === ii);
     if (i >= 0) { this.favs.splice(i, 1); toast(t('favRemoved')); }
-    else { this.favs.push({ r: c.r, t: c.t, b: c.b, v: c.v }); toast(t('favAdded')); }
+    else { this.favs.push({ r: c.r, t: c.t, b: c.b, v: c.v, inst: ii }); toast(t('favAdded')); }
     store.set('favs', this.favs);
     this.render();
   },
@@ -410,7 +418,7 @@ const Chords = {
       x0 = null;
       if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
         e.preventDefault();
-        const n = voicings(this.c.r, this.c.t, this.c.b).length;
+        const n = voicings(this.c.r, this.c.t, this.c.b, CI()).length;
         const nv = clamp(this.c.v + (dx < 0 ? 1 : -1) * (S.lefty ? -1 : 1), 0, n - 1);
         if (nv !== this.c.v) this.set({ v: nv }, true);
         Chords.swiped = Date.now();
@@ -430,7 +438,7 @@ const Chords = {
       case 'strum': this.play('strum'); break;
       case 'arp': this.play('arp'); break;
       case 'fav': this.toggleFav(); break;
-      case 'openFav': { const f = this.favs[+v]; this.set({ r: f.r, t: f.t, b: f.b, v: f.v }, true); window.scrollTo({ top: 0, behavior: 'smooth' }); break; }
+      case 'openFav': { const f = this.favs[+v]; S.chordInst = f.inst || 'guitar'; saveS(); this.set({ r: f.r, t: f.t, b: f.b, v: f.v }, true); window.scrollTo({ top: 0, behavior: 'smooth' }); break; }
       default: return false;
     }
     return true;
@@ -441,7 +449,7 @@ const Chords = {
    CHORD PICKER (used by Studio)
    ======================================================================= */
 function pickerHtml(c, idx, total) {
-  const vs = voicings(c.r, c.t, c.b);
+  const vs = voicings(c.r, c.t, c.b, CI());
   return `<h2>${t('chooseChord')} · ${cname(c.r, c.t, c.b)}</h2>
     <div class="lbl">${t('root')}</div>${rootGrid('pkroot', c.r)}
     <div class="lbl">${t('type')}</div>
@@ -634,7 +642,7 @@ const Studio = {
     const sp = this.strum();
     for (let j = 0; j < sp.sub; j++) {
       const step = bib * sp.sub + j, tt = time + this.offset(j, sp.sub, spb);
-      if (v) Snd.stroke(sp.p[step], v.frets, STD, tt, this.st, sp.sub >= 4 || spb < 0.4);
+      if (v) Snd.stroke(sp.p[step], v.frets, CI().n, tt, this.st, sp.sub >= 4 || spb < 0.4);
       atTime(tt, () => { if (this.clock.running) this.hlStep(step); });
     }
     const dp = this.drumPat();
@@ -655,7 +663,7 @@ const Studio = {
     const spb = 60 / this.p.bpm, t0 = Snd.now() + 0.05, st = {};
     for (let b = 0; b < m.beats; b++) for (let j = 0; j < sp.sub; j++) {
       const step = b * sp.sub + j, tt = t0 + b * spb + this.offset(j, sp.sub, spb);
-      Snd.stroke(sp.p[step], v.frets, STD, tt, st, sp.sub >= 4 || spb < 0.4);
+      Snd.stroke(sp.p[step], v.frets, CI().n, tt, st, sp.sub >= 4 || spb < 0.4);
       atTime(tt, () => this.hlStep(step));
     }
     atTime(t0 + m.beats * spb, () => { if (!this.clock.running) this.hlStep(-1); });
@@ -682,13 +690,13 @@ const Studio = {
   refreshPicker(play) {
     delete this.pick.roman;
     Sheet.update(pickerHtml(this.pick, this.edit, this.p.slots.length));
-    if (play) { const v = vfor(this.pick); if (v) Snd.chord(v.frets, STD, 0, 'strum'); }
+    if (play) { const v = vfor(this.pick); if (v) Snd.chord(v.frets, CI().n, 0, 'strum'); }
   },
 
   action(a, v) {
     const p = this.p;
     switch (a) {
-      case 'slot': if (!this.clock.running) this.openPicker(+v); else { const x = vfor(p.slots[+v]); if (x) Snd.chord(x.frets, STD, 0); } break;
+      case 'slot': if (!this.clock.running) this.openPicker(+v); else { const x = vfor(p.slots[+v]); if (x) Snd.chord(x.frets, CI().n, 0); } break;
       case 'slotAdd': if (p.slots.length >= MAX_SLOTS) toast(t('full', { n: MAX_SLOTS })); else this.openPicker(null); break;
       case 'sPlay': this.toggle(); break;
       case 'sPreview': this.preview(); break;
@@ -937,8 +945,8 @@ const CircleTab = {
     if (ms) this.flashTm = setTimeout(() => { this.lit = null; this.redrawCircle(); }, ms);
   },
   playChord(c, when) {
-    const v = voicings(c.r, c.t, null)[0];
-    if (v) Snd.chord(v.frets, STD, when || 0, 'strum');
+    const v = voicings(c.r, c.t, null, CI())[0];
+    if (v) Snd.chord(v.frets, CI().n, when || 0, 'strum');
   },
   lastChord: null,
   beat(n, time) {
@@ -952,7 +960,7 @@ const CircleTab = {
     }
     const c = romanChord(g.seq[i % g.seq.length], this.k.key, this.k.minor);
     if (b === 0) { this.playChord(c, time); atTime(time, () => this.flash(c, 0)); }
-    else Snd.chord(voicings(c.r, c.t, null)[0].frets, STD, time, 'strum', 0.7);
+    else { const v2 = voicings(c.r, c.t, null, CI())[0]; if (v2) Snd.chord(v2.frets, CI().n, time, 'strum', 0.7); }
   },
   stopProg() {
     this.clock.stop();
@@ -1235,7 +1243,7 @@ const Tuner = {
         <div class="tcents" id="tnCents">${running ? '' : '&nbsp;'}</div>
         <div class="tstatus" id="tnStatus">${running ? t('listen') : t('tapStart')}</div>
         <div class="tchips"><span id="tnHz">— Hz</span><span id="tnTarget">${S.a4.toFixed(1)} Hz A4</span></div>
-        <canvas class="history" id="thist"></canvas>
+        ${S.tunerHist ? '<canvas class="history" id="thist"></canvas>' : ''}
         <div class="level"><i id="tlevel"></i></div>
         <button class="btn ${running ? '' : 'primary'} tgo" data-a="tstart">${running ? I.stop + t('stopTuner') : I.mic + t('startTuner')}</button>
       </div>
@@ -1255,6 +1263,8 @@ const Tuner = {
       <div class="card">
         <div class="setrow"><div>${t('calib')}</div>
           <div class="stepper"><button data-a="ta4" data-v="-0.5">−</button><span>${S.a4.toFixed(1)} Hz</span><button data-a="ta4" data-v="0.5">+</button></div></div>
+        <div class="setrow"><div>${t('histOpt')}<small>${t('histOptD')}</small></div>
+          <label class="switch"><input type="checkbox" id="thistopt" ${S.tunerHist ? 'checked' : ''}><span></span></label></div>
         <div class="setrow"><div>${t('sens')}<small>${t('sensD')}</small></div>
           <input type="range" id="tsens" min="0" max="1" step="0.05" value="${S.tunerSens}" style="width:45%"></div>
         <div class="setrow"><div style="flex:1">${t('temperament')}
@@ -1268,6 +1278,7 @@ const Tuner = {
     });
     $('#ttemp').addEventListener('change', e => { S.temp = e.target.value; saveS(); this.render(); });
     $('#tpipe').addEventListener('change', e => { this.pipeOn = e.target.checked; if (!this.pipeOn) this.stopPipe(); this.render(); });
+    $('#thistopt').addEventListener('change', e => { S.tunerHist = e.target.checked; saveS(); this.render(); });
     $('#tsens').addEventListener('input', e => { S.tunerSens = +e.target.value; this.applyGate(); saveS(); });
     this.canvas = $('#thist');
     if (this.hasSig && this.last) this.show(this.last);
@@ -1868,7 +1879,8 @@ const Quiz = {
     while (this.list.length < 10) {
       const c = pool[Math.floor(Math.random() * pool.length)];
       if (this.list.some(x => x.r === c.r && x.t === c.t)) continue;
-      const vs = voicings(c.r, c.t, null);
+      const vs = voicings(c.r, c.t, null, CI());
+      if (!vs.length) continue;
       c.v = Math.floor(Math.random() * Math.min(3, vs.length));
       this.list.push(c);
     }
@@ -1898,7 +1910,7 @@ const Quiz = {
       <div class="muted" style="text-align:center;margin-top:6px">${t('best', { b: this.best })}</div>
       <div class="row" style="margin-top:14px"><button class="btn primary grow" data-a="qstart">${t('again')}</button></div></div>`;
     const c = this.list[this.i];
-    const v = voicings(c.r, c.t, null)[c.v];
+    const v = voicings(c.r, c.t, null, CI())[c.v];
     const name = o => cname(o.r, o.t);
     return `<div class="card"><div class="row"><div class="lbl grow" style="margin:0">${t('challenge')} · ${this.i + 1}/10</div><b>${this.score}</b></div>
       <div class="progress" style="margin-top:8px"><i style="width:${this.i * 10}%"></i></div>
@@ -1917,13 +1929,13 @@ const Quiz = {
   action(a, v) {
     switch (a) {
       case 'qstart': this.start(); Practice.render(); break;
-      case 'qhear': { const c = this.list[this.i]; const x = voicings(c.r, c.t, null)[c.v]; Snd.chord(x.frets, STD, 0); break; }
+      case 'qhear': { const c = this.list[this.i]; const x = voicings(c.r, c.t, null, CI())[c.v]; Snd.chord(x.frets, CI().n, 0); break; }
       case 'qans': {
         if (this.answered) break;
         const o = this.opts[+v], c = this.list[this.i];
         this.answered = o;
         if (o === c) this.score++;
-        const x = voicings(c.r, c.t, null)[c.v]; Snd.chord(x.frets, STD, 0);
+        const x = voicings(c.r, c.t, null, CI())[c.v]; Snd.chord(x.frets, CI().n, 0);
         Practice.render();
         break;
       }

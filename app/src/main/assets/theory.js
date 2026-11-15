@@ -118,59 +118,89 @@ function parseChord(str) {
   return { r, t, b: b === r ? null : b };
 }
 
+/* ---------- instruments for the chord library ----------
+ * n: open strings as MIDI notes, in the order they cross the nut (as drawn in the chart).
+ * bass: the lowest string must play the chord's bass note (guitar, bass). Re-entrant or
+ *   fifth-tuned instruments (ukulele, mandolin, banjo) use any inversion.
+ * span: largest stretch in frets. minStr: strings that must sound.
+ * guitarMutes: guitar-style muting (low strings may be left out, one more string at most).
+ * drone: a string that is only ever played open or muted (the banjo's short 5th string).
+ */
+const CHORD_INSTS = [
+  { id: 'guitar',   en: 'Guitar',           sv: 'Gitarr',          n: STD,                  bass: true,  span: 3, minStr: 4, guitarMutes: true },
+  { id: 'uke',      en: 'Ukulele',          sv: 'Ukulele',         n: [67, 60, 64, 69],     bass: false, span: 3, minStr: 4 },
+  { id: 'ukebari',  en: 'Baritone uke', sv: 'Barytonuke',  n: [50, 55, 59, 64],     bass: false, span: 3, minStr: 4 },
+  { id: 'mandolin', en: 'Mandolin',         sv: 'Mandolin',        n: [55, 62, 69, 76],     bass: false, span: 4, minStr: 4 },
+  { id: 'banjo5',   en: 'Banjo',            sv: 'Banjo',           n: [67, 50, 55, 59, 62], bass: false, span: 3, minStr: 4, drone: 0 },
+  { id: 'banjo4',   en: 'Tenor banjo',      sv: 'Tenorbanjo',      n: [48, 55, 62, 69],     bass: false, span: 4, minStr: 4 },
+  { id: 'bass',     en: 'Bass',             sv: 'Elbas',           n: [28, 33, 38, 43],     bass: true,  span: 3, minStr: 3 },
+];
+
 /* ---------- fingering generator ---------- */
 const VCACHE = new Map();
 /**
- * All playable fingerings (standard tuning) for root r, type t, optional bass b,
- * best first. Each: {frets[6] (-1 muted), fing[6] (0 none), barre {fret,from,to}|null, pos}.
+ * All playable fingerings for root r, type t, optional bass b on an instrument, best first.
+ * Each: {frets[] (-1 muted), fing[] (0 none), barre {fret,from,to}|null, pos}.
  */
-function voicings(r, t, b = null, tuning = STD) {
+function voicings(r, t, b = null, inst = CHORD_INSTS[0]) {
+  if (Array.isArray(inst)) inst = Object.assign({}, CHORD_INSTS[0], { id: inst.join('.'), n: inst });
   if (b === r) b = null;
-  const key = r + '|' + t + '|' + (b == null ? '' : b) + '|' + tuning.join('.');
+  const key = r + '|' + t + '|' + (b == null ? '' : b) + '|' + inst.id;
   if (VCACHE.has(key)) return VCACHE.get(key);
+  const tuning = inst.n, N = tuning.length, drone = inst.drone == null ? -1 : inst.drone;
   const T = TYPES[t];
   const req = new Set(T.req.map(s => mod12(r + s)));
   const opt = new Set(T.opt.map(s => mod12(r + s)));
   const bass = b == null ? r : b;
   const allowed = new Set([...req, ...opt, bass]);
-  const minStrings = T.req.length <= 2 && !T.opt.length ? 3 : 4;
+  const minStrings = inst.minStr === 4 && T.req.length <= 2 && !T.opt.length && inst.guitarMutes ? 3 : inst.minStr;
+  const maxStrings = inst.maxStr || N;
   const out = new Map();
-  const cur = new Array(6);
+  const cur = new Array(N);
 
   function evaluate() {
     let first = -1, last = -1, sounded = 0;
-    for (let i = 0; i < 6; i++) if (cur[i] >= 0) { if (first < 0) first = i; last = i; sounded++; }
-    if (sounded < minStrings) return;
-    if (mod12(tuning[first] + cur[first]) !== bass) return;
+    for (let i = 0; i < N; i++) if (i !== drone && cur[i] >= 0) { if (first < 0) first = i; last = i; sounded++; }
+    if (sounded < minStrings || sounded > maxStrings) return;
+    // the bass note: lowest string (guitar, bass) or lowest pitch (slash chords elsewhere)
+    if (inst.bass) { if (mod12(tuning[first] + cur[first]) !== bass) return; }
+    else if (b != null) {
+      let lo = 999;
+      for (let i = 0; i < N; i++) if (cur[i] >= 0) lo = Math.min(lo, tuning[i] + cur[i]);
+      if (mod12(lo) !== b) return;
+    }
     let inner = 0;
-    for (let i = first; i <= last; i++) if (cur[i] < 0) inner++;
-    const top = 5 - last;
-    if (inner + top > 1) return;
+    for (let i = first; i <= last; i++) if (i !== drone && cur[i] < 0) inner++;
+    let top = 0;
+    for (let i = last + 1; i < N; i++) if (i !== drone) top++;
+    if (inst.guitarMutes ? inner + top > 1 : inner + top + (first - (drone === 0 ? 1 : 0)) > N - minStrings) return;
     const have = new Set();
-    let opens = 0, minF = 99, maxF = 0, fretted = 0;
-    for (let i = first; i < 6; i++) {
+    let opens = 0, minF = 99, maxF = 0, fretted = 0, lowest = 999, lowestPc = -1;
+    for (let i = 0; i < N; i++) {
       const f = cur[i];
       if (f < 0) continue;
-      have.add(mod12(tuning[i] + f));
-      if (f === 0) opens++;
+      const m = tuning[i] + f;
+      have.add(mod12(m));
+      if (m < lowest) { lowest = m; lowestPc = mod12(m); }
+      if (f === 0) { if (i !== drone) opens++; }
       else { fretted++; if (f < minF) minF = f; if (f > maxF) maxF = f; }
     }
     for (const p of req) if (!have.has(p)) return;
-    if (fretted && maxF - minF > 3) return;
+    if (fretted && maxF - minF > inst.span) return;
     const k = cur.join(',');
     if (out.has(k)) return;
 
     // finger assignment
-    const fing = [0, 0, 0, 0, 0, 0];
+    const fing = new Array(N).fill(0);
     let barre = null, fingers = 0;
     if (fretted) {
       const at = [];
-      for (let i = first; i < 6; i++) if (cur[i] === minF) at.push(i);
+      for (let i = 0; i < N; i++) if (cur[i] === minF) at.push(i);
       let canBarre = at.length >= 2;
-      if (canBarre) for (let i = at[0]; i <= at[at.length - 1]; i++) if (cur[i] < minF) { canBarre = false; break; }
-      const useBarre = canBarre && (fretted > 4 || (at.length >= 3 && opens === 0 && minF > 1) || (at.length >= 2 && fretted - at.length + 1 <= 4 && fretted > 4));
+      if (canBarre) for (let i = at[0]; i <= at[at.length - 1]; i++) if (i !== drone && cur[i] < minF) { canBarre = false; break; }
+      const useBarre = canBarre && (fretted > 4 || (at.length >= 3 && opens === 0 && minF > 1));
       const rest = [];
-      for (let i = first; i < 6; i++) {
+      for (let i = 0; i < N; i++) {
         const f = cur[i];
         if (f <= 0) continue;
         if (useBarre && f === minF && i >= at[0] && i <= at[at.length - 1]) { fing[i] = 1; continue; }
@@ -193,21 +223,23 @@ function voicings(r, t, b = null, tuning = STD) {
     const pos = fretted ? minF : 0;
     let missing = 0;
     for (const p of opt) if (!have.has(p)) missing++;
-    let s = pos * 0.35 + missing * 2.2 + (6 - sounded) * 1.0 + inner * 3 + top * 1.5
+    let s = pos * 0.35 + missing * 2.2 + (N - (drone >= 0 ? 1 : 0) - sounded) * 1.0 + inner * 3 + top * 1.5
           + fingers * 0.5 + (fretted ? (maxF - minF) * 0.7 : 0) + (barre ? 0.8 : 0)
-          + opens * (pos > 4 ? 1.6 : -0.4) + (maxF >= 4 ? opens * 1.2 : 0);
+          + opens * (pos > 4 ? 1.6 : -0.4) + (inst.guitarMutes && maxF >= 4 ? opens * 1.2 : 0)
+          + (!inst.bass && b == null && lowestPc !== r ? 0.6 : 0)
+          + (drone >= 0 && cur[drone] < 0 ? 0.5 : 0);
     out.set(k, { frets: cur.slice(), fing, barre, pos, score: s });
   }
 
   for (let lo = 1; lo <= 13; lo++) {
-    const opts = tuning.map(o => {
+    const opts = tuning.map((o, i) => {
       const a = [-1];
       if (allowed.has(mod12(o))) a.push(0);
-      for (let f = lo; f <= lo + 3; f++) if (allowed.has(mod12(o + f))) a.push(f);
+      if (i !== drone) for (let f = lo; f <= lo + inst.span; f++) if (allowed.has(mod12(o + f))) a.push(f);
       return a;
     });
     (function rec(i) {
-      if (i === 6) { evaluate(); return; }
+      if (i === N) { evaluate(); return; }
       for (const f of opts[i]) { cur[i] = f; rec(i + 1); }
     })(0);
   }
@@ -452,6 +484,6 @@ function targetFreq(m, a4, temp, root) {
 }
 
 if (typeof module !== 'undefined') module.exports = {
-  STD, TYPES, SCALES, TUNINGS, INSTRUMENTS, TEMPERAMENTS, PROGRESSIONS, CIRCLE, Theory, nn, voicings, parseChord, chordName,
+  STD, CHORD_INSTS, TYPES, SCALES, TUNINGS, INSTRUMENTS, TEMPERAMENTS, PROGRESSIONS, CIRCLE, Theory, nn, voicings, parseChord, chordName,
   scalePositions, romanChord, keySignature, targetFreq, typeIndex,
 };

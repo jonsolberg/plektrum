@@ -1,6 +1,7 @@
 # Plektrum (Android)
 
-A toolbox for guitarists: chords, progressions, the circle of fifths, scales, a tuner and a metronome.
+A toolbox for string players – guitar, bass, ukulele, mandolin, banjo, violin and more: chords,
+progressions with strumming and drum backing, the circle of fifths, scales, a tuner and a metronome.
 Fully offline – no internet permission, no ads, no accounts. Everything lives in `app/src/main/assets/`.
 
 <p align="center">
@@ -13,12 +14,13 @@ Fully offline – no internet permission, no ads, no accounts. Everything lives 
 ## What's inside
 
 **Chords**
-- 36 chord types in all 12 keys, plus slash chords over any bass note (5,184 chord names)
-- Fingerings worked out on the device – up to 24 per chord, open shapes first, then barre chords up the neck
-- Diagrams with finger numbers, barres, muted/open strings, root notes marked, optional note names
-- Search by name (`Am7`, `C/G`, `F#m7b5`, `Bbmaj7`, `Esus` …), swipe between fingerings
+- Guitar, ukulele (standard and baritone), mandolin, 5-string banjo, tenor banjo and bass
+- 36 chord types in all 12 keys, plus slash chords over any bass note
+- Fingerings worked out on the device for each instrument – up to 24 per chord, easiest first
+- Charts show fingers, note names or intervals (1, 3, 5 …), with the starting fret up the neck
+- Search by name (`Am7`, `C/G`, `F#m7b5`, `Bbmaj7` …), swipe between fingerings
 - Strum or arpeggio playback with a synthesised plucked-string sound
-- Unlimited favourites
+- Unlimited favourites (they remember the instrument)
 
 **Studio** – build progressions of up to 16 chords, pick any fingering, reorder, transpose and save
 them. Play them back in 4/4, 3/4, 2/4, 5/4, 6/8, 12/8 or 7/8 with 39 strumming patterns (accents,

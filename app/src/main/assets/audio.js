@@ -7,7 +7,7 @@
 
 const Snd = {
   ctx: null, out: null, volume: 0.8, enabled: true,
-  bufs: new Map(), voices: [null, null, null, null, null, null],
+  bufs: new Map(), voices: [],
 
   init() {
     if (!this.ctx) {
@@ -87,8 +87,8 @@ const Snd = {
   chord(frets, tuning, when, style = 'strum', vel = 1) {
     this.init();
     when = Math.max(when || 0, this.ctx.currentTime + 0.01);
-    let idx = [0, 1, 2, 3, 4, 5].filter(i => frets[i] >= 0);
-    for (let i = 0; i < 6; i++) if (frets[i] < 0) this.dampString(i, when);
+    let idx = frets.map((f, i) => i).filter(i => frets[i] >= 0);
+    for (let i = 0; i < frets.length; i++) if (frets[i] < 0) this.dampString(i, when);
     if (style === 'up') idx = idx.slice(-4).reverse();
     const gap = style === 'arp' ? 0.16 : style === 'fast' ? 0.012 : 0.022;
     idx.forEach((s, k) => this.pluck(tuning[s] + frets[s], when + k * gap, s, vel * (style === 'up' ? 0.8 : 1)));
@@ -116,7 +116,7 @@ const Snd = {
    */
   stroke(sym, frets, tuning, when, st, fast) {
     if (!this.enabled || sym === '-') return;
-    const ss = [0, 1, 2, 3, 4, 5].filter(i => frets[i] >= 0);
+    const ss = frets.map((f, i) => i).filter(i => frets[i] >= 0);
     if (!ss.length) return;
     const one = (k, vel) => { const s = ss[Math.min(k, ss.length - 1)]; this.pluck(tuning[s] + frets[s], when, s, vel); };
     const strum = fast ? 'fast' : 'strum';
