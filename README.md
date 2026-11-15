@@ -52,7 +52,10 @@ paired strings (12-string, mandolin) are marked together. Chromatic mode, A4 cal
 Werckmeister III–V, Kirnberger II–III, Vallotti, Young II, Kellner) on any key, and a pitch pipe. Steady read-out that
 holds the last note for a moment after it fades.
 
-**Practice** – a start page with separate exercises, each ten questions with your best score kept:
+**Practice** – a start page with music theory lessons and separate exercises (ten questions each, best score kept):
+- Music theory: 12 short lessons – notes, intervals, the major scale, keys, minor scales, triads, seventh
+  chords, chords in a key, modes, pentatonic & blues, rhythm, reading chord charts and tab – with examples
+  to play and links to the matching quiz or tool
 - Metronome in 2/4 to 12/8 plus 5/8 and 7/8 (with groupings such as 2 + 2 + 3), subdivisions, swing,
   tap tempo and accent patterns for syncopation (backbeat, offbeats, Charleston, tresillo, son/rumba/
   bossa clave, shuffle, gallop) – tap any step to accent, soften or silence it

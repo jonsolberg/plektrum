@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.8';
+const VERSION = '1.9';
 const REPO = 'https://github.com/jonsolberg/guitarchords';
 
 const store = {
@@ -58,12 +58,13 @@ const STR = {
     sens: 'Sensitivity', sensD: 'Raise it for quiet acoustics, lower it in noisy rooms',
     grouping: 'Grouping', subdiv: 'Subdivision', swingD: 'Plays the off-beats late, like a shuffle', accentPat: 'Accent pattern',
     customPat: 'Custom', resetAcc: 'Reset accents', stepHint: 'Tap a step: normal → accent → soft → silent',
+    learn: 'Music theory', learnDesc: 'Short lessons with examples you can play', lessonsN: '{n} lessons', lessonN: 'Lesson {n} of {of}',
     metroDesc: 'Time signatures, subdivisions, accents', qWhichNote: 'Which note is marked?', qFindNote: 'Find {n} on string {k} ({s})',
     qDegree: 'What is the {d} of {k} major?', qScaleIs: '{k} major: {s}', qSig: 'How many sharps or flats in {k} major?',
     qRel: 'What is the relative minor of {k} major?', qRelEx: 'The relative minor starts on the 6th note of the major scale.',
     qDia: 'Which chord is {n} in {k} major?', qTones: 'Which notes make up {c}?', qMode: 'Play the major scale from its {o} note. Which mode is that?',
     qModeEx: 'In {k} major: from {n} you get {m}.', qSteps: 'Which scale has these steps?', qStepsEx: 'W = whole step, H = half step, W½ = three semitones.',
-    qInterval: 'Which interval is {a} up to {b}?', qSemis: '{n} semitones', qListen: 'Listen – which interval?', qListenChord: 'Listen – which kind of chord?',
+    qInterval: 'Which interval is {a} up to {b}?', qSemis: '{n} semitones', qSemi1: '1 semitone', qListen: 'Listen – which interval?', qListenChord: 'Listen – which kind of chord?',
     together: 'Together', strummed: 'Strummed', fretWord: 'fret',
     metronome: 'Metronome', perBar: 'Beats per bar', tap: 'Tap', start: 'Start', challenge: 'Chord challenge',
     challengeDesc: 'Ten chord diagrams – name each one.', go: 'Start', which: 'Which chord is this?', next: 'Next',
@@ -105,12 +106,13 @@ const STR = {
     sens: 'Känslighet', sensD: 'Höj för tysta akustiska gitarrer, sänk i stökiga rum',
     grouping: 'Gruppering', subdiv: 'Underdelning', swingD: 'Spelar offbeat-slagen sent, som shuffle', accentPat: 'Betoningsmönster',
     customPat: 'Eget', resetAcc: 'Återställ betoningar', stepHint: 'Tryck på ett steg: normal → betonad → svag → tyst',
+    learn: 'Musikteori', learnDesc: 'Korta lektioner med exempel du kan spela', lessonsN: '{n} lektioner', lessonN: 'Lektion {n} av {of}',
     metroDesc: 'Taktarter, underdelningar, betoningar', qWhichNote: 'Vilken ton är markerad?', qFindNote: 'Hitta {n} på sträng {k} ({s})',
     qDegree: 'Vilken ton är {d} i {k}-dur?', qScaleIs: '{k}-dur: {s}', qSig: 'Hur många förtecken har {k}-dur?',
     qRel: 'Vilken är parallelltonarten i moll till {k}-dur?', qRelEx: 'Parallelltonarten i moll börjar på durskalans sjätte ton.',
     qDia: 'Vilket ackord är {n} i {k}-dur?', qTones: 'Vilka toner ingår i {c}?', qMode: 'Spela durskalan från dess {o} ton. Vilket modus blir det?',
     qModeEx: 'I {k}-dur: från {n} får du {m}.', qSteps: 'Vilken skala har de här stegen?', qStepsEx: 'W = helt tonsteg, H = halvt tonsteg, W½ = tre halvtoner.',
-    qInterval: 'Vilket intervall är {a} upp till {b}?', qSemis: '{n} halvtoner', qListen: 'Lyssna – vilket intervall?', qListenChord: 'Lyssna – vilken sorts ackord?',
+    qInterval: 'Vilket intervall är {a} upp till {b}?', qSemis: '{n} halvtoner', qSemi1: '1 halvton', qListen: 'Lyssna – vilket intervall?', qListenChord: 'Lyssna – vilken sorts ackord?',
     together: 'Samtidigt', strummed: 'Slag', fretWord: 'band',
     metronome: 'Metronom', perBar: 'Slag per takt', tap: 'Knacka', start: 'Starta', challenge: 'Ackordutmaning',
     challengeDesc: 'Tio ackorddiagram – namnge vart och ett.', go: 'Börja', which: 'Vilket ackord är det här?', next: 'Nästa',
@@ -151,6 +153,7 @@ const I = {
   close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
   info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r="1.1" fill="currentColor" stroke="none"/></svg>',
   ear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 9.5H7l4.5-3.5v12L7 14.5H3.5z"/><path d="M15 9.2a4 4 0 0 1 0 5.6M17.8 6.6a7.6 7.6 0 0 1 0 10.8"/></svg>',
+  book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M9 8h7M9 11.5h5"/></svg>',
   note: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17.5V5.5l10-2v12"/><circle cx="6.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="15.5" r="2.5"/></svg>',
   trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
   send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>',
@@ -292,7 +295,7 @@ const Sheet = {
 };
 window.addEventListener('popstate', () => {
   if (Sheet.isOpen) Sheet._closed();
-  else if (typeof Practice !== 'undefined' && Practice.view !== 'hub') Practice.toHub();
+  else if (typeof Practice !== 'undefined' && Practice.view !== 'hub') Practice.pop();
 });
 
 /* =======================================================================
@@ -1973,6 +1976,7 @@ const INTERVAL_NAMES = {
   en: ['Unison', 'Minor 2nd', 'Major 2nd', 'Minor 3rd', 'Major 3rd', 'Perfect 4th', 'Tritone', 'Perfect 5th', 'Minor 6th', 'Major 6th', 'Minor 7th', 'Major 7th', 'Octave'],
   sv: ['Prim', 'Liten sekund', 'Stor sekund', 'Liten ters', 'Stor ters', 'Ren kvart', 'Tritonus', 'Ren kvint', 'Liten sext', 'Stor sext', 'Liten septima', 'Stor septima', 'Oktav'],
 };
+const semis = n => n === 1 ? t('qSemi1') : t('qSemis', { n });
 const ivName = n => (INTERVAL_NAMES[lang()] || INTERVAL_NAMES.en)[n];
 const QUIZ_KEYS = [0, 7, 2, 9, 4, 11, 6, 5, 10, 3, 8];          // major keys with tidy spellings
 const majorNames = r => spellScale(r, SCALES.find(x => x.id === 'major'));
@@ -2146,7 +2150,7 @@ const QUIZZES = {
       }
       const n = 1 + Math.floor(Math.random() * 12), a = pick(QUIZ_KEYS), sp = keySpell(a, false);
       return Object.assign(choices(ivName(n), [...Array(12).keys()].map(k => ivName(k + 1))),
-        { prompt: `<div class="qtext big">${t('qInterval', { a: `<b>${nn(a, sp)}</b>`, b: `<b>${nn(a + n, sp)}</b>` })}</div>`, explain: t('qSemis', { n }), small: true });
+        { prompt: `<div class="qtext big">${t('qInterval', { a: `<b>${nn(a, sp)}</b>`, b: `<b>${nn(a + n, sp)}</b>` })}</div>`, explain: semis(n), small: true });
     },
   },
   intervals: {
@@ -2159,7 +2163,7 @@ const QUIZZES = {
         prompt: `<div class="qtext big">${t('qListen')}</div><div class="qear">${I.ear}</div>`,
         play: () => { const t0 = Snd.now() + 0.05; Snd.pluck(lo, t0, -1); Snd.pluck(lo + n, t0 + 0.75, -1); setTimeout(() => {}, 0); },
         replayBoth: () => { const t0 = Snd.now() + 0.05; Snd.pluck(lo, t0, -1, 0.9); Snd.pluck(lo + n, t0, -1, 0.9); },
-        autoplay: true, small: true, explain: t('qSemis', { n }),
+        autoplay: true, small: true, explain: semis(n),
       });
     },
   },
@@ -2180,7 +2184,7 @@ const QUIZZES = {
     },
   },
 };
-const PRACTICE_ITEMS = ['metro', 'chords', 'noteName', 'findNote', 'theory', 'intervals', 'chordEar'];
+const PRACTICE_ITEMS = ['learn', 'metro', 'chords', 'noteName', 'findNote', 'theory', 'intervals', 'chordEar'];
 
 const QuizRun = {
   start(id) {
@@ -2249,29 +2253,42 @@ const QuizRun = {
 };
 
 const Practice = {
-  view: 'hub', started: false,
+  stack: ['hub'], started: false, lesson: 0,
+  get view() { return this.stack[this.stack.length - 1]; },
   open(v) {
-    this.view = v; this.started = false;
-    history.pushState({ practice: 1 }, '');
+    this.stack.push(v); this.started = false;
+    history.pushState({ practice: this.stack.length }, '');
     this.render(); window.scrollTo(0, 0);
   },
-  toHub() { this.view = 'hub'; if (S.tab === 'practice') { this.render(); window.scrollTo(0, 0); } },
-  title(v) { return v === 'metro' ? t('metronome') : L(QUIZZES[v]); },
+  /** back one screen (Android back button or the ‹ button) */
+  pop() {
+    if (this.stack.length > 1) this.stack.pop();
+    this.started = false;
+    if (S.tab === 'practice') { this.render(); window.scrollTo(0, 0); }
+  },
+  toHub() { this.pop(); },
+  title(v) { return v === 'metro' ? t('metronome') : v === 'learn' ? t('learn') : v === 'lesson' ? L(LESSONS[this.lesson].title) : L(QUIZZES[v]); },
+  backLabel() { const p = this.stack[this.stack.length - 2]; return p === 'hub' ? t('practice') : this.title(p); },
   render() {
     const el = $('#tab-practice');
     if (this.view === 'hub') {
       const best = store.get('best', {});
       el.innerHTML = `<div class="ptiles">${PRACTICE_ITEMS.map(v => {
         const q = QUIZZES[v];
-        const icon = v === 'metro' ? I.practice : I[q.icon];
-        const desc = v === 'metro' ? t('metroDesc') : L(q.d);
-        const sub = v === 'metro' ? (Metro.clock.running ? '● ' + Metro.m.bpm + ' BPM' : '') : (best[v] ? t('best', { b: best[v] }) : '');
+        const icon = v === 'metro' ? I.practice : v === 'learn' ? I.book : I[q.icon];
+        const desc = v === 'metro' ? t('metroDesc') : v === 'learn' ? t('learnDesc') : L(q.d);
+        const sub = v === 'metro' ? (Metro.clock.running ? '● ' + Metro.m.bpm + ' BPM' : '') : v === 'learn' ? t('lessonsN', { n: LESSONS.length }) : (best[v] ? t('best', { b: best[v] }) : '');
         return `<button class="ptile" data-a="popen" data-v="${v}">${icon}<b>${this.title(v)}</b><span>${desc}</span>${sub ? `<em>${sub}</em>` : ''}</button>`;
       }).join('')}</div>`;
       return;
     }
-    const head = `<div class="pback"><button class="btn small" data-a="pback">${I.left}${t('practice')}</button><b>${this.title(this.view)}</b></div>`;
+    const head = `<div class="pback"><button class="btn small" data-a="pback">${I.left}${this.backLabel()}</button><b>${this.view === 'lesson' ? '' : this.title(this.view)}</b></div>`;
     if (this.view === 'metro') { el.innerHTML = head + Metro.html(); Metro.bind(); return; }
+    if (this.view === 'learn') {
+      el.innerHTML = head + `<div class="lessons">${LESSONS.map((l, i) => `<button class="lesson-item" data-a="lopen" data-v="${i}"><i>${i + 1}</i><b>${L(l.title)}</b>${I.right}</button>`).join('')}</div>`;
+      return;
+    }
+    if (this.view === 'lesson') { el.innerHTML = head + this.lessonHtml(); return; }
     const q = QUIZZES[this.view];
     if (!this.started) {
       let instSel = '';
@@ -2288,10 +2305,72 @@ const Practice = {
     }
     el.innerHTML = head + QuizRun.html();
   },
+
+  /* ---------- lessons ---------- */
+  lessonHtml() {
+    const l = LESSONS[this.lesson], i0 = this.lesson;
+    const play = `<span class="pl">${I.play}</span>`;
+    const body = l.blocks.map((b, bi) => {
+      if (b.h) return `<h3>${L(b.h)}</h3>`;
+      if (b.p) return `<p class="lp">${esc(L(b.p))}</p>`;
+      if (b.scale) {
+        const sc = SCALES.find(x => x.id === b.scale.id), sp = spellScale(b.scale.root, sc);
+        const nm = pc => (sp && sp.get(pc)) || nn(pc);
+        return `<div class="lex"><button class="lrow" data-a="lp" data-v="${bi}">${play}<b>${nm(b.scale.root)} ${L(sc).toLowerCase()}<small>${stepPattern(sc)}</small></b></button>
+          <div class="notes">${sc.iv.map(x => `<div class="note ${x === 0 ? 'r' : ''}"><b>${nm(mod12(b.scale.root + x))}</b><span>${scaleDegreeLabel(sc, x)}</span></div>`).join('')}</div></div>`;
+      }
+      if (b.notes && !b.tab) return `<div class="lex"><button class="lrow" data-a="lp" data-v="${bi}">${play}<b>${L(b.label)}<small>${b.notes.map(m => nn(m)).join(' ')}</small></b></button></div>`;
+      if (b.intervals) return `<div class="lex">${[...Array(12).keys()].map(k => `<button class="lrow" data-a="lp" data-v="${bi}:${k + 1}">${play}<b>${ivName(k + 1)}<small>C → ${nn(k + 1, 's')}</small></b><span>${semis(k + 1)}</span></button>`).join('')}</div>`;
+      if (b.table) return `<div class="lex">${b.table.map((r, k) => `<button class="lrow" data-a="lp" data-v="${bi}:${k}">${play}<b>${typeof r[0] === 'string' ? r[0] : L(r[0])}${r[1] ? `<small>${r[1]}</small>` : ''}</b><span>${pretty(r[2])}</span></button>`).join('')}</div>`;
+      if (b.diatonic != null) {
+        const sp = spellScale(b.diatonic, SCALES.find(x => x.id === 'major'));
+        const chs = DIATONIC_MAJOR.map(r => romanChord(r, b.diatonic, false));
+        return `<div class="lex"><div class="ttl" style="margin-bottom:8px">${sp.get(b.diatonic)} ${t('major').toLowerCase()}</div>
+          <div class="dchords">${chs.map((c, k) => `<div class="dchord" data-a="lp" data-v="${bi}:${k}"><i>${c.roman}</i><b>${sp.get(c.r)}${pretty(TYPES[c.t].sfx)}</b></div>`).join('')}</div></div>`;
+      }
+      if (b.modes) return `<div class="lex">${b.modes.map((m, k) => `<button class="lrow" data-a="lp" data-v="${bi}:${k}">${play}<b>C ${L(SCALES.find(x => x.id === m[0])).toLowerCase()}<small>${L(m[1])}</small></b></button>`).join('')}</div>`;
+      if (b.chart) {
+        const p = parseChord(b.chart), v = voicings(p.r, p.t, p.b, CHORD_INSTS[0])[0];
+        return `<div class="lex" style="text-align:center"><div class="diagwrap" data-a="lp" data-v="${bi}">${diagram(v, p.r, { cls: 'big', tuning: STD, dot: 'finger', labels: new Map() })}</div><div class="small muted">${pretty(b.chart)}</div></div>`;
+      }
+      if (b.tab) return `<div class="lex"><pre class="ltab">${esc(b.tab)}</pre><button class="lrow" data-a="lp" data-v="${bi}">${play}<b>${t('hear')}</b></button></div>`;
+      if (b.go) return `<div class="lgo">${b.go.map(([target, label]) => `<button class="btn small" data-a="lgo" data-v="${target}">${L(label)}</button>`).join('')}</div>`;
+      return '';
+    }).join('');
+    return `<div class="card lesson"><div class="lbl" style="margin:0">${t('lessonN', { n: i0 + 1, of: LESSONS.length })}</div>
+      <h2 style="margin:4px 0 0;font-size:22px">${L(l.title)}</h2>${body}</div>
+      <div class="lnav">${i0 > 0 ? `<button class="btn" data-a="lnav" data-v="-1">${I.left}${L(LESSONS[i0 - 1].title)}</button>` : ''}
+        ${i0 < LESSONS.length - 1 ? `<button class="btn primary" data-a="lnav" data-v="1">${L(LESSONS[i0 + 1].title)}${I.right}</button>` : ''}</div>`;
+  },
+  lessonPlay(v) {
+    const [bi, k] = String(v).split(':').map(Number), b = LESSONS[this.lesson].blocks[bi];
+    Snd.setTimbre('guitar');
+    const now = Snd.now() + 0.05;
+    const chord = name => { const p = parseChord(name); const vv = p && voicings(p.r, p.t, p.b, CHORD_INSTS[0])[0]; if (vv) Snd.chord(vv.frets, STD, 0, 'strum'); };
+    if (b.scale) {
+      const sc = SCALES.find(x => x.id === b.scale.id), m0 = 48 + b.scale.root + (b.scale.root < 4 ? 12 : 0);
+      const up = sc.iv.concat([12]).map(x => m0 + x), all = up.concat(up.slice(0, -1).reverse());
+      all.forEach((m, i) => Snd.pluck(m, now + i * 0.22, -1, 0.9));
+    } else if (b.intervals) { Snd.pluck(60, now, -1); Snd.pluck(60 + k, now + 0.7, -1); Snd.pluck(60, now + 1.6, -1, 0.8); Snd.pluck(60 + k, now + 1.6, -1, 0.8); }
+    else if (b.table) chord(b.table[k][2]);
+    else if (b.diatonic != null) { const c = romanChord(DIATONIC_MAJOR[k], b.diatonic, false); chord(nn(c.r, 's') + TYPES[c.t].sfx); }
+    else if (b.modes) {
+      const sc = SCALES.find(x => x.id === b.modes[k][0]), up = sc.iv.concat([12]).map(x => 60 + x);
+      up.concat(up.slice(0, -1).reverse()).forEach((m, i) => Snd.pluck(m, now + i * 0.2, -1, 0.9));
+    } else if (b.chart) chord(b.chart);
+    else if (b.notes) b.notes.forEach((m, i) => Snd.pluck(m, now + i * (b.tab ? 0.3 : b.notes.length > 2 ? 0.22 : 0.8), -1, 0.9));
+  },
   action(a, v) {
     switch (a) {
       case 'popen': this.open(v); break;
       case 'pback': history.back(); break;
+      case 'lopen': this.lesson = +v; this.open('lesson'); break;
+      case 'lnav': this.lesson = clamp(this.lesson + +v, 0, LESSONS.length - 1); this.render(); window.scrollTo(0, 0); break;
+      case 'lp': this.lessonPlay(v); break;
+      case 'lgo':
+        if (v.startsWith('tab:')) showTab(v.slice(4));
+        else this.open(v);
+        break;
       case 'qgo': this.started = true; QuizRun.start(this.view); this.render(); if (QuizRun.cur.autoplay) setTimeout(() => QuizRun.cur.play(), 250); break;
       default: return QuizRun.action(a, v);
     }

@@ -241,6 +241,28 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .peg.ok:not(.lock):not(.near) .peg-c{stroke:var(--good)}
 
 /* practice */
+.lessons{display:flex;flex-direction:column;gap:8px}
+.lesson-item{display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:var(--card);border-radius:16px;padding:12px 14px;cursor:pointer;text-align:left;box-shadow:var(--shadow)}
+.lesson-item i{font-style:normal;width:28px;height:28px;border-radius:14px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+.lesson-item b{flex:1;font-size:15px}
+.lesson-item svg{width:18px;height:18px;color:var(--muted)}
+.lesson h3{font-size:16px;margin:18px 0 6px}
+.lesson .lp{font-size:15px;line-height:1.6;margin:10px 0}
+.lex{background:var(--card2);border-radius:14px;padding:10px 12px;margin:10px 0}
+.lex .row{flex-wrap:nowrap}
+.lex .ttl{font-weight:650;font-size:14px;flex:1}
+.lex .notes{justify-content:flex-start;margin:8px 0 0}
+.lrow{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;padding:8px 2px;border-bottom:1px solid var(--line);cursor:pointer;text-align:left}
+.lrow:last-child{border-bottom:0}
+.lrow b{flex:1;font-size:14.5px}
+.lrow span{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.lrow .pl{width:30px;height:30px;border-radius:15px;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;flex:none}
+.lrow .pl svg{width:14px;height:14px}
+.lrow small{display:block;color:var(--muted);font-size:12.5px;font-weight:400}
+.ltab{font:13px/1.35 ui-monospace,Menlo,Consolas,monospace;background:var(--card);border-radius:10px;padding:10px;overflow-x:auto;margin:0 0 8px}
+.lgo{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.lnav{display:flex;gap:8px;margin-top:12px}
+.lnav .btn{flex:1;font-size:14px}
 .ptiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .ptile{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:18px;padding:14px;cursor:pointer;box-shadow:var(--shadow);min-height:130px}
 .ptile svg{width:28px;height:28px;color:var(--accent);margin-bottom:4px}
@@ -344,6 +366,7 @@ a{color:var(--accent)}
 <script src="theory.js"></script>
 <script src="audio.js"></script>
 <script src="rhythm.js"></script>
+<script src="lessons.js"></script>
 <script src="ui.js"></script>
 </body>
 </html>
