@@ -1231,27 +1231,40 @@ const Tuner = {
   },
 
   dial() {
-    // arc gauge from −50 to +50 cents: red at the ends, green in the middle
-    const cx = 160, cy = 172, r = 138;
+    // arc gauge from −50 to +50 cents
+    const cx = 160, cy = 176, r = 136;
     const A = c => (c / 50) * (Math.PI * 0.36);
     const P = (c, rr) => [cx + rr * Math.sin(A(c)), cy - rr * Math.cos(A(c))];
     const arc = (c0, c1, rr) => { const [x0, y0] = P(c0, rr), [x1, y1] = P(c1, rr); return `M${x0} ${y0}A${rr} ${rr} 0 0 1 ${x1} ${y1}`; };
-    let s = `<svg class="gauge" viewBox="0 0 320 186" xmlns="http://www.w3.org/2000/svg">
-      <defs><linearGradient id="tgrad" x1="0" x2="1" y1="0" y2="0">
-        <stop offset="0" stop-color="var(--warn)"/><stop offset=".33" stop-color="#d9a33a"/>
-        <stop offset=".5" stop-color="var(--good)"/><stop offset=".67" stop-color="#d9a33a"/><stop offset="1" stop-color="var(--warn)"/>
-      </linearGradient></defs>
-      <path d="${arc(-50, 50, r)}" fill="none" stroke="url(#tgrad)" stroke-width="10" stroke-linecap="round" opacity=".9"/>`;
-    for (let c = -50; c <= 50; c += 5) {
-      const big = c % 25 === 0, mid = c % 10 === 0;
-      const [x1, y1] = P(c, r - 12), [x2, y2] = P(c, r - (big ? 28 : mid ? 22 : 18));
-      s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="${c === 0 ? 'tk0' : 'tk'}" stroke-width="${big ? 2.4 : 1.3}"/>`;
-      if (big) { const [tx, ty] = P(c, r - 42); s += `<text x="${tx}" y="${ty + 4}" class="tkl" text-anchor="middle">${c > 0 ? '+' + c : c}</text>`; }
+    const wedge = (c0, c1, r0, r1) => {
+      const [a0, b0] = P(c0, r1), [a1, b1] = P(c1, r1), [a2, b2] = P(c1, r0), [a3, b3] = P(c0, r0);
+      return `M${a0} ${b0}A${r1} ${r1} 0 0 1 ${a1} ${b1}L${a2} ${b2}A${r0} ${r0} 0 0 0 ${a3} ${b3}Z`;
+    };
+    let s = `<svg class="gauge" viewBox="0 0 320 196" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="tgrad" x1="0" x2="1" y1="0" y2="0">
+          <stop offset="0" stop-color="var(--warn)"/><stop offset=".3" stop-color="#d9a33a"/>
+          <stop offset=".5" stop-color="var(--good)"/><stop offset=".7" stop-color="#d9a33a"/><stop offset="1" stop-color="var(--warn)"/>
+        </linearGradient>
+        <radialGradient id="tface" cx="50%" cy="100%" r="90%">
+          <stop offset="0" stop-color="var(--card)"/><stop offset="1" stop-color="var(--card2)"/>
+        </radialGradient>
+      </defs>
+      <path d="${wedge(-52, 52, 40, r + 12)}" fill="url(#tface)"/>
+      <path d="${wedge(-3, 3, 40, r + 12)}" class="tzone"/>
+      <path d="${arc(-50, 50, r)}" fill="none" stroke="url(#tgrad)" stroke-width="5" stroke-linecap="round"/>`;
+    for (let c = -50; c <= 50; c += 2.5) {
+      const big = c % 25 === 0, mid = c % 10 === 0 || c % 5 === 0;
+      if (!big && !mid && Math.abs(c) > 10) continue;
+      const [x1, y1] = P(c, r - 9), [x2, y2] = P(c, r - (big ? 26 : mid ? 19 : 14));
+      s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="${c === 0 ? 'tk0' : 'tk'}" stroke-width="${big ? 2.4 : mid ? 1.4 : 1}"/>`;
+      if (big) { const [tx, ty] = P(c, r - 40); s += `<text x="${tx}" y="${ty + 4}" class="tkl" text-anchor="middle">${c > 0 ? '+' + c : c}</text>`; }
     }
     s += `<g id="needle" style="transform-origin:${cx}px ${cy}px">
-        <path d="M${cx - 4} ${cy} L${cx - 1.2} ${cy - r + 6} L${cx + 1.2} ${cy - r + 6} L${cx + 4} ${cy} Z" class="ndl"/>
+        <path d="M${cx - 5} ${cy} L${cx - 1.1} ${cy - r + 14} L${cx + 1.1} ${cy - r + 14} L${cx + 5} ${cy} Z" class="ndl"/>
+        <circle cx="${cx}" cy="${cy - r + 14}" r="3.4" class="ndl"/>
       </g>
-      <circle cx="${cx}" cy="${cy}" r="10" class="hub"/><circle cx="${cx}" cy="${cy}" r="4" class="hub2"/>`;
+      <circle cx="${cx}" cy="${cy}" r="12" class="hub"/><circle cx="${cx}" cy="${cy}" r="4.5" class="hub2"/>`;
     return s + '</svg>';
   },
 
@@ -1389,9 +1402,9 @@ const Tuner = {
   },
 
   /**
-   * Strobe: three bands of stripes, like the octave rings of a mechanical strobe tuner. The
-   * stripes drift right when sharp and left when flat; the finer bands move faster, so they show
-   * even a fraction of a cent. They stand still when the string is in tune.
+   * Strobe wheel: three rings of segments, like the disc of a mechanical strobe tuner. They turn
+   * clockwise when sharp and anticlockwise when flat; the finer outer rings turn faster, so even a
+   * fraction of a cent shows. In tune, the wheel stands still and glows green.
    */
   drawStrobe(dt, live) {
     const c = $('#strobe');
@@ -1401,36 +1414,45 @@ const Tuner = {
     if (c.width !== Math.round(w * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
     const g = c.getContext('2d');
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, w, h);
     const cs = getComputedStyle(document.documentElement);
     const col = v => cs.getPropertyValue(v).trim();
     const cents = live ? clamp(this.smooth, -60, 60) : 0;
     const inTune = live && Math.abs(cents) < 1;
+    const cx = w / 2, cy = h / 2, R = Math.min(w, h) / 2 - 10;
+    const rings = [{ n: 18, k: 1, r0: 0.40, r1: 0.58 }, { n: 36, k: 2, r0: 0.62, r1: 0.79 }, { n: 72, k: 4, r0: 0.83, r1: 1 }];
+    // face
     g.fillStyle = col('--card2');
-    g.fillRect(0, 0, w, h);
-    const bands = [{ p: 64, k: 1 }, { p: 32, k: 2 }, { p: 16, k: 4 }];
-    const bh = (h - 16) / 3;
-    bands.forEach((b, i) => {
-      // pixels per second: about 2.4 px/s per cent on the coarse band
-      if (live) this.strobeOff[i] = (this.strobeOff[i] + cents * 2.4 * b.k * dt) % b.p;
-      const y = 4 + i * (bh + 4);
-      g.save();
-      g.beginPath();
-      g.roundRect ? g.roundRect(4, y, w - 8, bh, 8) : g.rect(4, y, w - 8, bh);
-      g.clip();
-      g.fillStyle = col('--card');
-      g.fillRect(0, y, w, bh);
-      g.fillStyle = !live ? col('--fret') : inTune ? col('--good') : col('--accent');
-      g.globalAlpha = live ? 1 : 0.5;
-      let off = this.strobeOff[i];
-      if (off < 0) off += b.p;
-      for (let x = off - b.p; x < w; x += b.p) g.fillRect(x, y, b.p / 2, bh);
-      g.restore();
+    g.beginPath(); g.arc(cx, cy, R + 6, 0, Math.PI * 2); g.fill();
+    const on = !live ? col('--fret') : inTune ? col('--good') : col('--accent');
+    if (inTune) { g.shadowColor = col('--good'); g.shadowBlur = 18; }
+    rings.forEach((rg, i) => {
+      // periods per second: 0.05 per cent on the inner ring
+      if (live) this.strobeOff[i] = (this.strobeOff[i] + cents * 0.05 * rg.k * dt) % 1;
+      const seg = Math.PI * 2 / rg.n, rot = this.strobeOff[i] * seg;
+      g.fillStyle = on;
+      g.globalAlpha = live ? 1 : 0.55;
+      for (let k = 0; k < rg.n; k++) {
+        const a0 = -Math.PI / 2 + rot + k * seg, a1 = a0 + seg / 2;
+        g.beginPath();
+        g.arc(cx, cy, R * rg.r1, a0, a1);
+        g.arc(cx, cy, R * rg.r0, a1, a0, true);
+        g.closePath(); g.fill();
+      }
     });
-    // centre mark
-    g.globalAlpha = 1;
+    g.shadowBlur = 0; g.globalAlpha = 1;
+    // hub
+    g.fillStyle = col('--card');
+    g.beginPath(); g.arc(cx, cy, R * 0.34, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = col('--line'); g.lineWidth = 1.5; g.stroke();
+    // direction hint inside the hub
+    g.fillStyle = !live ? col('--muted') : inTune ? col('--good') : col('--ink');
+    g.font = `700 ${Math.round(R * 0.2)}px system-ui, sans-serif`;
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(!live ? '·' : inTune ? '✓' : cents < 0 ? '↺' : '↻', cx, cy + 1);
+    // reference mark at the top
     g.fillStyle = col('--ink');
-    g.beginPath(); g.moveTo(w / 2 - 6, 0); g.lineTo(w / 2 + 6, 0); g.lineTo(w / 2, 7); g.fill();
-    g.beginPath(); g.moveTo(w / 2 - 6, h); g.lineTo(w / 2 + 6, h); g.lineTo(w / 2, h - 7); g.fill();
+    g.beginPath(); g.moveTo(cx - 7, cy - R - 10); g.lineTo(cx + 7, cy - R - 10); g.lineTo(cx, cy - R - 1); g.fill();
   },
 
   drawHist() {

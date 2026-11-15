@@ -167,7 +167,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .strbtn.lock small{color:var(--on-accent)}
 .strbtn.ok b::after{content:" ✓";color:var(--good)}
 .strbtn.lock.ok b::after{color:var(--on-accent)}
-.strobe{width:100%;height:150px;display:block;border-radius:14px;margin-bottom:14px}
+.strobe{width:min(68vw,260px);height:min(68vw,260px);display:block;margin:4px auto 6px}
 .tstatus{text-align:center;font-weight:650;font-size:16px;color:var(--muted);min-height:22px;margin-top:2px}
 .tstatus.close{color:var(--accent)}
 .tstatus.good{color:var(--good)}
@@ -189,14 +189,18 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .tunerhero[data-st=good]{background:color-mix(in srgb,var(--good) 12%,var(--card));border-color:color-mix(in srgb,var(--good) 45%,var(--line))}
 .tview{max-width:240px;margin:0 auto 6px}
 .tview .seg{padding:2px}.tview .seg button{padding:5px 4px;font-size:13px}
-.gauge{display:block;width:100%;max-width:400px;margin:0 auto -6px}
-.gauge .tk{stroke:var(--muted);stroke-linecap:round;opacity:.7}
+.gauge{display:block;width:100%;max-width:400px;margin:0 auto -4px}
+.gauge .tk{stroke:var(--muted);stroke-linecap:round;opacity:.75}
+.gauge .tks{font-size:20px;opacity:.6}
+.gauge .tzone{fill:var(--good);opacity:.10;transition:opacity .2s}
+.tunerhero[data-st=good] .gauge .tzone{opacity:.32}
+.gauge #needle{filter:drop-shadow(0 2px 2px rgba(0,0,0,.25))}
 .gauge .tk0{stroke:var(--good);stroke-linecap:round;stroke-width:3}
 .gauge .tkl{font-size:11px;fill:var(--muted)}
 .gauge .ndl{fill:var(--ink);transition:fill .2s}
 .gauge .hub{fill:var(--ink);transition:fill .2s}.gauge .hub2{fill:var(--card)}
 .tunerhero[data-st=good] .gauge .ndl,.tunerhero[data-st=good] .gauge .hub{fill:var(--good)}
-.tunerhero[data-st=good] #needle{filter:drop-shadow(0 0 6px color-mix(in srgb,var(--good) 70%,transparent))}
+.tunerhero[data-st=good] .gauge #needle{filter:drop-shadow(0 0 7px color-mix(in srgb,var(--good) 80%,transparent))}
 .tnoterow{display:flex;align-items:center;justify-content:center;gap:22px;margin-top:2px}
 .tside{font-size:34px;font-weight:700;color:var(--line);width:34px;text-align:center;transition:color .15s,transform .15s}
 .tside.lit{color:var(--warn);transform:scale(1.15)}
