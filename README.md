@@ -52,10 +52,15 @@ paired strings (12-string, mandolin) are marked together. Chromatic mode, A4 cal
 Werckmeister III–V, Kirnberger II–III, Vallotti, Young II, Kellner) on any key, and a pitch pipe. Steady read-out that
 holds the last note for a moment after it fades.
 
-**Practice** – a metronome in 2/4, 3/4, 4/4, 5/4, 6/8, 9/8, 12/8, 5/8 and 7/8 (with groupings such as
-2 + 2 + 3), subdivisions, swing, tap tempo and accent patterns for syncopation (backbeat, offbeats,
-Charleston, tresillo, son/rumba/bossa clave, shuffle, gallop) – tap any step to accent, soften or
-silence it. Plus a ten-question chord challenge.
+**Practice** – a start page with separate exercises, each ten questions with your best score kept:
+- Metronome in 2/4 to 12/8 plus 5/8 and 7/8 (with groupings such as 2 + 2 + 3), subdivisions, swing,
+  tap tempo and accent patterns for syncopation (backbeat, offbeats, Charleston, tresillo, son/rumba/
+  bossa clave, shuffle, gallop) – tap any step to accent, soften or silence it
+- Name the chord from a chart (any chord instrument)
+- Name the note marked on the fretboard, and find a named note on a given string (any fretted instrument)
+- Scales & keys: notes of a key, key signatures, relative minors, chords in a key, modes, step
+  patterns, chord tones and intervals
+- Intervals by ear and chord types by ear
 
 Plus left-handed mode, light/dark/automatic theme, English and Swedish (follows the phone), and
 optional Swedish note names (H and B).

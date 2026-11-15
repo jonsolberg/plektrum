@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.7';
+const VERSION = '1.8';
 const REPO = 'https://github.com/jonsolberg/guitarchords';
 
 const store = {
@@ -19,7 +19,7 @@ const store = {
 };
 const S = Object.assign({
   lang: 'auto', theme: 'auto', lefty: false, names: false, hNotation: false, style: 'strum', volume: 0.8, sound: true,
-  a4: 440, temp: 'equal', tempRoot: 0, tuning: 'std', custom: [40, 45, 50, 55, 59, 64], tunerMode: 'guitar', tunerView: 'needle', tunerSens: 0.52, instrument: 'guitar', customs: {}, tunerHist: false, chordInst: 'guitar', dotLabel: 'finger',
+  a4: 440, temp: 'equal', tempRoot: 0, tuning: 'std', custom: [40, 45, 50, 55, 59, 64], tunerMode: 'guitar', tunerView: 'needle', tunerSens: 0.52, instrument: 'guitar', customs: {}, tunerHist: false, chordInst: 'guitar', quizInst: 'guitar', dotLabel: 'finger',
   tab: 'chords',
 }, store.get('settings', {}));
 const saveS = () => store.set('settings', S);
@@ -58,6 +58,13 @@ const STR = {
     sens: 'Sensitivity', sensD: 'Raise it for quiet acoustics, lower it in noisy rooms',
     grouping: 'Grouping', subdiv: 'Subdivision', swingD: 'Plays the off-beats late, like a shuffle', accentPat: 'Accent pattern',
     customPat: 'Custom', resetAcc: 'Reset accents', stepHint: 'Tap a step: normal → accent → soft → silent',
+    metroDesc: 'Time signatures, subdivisions, accents', qWhichNote: 'Which note is marked?', qFindNote: 'Find {n} on string {k} ({s})',
+    qDegree: 'What is the {d} of {k} major?', qScaleIs: '{k} major: {s}', qSig: 'How many sharps or flats in {k} major?',
+    qRel: 'What is the relative minor of {k} major?', qRelEx: 'The relative minor starts on the 6th note of the major scale.',
+    qDia: 'Which chord is {n} in {k} major?', qTones: 'Which notes make up {c}?', qMode: 'Play the major scale from its {o} note. Which mode is that?',
+    qModeEx: 'In {k} major: from {n} you get {m}.', qSteps: 'Which scale has these steps?', qStepsEx: 'W = whole step, H = half step, W½ = three semitones.',
+    qInterval: 'Which interval is {a} up to {b}?', qSemis: '{n} semitones', qListen: 'Listen – which interval?', qListenChord: 'Listen – which kind of chord?',
+    together: 'Together', strummed: 'Strummed', fretWord: 'fret',
     metronome: 'Metronome', perBar: 'Beats per bar', tap: 'Tap', start: 'Start', challenge: 'Chord challenge',
     challengeDesc: 'Ten chord diagrams – name each one.', go: 'Start', which: 'Which chord is this?', next: 'Next',
     right: 'Right!', wrongIs: 'That was {c}', result: '{s} of 10', best: 'Best: {b} of 10', again: 'Play again', hear: 'Hear it',
@@ -98,6 +105,13 @@ const STR = {
     sens: 'Känslighet', sensD: 'Höj för tysta akustiska gitarrer, sänk i stökiga rum',
     grouping: 'Gruppering', subdiv: 'Underdelning', swingD: 'Spelar offbeat-slagen sent, som shuffle', accentPat: 'Betoningsmönster',
     customPat: 'Eget', resetAcc: 'Återställ betoningar', stepHint: 'Tryck på ett steg: normal → betonad → svag → tyst',
+    metroDesc: 'Taktarter, underdelningar, betoningar', qWhichNote: 'Vilken ton är markerad?', qFindNote: 'Hitta {n} på sträng {k} ({s})',
+    qDegree: 'Vilken ton är {d} i {k}-dur?', qScaleIs: '{k}-dur: {s}', qSig: 'Hur många förtecken har {k}-dur?',
+    qRel: 'Vilken är parallelltonarten i moll till {k}-dur?', qRelEx: 'Parallelltonarten i moll börjar på durskalans sjätte ton.',
+    qDia: 'Vilket ackord är {n} i {k}-dur?', qTones: 'Vilka toner ingår i {c}?', qMode: 'Spela durskalan från dess {o} ton. Vilket modus blir det?',
+    qModeEx: 'I {k}-dur: från {n} får du {m}.', qSteps: 'Vilken skala har de här stegen?', qStepsEx: 'W = helt tonsteg, H = halvt tonsteg, W½ = tre halvtoner.',
+    qInterval: 'Vilket intervall är {a} upp till {b}?', qSemis: '{n} halvtoner', qListen: 'Lyssna – vilket intervall?', qListenChord: 'Lyssna – vilken sorts ackord?',
+    together: 'Samtidigt', strummed: 'Slag', fretWord: 'band',
     metronome: 'Metronom', perBar: 'Slag per takt', tap: 'Knacka', start: 'Starta', challenge: 'Ackordutmaning',
     challengeDesc: 'Tio ackorddiagram – namnge vart och ett.', go: 'Börja', which: 'Vilket ackord är det här?', next: 'Nästa',
     right: 'Rätt!', wrongIs: 'Det var {c}', result: '{s} av 10', best: 'Bäst: {b} av 10', again: 'Spela igen', hear: 'Lyssna',
@@ -136,6 +150,8 @@ const I = {
   search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L20 20"/></svg>',
   close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
   info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r="1.1" fill="currentColor" stroke="none"/></svg>',
+  ear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 9.5H7l4.5-3.5v12L7 14.5H3.5z"/><path d="M15 9.2a4 4 0 0 1 0 5.6M17.8 6.6a7.6 7.6 0 0 1 0 10.8"/></svg>',
+  note: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17.5V5.5l10-2v12"/><circle cx="6.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="15.5" r="2.5"/></svg>',
   trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
   send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>',
   mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>',
@@ -274,7 +290,10 @@ const Sheet = {
     if (cb) cb();
   },
 };
-window.addEventListener('popstate', () => { if (Sheet.isOpen) Sheet._closed(); });
+window.addEventListener('popstate', () => {
+  if (Sheet.isOpen) Sheet._closed();
+  else if (typeof Practice !== 'undefined' && Practice.view !== 'hub') Practice.toHub();
+});
 
 /* =======================================================================
    CHORDS
@@ -1938,94 +1957,345 @@ const Metro = {
   },
 };
 
-const Quiz = {
-  q: null, i: 0, score: 0, answered: null, best: store.get('quizBest', 0),
-  pool() {
-    const out = [];
-    TYPES.forEach((x, ti) => { if (x.common) for (let r = 0; r < 12; r++) out.push({ r, t: ti }); });
-    return out;
-  },
-  start() {
-    const pool = this.pool();
-    this.list = [];
-    while (this.list.length < 10) {
-      const c = pool[Math.floor(Math.random() * pool.length)];
-      if (this.list.some(x => x.r === c.r && x.t === c.t)) continue;
-      const vs = voicings(c.r, c.t, null, CI());
-      if (!vs.length) continue;
-      c.v = Math.floor(Math.random() * Math.min(3, vs.length));
-      this.list.push(c);
+/* -------------------------------------------------------------------------
+   Practice: a start page with separate screens – metronome and quizzes.
+   ------------------------------------------------------------------------- */
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+/** correct answer plus distinct distractors, shuffled; returns {options, correct} */
+function choices(correct, pool, n = 4) {
+  const opts = [correct];
+  for (const p of shuffle(pool)) { if (opts.length >= n) break; if (!opts.includes(p)) opts.push(p); }
+  const o = shuffle(opts);
+  return { options: o, correct: o.indexOf(correct) };
+}
+const INTERVAL_NAMES = {
+  en: ['Unison', 'Minor 2nd', 'Major 2nd', 'Minor 3rd', 'Major 3rd', 'Perfect 4th', 'Tritone', 'Perfect 5th', 'Minor 6th', 'Major 6th', 'Minor 7th', 'Major 7th', 'Octave'],
+  sv: ['Prim', 'Liten sekund', 'Stor sekund', 'Liten ters', 'Stor ters', 'Ren kvart', 'Tritonus', 'Ren kvint', 'Liten sext', 'Stor sext', 'Liten septima', 'Stor septima', 'Oktav'],
+};
+const ivName = n => (INTERVAL_NAMES[lang()] || INTERVAL_NAMES.en)[n];
+const QUIZ_KEYS = [0, 7, 2, 9, 4, 11, 6, 5, 10, 3, 8];          // major keys with tidy spellings
+const majorNames = r => spellScale(r, SCALES.find(x => x.id === 'major'));
+
+/** A small fretboard (frets 0–12) for the note quizzes. */
+function quizBoard(tu, o = {}) {
+  const N = tu.n.length, F = 12, nut = 30, fw = 40, top = 20, sy = N > 5 ? 34 : 40;
+  const W = nut + F * fw + 10, H = top + sy * (N - 1) + 26;
+  const X = x => S.lefty ? W - x : x, Y = s => top + (N - 1 - s) * sy;
+  const fx = f => f === 0 ? nut - 15 : nut + (f - 0.5) * fw;
+  let g = `<svg class="qboard" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  g += `<rect x="${Math.min(X(nut), X(nut + F * fw))}" y="${top - 7}" width="${F * fw}" height="${sy * (N - 1) + 14}" rx="4" style="fill:var(--wood)"/>`;
+  [3, 5, 7, 9].forEach(f => { g += `<circle cx="${X(nut + (f - 0.5) * fw)}" cy="${top + sy * (N - 1) / 2}" r="4" style="fill:var(--fret)" opacity=".7"/>`; });
+  g += `<circle cx="${X(nut + 11.5 * fw)}" cy="${top + sy * (N - 1) * 0.25}" r="4" style="fill:var(--fret)" opacity=".7"/><circle cx="${X(nut + 11.5 * fw)}" cy="${top + sy * (N - 1) * 0.75}" r="4" style="fill:var(--fret)" opacity=".7"/>`;
+  for (let f = 0; f <= F; f++) {
+    g += `<line x1="${X(nut + f * fw)}" x2="${X(nut + f * fw)}" y1="${top - 7}" y2="${top + sy * (N - 1) + 7}" style="stroke:${f ? 'var(--fret)' : 'var(--ink)'}" stroke-width="${f ? 2 : 4}"/>`;
+    if (f) g += `<text x="${X(nut + (f - 0.5) * fw)}" y="${H - 3}" font-size="10" text-anchor="middle" style="fill:var(--muted)">${f}</text>`;
+  }
+  for (let s = 0; s < N; s++) {
+    const x0 = tu.start[s] ? nut + (tu.start[s] - 0.5) * fw : nut - 26;
+    const hot = o.string === s;
+    g += `<line x1="${X(x0)}" x2="${X(nut + F * fw)}" y1="${Y(s)}" y2="${Y(s)}" style="stroke:${hot ? 'var(--accent)' : 'var(--str)'}" stroke-width="${hot ? 3 : clamp(0.8 + (66 - tu.n[s] - tu.start[s]) / 20, 0.8, 2.6)}"/>`;
+  }
+  if (o.tap) for (let s = 0; s < N; s++) {
+    if (o.string != null && s !== o.string) continue;
+    for (let f = tu.start[s]; f <= F; f++) {
+      const x0 = f === 0 ? nut - 30 : nut + (f - 1) * fw, w = f === 0 ? 30 : fw;
+      g += `<rect data-a="qtap" data-v="${s},${f}" x="${Math.min(X(x0), X(x0 + w))}" y="${Y(s) - sy / 2}" width="${w}" height="${sy}" fill="transparent" style="cursor:pointer"/>`;
     }
-    this.i = 0; this.score = 0; this.answered = null;
-    this.makeOptions();
+  }
+  (o.dots || []).forEach(d => {
+    g += `<circle cx="${X(fx(d.f))}" cy="${Y(d.s)}" r="14" style="fill:${d.color || 'var(--accent)'};pointer-events:none"/>`;
+    if (d.label) g += `<text x="${X(fx(d.f))}" y="${Y(d.s) + 5}" font-size="14" font-weight="700" text-anchor="middle" style="fill:#fff;pointer-events:none">${d.label}</text>`;
+  });
+  return g + '</svg>';
+}
+function quizTuning() {
+  const insts = scaleInstruments().filter(x => !x.fretless);
+  const si = insts.find(x => x.id === S.quizInst) || insts[0];
+  return { si, tu: si.tunings[0], insts };
+}
+
+/*
+ * Quizzes. make() returns a question: {prompt (html), options (labels) + correct (index) – or
+ * tap: true with check(value) for fretboard taps – play() for ear training, reveal() html shown
+ * after answering, answerText for "That was …"}.
+ */
+const QUIZZES = {
+  chords: {
+    icon: 'chords', en: 'Name the chord', sv: 'Namnge ackordet', inst: 'chord',
+    d: { en: 'A chord chart appears – which chord is it?', sv: 'Ett ackorddiagram visas – vilket ackord är det?' },
+    make() {
+      const ci = CI(), common = TYPES.map((x, i) => i).filter(i => TYPES[i].common);
+      let c, vs;
+      do { c = { r: Math.floor(Math.random() * 12), t: pick(common) }; vs = voicings(c.r, c.t, null, ci); } while (!vs.length);
+      const v = vs[Math.floor(Math.random() * Math.min(3, vs.length))];
+      const pool = [];
+      for (let k = 0; k < 12; k++) { pool.push(cname(c.r, pick(common))); pool.push(cname(Math.floor(Math.random() * 12), c.t)); }
+      const ch = choices(cname(c.r, c.t), pool);
+      return Object.assign(ch, {
+        prompt: `<div class="qtext">${t('which')}</div><div class="diagwrap">${diagram(v, -1, { cls: 'big', tuning: ci.n })}</div>`,
+        reveal: () => `<div class="diagwrap">${diagram(v, c.r, { cls: 'big', tuning: ci.n })}</div>`,
+        play: () => Snd.chord(v.frets, ci.n, 0), autoplay: false,
+      });
+    },
   },
-  makeOptions() {
-    const c = this.list[this.i];
-    const opts = [c];
-    const common = TYPES.map((x, i) => i).filter(i => TYPES[i].common);
-    let guard = 0;
-    while (opts.length < 4 && guard++ < 200) {
-      const d = Math.random() < 0.55
-        ? { r: c.r, t: common[Math.floor(Math.random() * common.length)] }
-        : { r: Math.floor(Math.random() * 12), t: c.t };
-      if (!opts.some(o => o.r === d.r && o.t === d.t)) opts.push(d);
-    }
-    this.opts = opts.sort(() => Math.random() - 0.5);
+  noteName: {
+    icon: 'note', en: 'Name the note', sv: 'Vilken ton?', inst: 'fret',
+    d: { en: 'A dot on the fretboard – which note is it?', sv: 'En prick på greppbrädan – vilken ton är det?' },
+    make() {
+      const { tu } = quizTuning();
+      const s = Math.floor(Math.random() * tu.n.length);
+      const f = tu.start[s] + Math.floor(Math.random() * (13 - tu.start[s]));
+      const m = tu.n[s] + f, pc = mod12(m);
+      return {
+        prompt: `<div class="qtext">${t('qWhichNote')}</div>${quizBoard(tu, { dots: [{ s, f, label: '?' }] })}`,
+        options: [...Array(12).keys()].map(k => nn(k)), correct: pc, grid12: true,
+        reveal: () => quizBoard(tu, { dots: [{ s, f, label: nn(pc), color: 'var(--good)' }] }),
+        play: () => Snd.pluck(m, 0, -1),
+      };
+    },
   },
+  findNote: {
+    icon: 'scales', en: 'Find the note', sv: 'Hitta tonen', inst: 'fret',
+    d: { en: 'Find a named note on a given string – tap the fret.', sv: 'Hitta en ton på en viss sträng – tryck på bandet.' },
+    make() {
+      const { tu } = quizTuning();
+      const s = Math.floor(Math.random() * tu.n.length);
+      const pc = Math.floor(Math.random() * 12);
+      const spots = [];
+      for (let f = tu.start[s]; f <= 12; f++) if (mod12(tu.n[s] + f) === pc) spots.push(f);
+      const strName = nn(tu.n[s] + tu.start[s]);
+      return {
+        prompt: `<div class="qtext">${t('qFindNote', { n: `<b>${nn(pc)}</b>`, k: `<b>${tu.n.length - s}</b>`, s: strName })}</div>${quizBoard(tu, { tap: true, string: s })}`,
+        tap: true,
+        check: v => { const [ss, f] = v.split(',').map(Number); this.tapped = { s: ss, f }; return ss === s && mod12(tu.n[s] + f) === pc; },
+        reveal: () => quizBoard(tu, { string: s, dots: spots.map(f => ({ s, f, label: nn(pc), color: 'var(--good)' }))
+          .concat(QUIZZES.findNote.tapped && !spots.includes(QUIZZES.findNote.tapped.f) ? [{ s, f: QUIZZES.findNote.tapped.f, label: '✕', color: 'var(--warn)' }] : []) }),
+        answerText: `${nn(pc)}: ${t('fretWord')} ${spots.join(', ')}`,
+        play: () => Snd.pluck(tu.n[s] + spots[0], 0, -1),
+      };
+    },
+  },
+  theory: {
+    icon: 'circle', en: 'Scales & keys', sv: 'Skalor & tonarter',
+    d: { en: 'Notes of scales, key signatures, chords in a key, modes and intervals.', sv: 'Skalornas toner, förtecken, ackord i tonarter, modus och intervall.' },
+    make() {
+      const kind = pick(['degree', 'degree', 'sig', 'rel', 'dia', 'dia', 'tones', 'mode', 'steps', 'interval']);
+      const r = pick(QUIZ_KEYS), names = majorNames(r), K = names.get(r);
+      const deg = i => names.get(mod12(r + [0, 2, 4, 5, 7, 9, 11][i]));
+      const all = [...names.values()];
+      const L2 = lang() === 'sv';
+      if (kind === 'degree') {
+        const i = 1 + Math.floor(Math.random() * 6);
+        const ord = (L2 ? ['', 'sekunden', 'tersen', 'kvarten', 'kvinten', 'sexten', 'septiman'] : ['', '2nd', '3rd', '4th', '5th', '6th', '7th'])[i];
+        return Object.assign(choices(deg(i), all.concat([nn(r + 1), nn(r + 6), nn(r + 10)])),
+          { prompt: `<div class="qtext big">${t('qDegree', { d: ord, k: `<b>${K}</b>` })}</div>`, explain: t('qScaleIs', { k: K, s: all.join(' ') }) });
+      }
+      if (kind === 'sig') {
+        const sg = keySignature(r, false), lab = n => n === 0 ? '0' : n + ' ' + sg.acc;
+        const ans = lab(sg.n), pool = [1, 2, 3, 4, 5, 6].map(lab).concat(['0']);
+        return Object.assign(choices(ans, pool), { prompt: `<div class="qtext big">${t('qSig', { k: `<b>${K}</b>` })}</div>`, explain: t('qScaleIs', { k: K, s: all.join(' ') }) });
+      }
+      if (kind === 'rel') {
+        const ans = deg(5) + 'm';
+        return Object.assign(choices(ans, [deg(1) + 'm', deg(2) + 'm', K + 'm', deg(3) + 'm', deg(4) + 'm']),
+          { prompt: `<div class="qtext big">${t('qRel', { k: `<b>${K}</b>` })}</div>`, explain: t('qRelEx') });
+      }
+      if (kind === 'dia') {
+        const romans = DIATONIC_MAJOR, i = Math.floor(Math.random() * 7);
+        const name = j => { const c = romanChord(romans[j], r, false); return names.get(c.r) + pretty(TYPES[c.t].sfx); };
+        const ans = name(i), pool = [0, 1, 2, 3, 4, 5, 6].filter(j => j !== i).map(name).concat([names.get(mod12(r + [0, 2, 4, 5, 7, 9, 11][i])) + (/m|dim/.test(name(i)) ? '' : 'm')]);
+        return Object.assign(choices(ans, pool), { prompt: `<div class="qtext big">${t('qDia', { n: `<b>${romans[i]}</b>`, k: `<b>${K}</b>` })}</div>`,
+          explain: romans.map((rm, j) => rm + ' ' + name(j)).join(' · ') });
+      }
+      if (kind === 'tones') {
+        const tt = pick(['', 'm', '7', 'maj7', 'm7', 'dim']), ti = typeIndex(tt), root = Math.floor(Math.random() * 12);
+        const base = TYPES[ti].req.concat(TYPES[ti].opt).sort((a, b) => a - b).filter(x => x < 12);
+        // spell letter by letter (stacked thirds); pick the root spelling that avoids double flats/sharps
+        const STEP = { 0: 0, 1: 1, 2: 1, 3: 2, 4: 2, 5: 3, 6: 4, 7: 4, 8: 4, 9: 6, 10: 6, 11: 6 };
+        const spell = (rn, ivs) => {
+          const LET = 'CDEFGAB', NAT = [0, 2, 4, 5, 7, 9, 11], l0 = LET.indexOf(rn[0]);
+          return ivs.map(iv => {
+            const li = (l0 + STEP[iv]) % 7; let d = mod12(root + iv) - NAT[li];
+            if (d > 6) d -= 12; if (d < -6) d += 12;
+            if (Math.abs(d) > 1) return nn(mod12(root + iv), d > 0 ? 's' : 'f');   // no double sharps/flats
+            return LET[li] + ({ '-1': '♭', 0: '', 1: '♯' })[d];
+          });
+        };
+        const odd = names => names.filter(n => /♭♭|×|C♭|F♭|E♯|B♯/.test(n)).length;
+        const opts = [nn(root, 's'), nn(root, 'f')].map(rn => ({ rn, names: spell(rn, base) }));
+        const best = opts.sort((a, b) => odd(a.names) - odd(b.names))[0];
+        const fix = n => Theory.hNotation ? n.replace(/^B♭/, 'B\u0000').replace(/^B(?!\u0000)/, 'H').replace('\u0000', '') : n;
+        const tones = ivs => spell(best.rn, ivs).map(fix).join(' – ');
+        const ans = tones(base);
+        const wrong = [];
+        for (let k = 1; k < base.length; k++) for (const d of [-1, 1]) { const w = base.slice(); w[k] += d; if (w[k] > 0 && w[k] < 12 && !base.includes(w[k])) wrong.push(tones(w.sort((a, b) => a - b))); }
+        return Object.assign(choices(ans, wrong), { prompt: `<div class="qtext big">${t('qTones', { c: `<b>${fix(best.rn) + pretty(tt)}</b>` })}</div>`, small: true });
+      }
+      if (kind === 'mode') {
+        const MODES = ['major', 'dor', 'phr', 'lyd', 'mix', 'minor', 'loc'], i = Math.floor(Math.random() * 7);
+        const ans = L(SCALES.find(x => x.id === MODES[i]));
+        const ord = (L2 ? ['1:a', '2:a', '3:e', '4:e', '5:e', '6:e', '7:e'] : ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th'])[i];
+        return Object.assign(choices(ans, MODES.map(id => L(SCALES.find(x => x.id === id)))),
+          { prompt: `<div class="qtext big">${t('qMode', { o: ord })}</div>`, explain: t('qModeEx', { k: K, n: deg(i), m: ans }), small: true });
+      }
+      if (kind === 'steps') {
+        const ids = ['major', 'minor', 'dor', 'mix', 'harm', 'mel', 'phr', 'lyd'], id = pick(ids), sc = SCALES.find(x => x.id === id);
+        return Object.assign(choices(L(sc), ids.map(x => L(SCALES.find(y => y.id === x)))),
+          { prompt: `<div class="qtext big">${t('qSteps')}<div class="qsteps">${stepPattern(sc)}</div></div>`, explain: t('qStepsEx'), small: true });
+      }
+      const n = 1 + Math.floor(Math.random() * 12), a = pick(QUIZ_KEYS), sp = keySpell(a, false);
+      return Object.assign(choices(ivName(n), [...Array(12).keys()].map(k => ivName(k + 1))),
+        { prompt: `<div class="qtext big">${t('qInterval', { a: `<b>${nn(a, sp)}</b>`, b: `<b>${nn(a + n, sp)}</b>` })}</div>`, explain: t('qSemis', { n }), small: true });
+    },
+  },
+  intervals: {
+    icon: 'ear', en: 'Intervals by ear', sv: 'Intervall på gehör',
+    d: { en: 'Two notes play – name the interval.', sv: 'Två toner spelas – vilket intervall är det?' },
+    make() {
+      const n = 1 + Math.floor(Math.random() * 12), lo = 48 + Math.floor(Math.random() * 12);
+      const near = [n - 2, n - 1, n + 1, n + 2, n + 3, n - 3].filter(k => k >= 1 && k <= 12).map(ivName);
+      return Object.assign(choices(ivName(n), near), {
+        prompt: `<div class="qtext big">${t('qListen')}</div><div class="qear">${I.ear}</div>`,
+        play: () => { const t0 = Snd.now() + 0.05; Snd.pluck(lo, t0, -1); Snd.pluck(lo + n, t0 + 0.75, -1); setTimeout(() => {}, 0); },
+        replayBoth: () => { const t0 = Snd.now() + 0.05; Snd.pluck(lo, t0, -1, 0.9); Snd.pluck(lo + n, t0, -1, 0.9); },
+        autoplay: true, small: true, explain: t('qSemis', { n }),
+      });
+    },
+  },
+  chordEar: {
+    icon: 'ear', en: 'Chord types by ear', sv: 'Ackordtyper på gehör',
+    d: { en: 'A chord plays – major, minor, seventh …?', sv: 'Ett ackord spelas – dur, moll, septima …?' },
+    make() {
+      const types = ['', 'm', '7', 'maj7', 'm7', 'dim', 'aug', 'sus4'].map(typeIndex);
+      const ti = pick(types), r = Math.floor(Math.random() * 12);
+      const v = voicings(r, ti, null, CHORD_INSTS[0])[0];
+      const lab = k => { const x = TYPES[k]; const w = L(x); return w.charAt(0).toUpperCase() + w.slice(1); };
+      return Object.assign(choices(lab(ti), types.map(lab)), {
+        prompt: `<div class="qtext big">${t('qListenChord')}</div><div class="qear">${I.ear}</div>`,
+        play: () => Snd.chord(v.frets, STD, 0, 'arp'),
+        replayBoth: () => Snd.chord(v.frets, STD, 0, 'strum'),
+        autoplay: true, small: true, explain: cname(r, ti),
+      });
+    },
+  },
+};
+const PRACTICE_ITEMS = ['metro', 'chords', 'noteName', 'findNote', 'theory', 'intervals', 'chordEar'];
+
+const QuizRun = {
+  start(id) {
+    this.id = id; this.q = QUIZZES[id]; this.i = 0; this.score = 0; this.answered = null; this.ok = null;
+    this.timbreFor();
+    this.cur = this.q.make();
+  },
+  timbreFor() { Snd.setTimbre(this.q.inst === 'chord' ? S.chordInst : this.q.inst === 'fret' ? S.quizInst || 'guitar' : 'guitar'); },
+  best() { return (store.get('best', {}))[this.id] || 0; },
   html() {
-    if (!this.list) return `<div class="card"><div class="lbl">${t('challenge')}</div>
-      <div class="muted">${t('challengeDesc')}</div>
-      ${this.best ? `<div class="small muted" style="margin-top:6px">${t('best', { b: this.best })}</div>` : ''}
-      <div class="row" style="margin-top:12px"><button class="btn primary grow" data-a="qstart">${t('go')}</button></div></div>`;
-    if (this.i >= 10) return `<div class="card"><div class="lbl">${t('challenge')}</div>
-      <div class="bpm">${t('result', { s: this.score })}</div>
-      <div class="muted" style="text-align:center;margin-top:6px">${t('best', { b: this.best })}</div>
-      <div class="row" style="margin-top:14px"><button class="btn primary grow" data-a="qstart">${t('again')}</button></div></div>`;
-    const c = this.list[this.i];
-    const v = voicings(c.r, c.t, null, CI())[c.v];
-    const name = o => cname(o.r, o.t);
-    return `<div class="card"><div class="row"><div class="lbl grow" style="margin:0">${t('challenge')} · ${this.i + 1}/10</div><b>${this.score}</b></div>
+    const q = this.q, c = this.cur;
+    if (this.i >= 10) {
+      const best = this.best();
+      return `<div class="card"><div class="qhead">${t('result', { s: this.score })}</div>
+        <div class="muted" style="text-align:center">${t('best', { b: best })}</div>
+        <div class="row" style="margin-top:14px"><button class="btn primary grow" data-a="qagain">${t('again')}</button></div></div>`;
+    }
+    const opts = c.options ? `<div class="quizopts ${c.grid12 ? 'g12' : ''} ${c.small ? 'small' : ''}">${c.options.map((o, k) => {
+      let cls = '';
+      if (this.answered != null) { if (k === c.correct) cls = 'right'; else if (k === this.answered) cls = 'wrong'; }
+      return `<button class="btn ${cls}" data-a="qans" data-v="${k}" ${this.answered != null ? 'disabled style="opacity:1"' : ''}>${o}</button>`;
+    }).join('')}</div>` : '';
+    const done = this.answered != null;
+    const correctText = c.options ? c.options[c.correct] : c.answerText;
+    return `<div class="card">
+      <div class="row"><div class="lbl grow" style="margin:0">${L(q)} · ${this.i + 1}/10</div><b>${this.score}</b></div>
       <div class="progress" style="margin-top:8px"><i style="width:${this.i * 10}%"></i></div>
-      <div class="muted" style="text-align:center">${t('which')}</div>
-      <div class="diagwrap" data-a="qhear">${diagram(v, this.answered ? c.r : -1, { cls: 'big' })}</div>
-      <div class="row" style="justify-content:center"><button class="btn small" data-a="qhear">${I.play}${t('hear')}</button></div>
-      <div class="quizopts">${this.opts.map((o, k) => {
-        let cls = '';
-        if (this.answered) { if (o === c) cls = 'right'; else if (o === this.answered) cls = 'wrong'; }
-        return `<button class="btn ${cls}" data-a="qans" data-v="${k}" ${this.answered ? 'disabled style="opacity:1"' : ''}>${name(o)}</button>`;
-      }).join('')}</div>
-      ${this.answered ? `<div style="text-align:center;margin-top:10px;font-weight:650;color:${this.answered === c ? 'var(--good)' : 'var(--warn)'}">${this.answered === c ? t('right') : t('wrongIs', { c: name(c) })}</div>
-      <div class="row" style="margin-top:10px"><button class="btn primary grow" data-a="qnext">${t('next')}</button></div>` : ''}
+      ${done && c.reveal ? (c.prompt.split('</div>')[0] + '</div>') + c.reveal() : c.prompt}
+      ${c.play ? `<div class="row" style="justify-content:center;margin-top:8px"><button class="btn small" data-a="qplay">${I.play}${t('hear')}</button>
+        ${c.replayBoth ? `<button class="btn small" data-a="qplay2">${t(this.id === 'intervals' ? 'together' : 'strummed')}</button>` : ''}</div>` : ''}
+      ${opts}
+      ${done ? `<div class="qfeed ${this.ok ? 'good' : 'bad'}">${this.ok ? t('right') : t('wrongIs', { c: correctText })}</div>
+        ${c.explain ? `<div class="small muted" style="text-align:center;margin-top:4px">${c.explain}</div>` : ''}
+        <div class="row" style="margin-top:10px"><button class="btn primary grow" data-a="qnext">${t('next')}</button></div>` : ''}
     </div>`;
   },
+  answer(ok, k) {
+    if (this.answered != null) return;
+    this.answered = k == null ? -1 : k; this.ok = ok;
+    if (ok) this.score++;
+    if (navigator.vibrate && !ok) try { navigator.vibrate(60); } catch (e) { /* not allowed */ }
+    if (this.cur.play && !this.cur.autoplay) this.cur.play();
+    Practice.render();
+  },
   action(a, v) {
+    const c = this.cur;
     switch (a) {
-      case 'qstart': this.start(); Practice.render(); break;
-      case 'qhear': { const c = this.list[this.i]; const x = voicings(c.r, c.t, null, CI())[c.v]; Snd.chord(x.frets, CI().n, 0); break; }
-      case 'qans': {
-        if (this.answered) break;
-        const o = this.opts[+v], c = this.list[this.i];
-        this.answered = o;
-        if (o === c) this.score++;
-        const x = voicings(c.r, c.t, null, CI())[c.v]; Snd.chord(x.frets, CI().n, 0);
-        Practice.render();
-        break;
-      }
+      case 'qans': this.answer(+v === c.correct, +v); break;
+      case 'qtap': if (c.tap && this.answered == null) this.answer(c.check(v), -1); break;
+      case 'qplay': this.timbreFor(); c.play(); break;
+      case 'qplay2': this.timbreFor(); c.replayBoth(); break;
       case 'qnext':
-        this.i++; this.answered = null;
-        if (this.i < 10) this.makeOptions();
-        else if (this.score > this.best) { this.best = this.score; store.set('quizBest', this.best); }
-        Practice.render();
+        this.i++; this.answered = null; this.ok = null;
+        if (this.i < 10) { this.cur = this.q.make(); Practice.render(); if (this.cur.autoplay) setTimeout(() => this.cur.play(), 250); }
+        else {
+          const best = store.get('best', {});
+          if (this.score > (best[this.id] || 0)) { best[this.id] = this.score; store.set('best', best); }
+          Practice.render();
+        }
         break;
+      case 'qagain': this.start(this.id); Practice.render(); if (this.cur.autoplay) setTimeout(() => this.cur.play(), 250); break;
       default: return false;
     }
     return true;
   },
 };
+
 const Practice = {
+  view: 'hub', started: false,
+  open(v) {
+    this.view = v; this.started = false;
+    history.pushState({ practice: 1 }, '');
+    this.render(); window.scrollTo(0, 0);
+  },
+  toHub() { this.view = 'hub'; if (S.tab === 'practice') { this.render(); window.scrollTo(0, 0); } },
+  title(v) { return v === 'metro' ? t('metronome') : L(QUIZZES[v]); },
   render() {
-    $('#tab-practice').innerHTML = Metro.html() + Quiz.html();
-    Metro.bind();
+    const el = $('#tab-practice');
+    if (this.view === 'hub') {
+      const best = store.get('best', {});
+      el.innerHTML = `<div class="ptiles">${PRACTICE_ITEMS.map(v => {
+        const q = QUIZZES[v];
+        const icon = v === 'metro' ? I.practice : I[q.icon];
+        const desc = v === 'metro' ? t('metroDesc') : L(q.d);
+        const sub = v === 'metro' ? (Metro.clock.running ? '● ' + Metro.m.bpm + ' BPM' : '') : (best[v] ? t('best', { b: best[v] }) : '');
+        return `<button class="ptile" data-a="popen" data-v="${v}">${icon}<b>${this.title(v)}</b><span>${desc}</span>${sub ? `<em>${sub}</em>` : ''}</button>`;
+      }).join('')}</div>`;
+      return;
+    }
+    const head = `<div class="pback"><button class="btn small" data-a="pback">${I.left}${t('practice')}</button><b>${this.title(this.view)}</b></div>`;
+    if (this.view === 'metro') { el.innerHTML = head + Metro.html(); Metro.bind(); return; }
+    const q = QUIZZES[this.view];
+    if (!this.started) {
+      let instSel = '';
+      if (q.inst === 'chord') instSel = `<div class="lbl">${t('instrument')}</div><select id="qinst">${CHORD_INSTS.map(x => `<option value="${x.id}" ${x.id === S.chordInst ? 'selected' : ''}>${L(x)}</option>`).join('')}</select>`;
+      if (q.inst === 'fret') { const { insts, si } = quizTuning(); instSel = `<div class="lbl">${t('instrument')}</div><select id="qinst">${insts.map(x => `<option value="${x.id}" ${x.id === si.id ? 'selected' : ''}>${L(x)}</option>`).join('')}</select>`; }
+      const best = store.get('best', {})[this.view];
+      el.innerHTML = head + `<div class="card"><div class="qintro">${I[q.icon] || ''}</div><div style="text-align:center">${L(q.d)}</div>
+        ${best ? `<div class="small muted" style="text-align:center;margin-top:6px">${t('best', { b: best })}</div>` : ''}
+        ${instSel}
+        <div class="row" style="margin-top:14px"><button class="btn primary grow" data-a="qgo">${t('go')}</button></div></div>`;
+      const qi = $('#qinst');
+      if (qi) qi.addEventListener('change', e => { if (q.inst === 'chord') S.chordInst = e.target.value; else S.quizInst = e.target.value; saveS(); });
+      return;
+    }
+    el.innerHTML = head + QuizRun.html();
+  },
+  action(a, v) {
+    switch (a) {
+      case 'popen': this.open(v); break;
+      case 'pback': history.back(); break;
+      case 'qgo': this.started = true; QuizRun.start(this.view); this.render(); if (QuizRun.cur.autoplay) setTimeout(() => QuizRun.cur.play(), 250); break;
+      default: return QuizRun.action(a, v);
+    }
+    return true;
   },
 };
 
@@ -2161,7 +2431,7 @@ document.addEventListener('click', e => {
     return;
   }
   Chords.action(a, v) || Studio.action(a, v) || CircleTab.action(a, v) || Scales.action(a, v) ||
-    Tuner.action(a, v) || Metro.action(a, v) || Quiz.action(a, v);
+    Tuner.action(a, v) || Metro.action(a, v) || Practice.action(a, v);
 });
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
