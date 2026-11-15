@@ -48,8 +48,8 @@ Fifteen instruments, each with its own headstock and common tunings: guitar (17 
 and 12-string guitar, 4-, 5- and 6-string bass, ukulele, mandolin, mandola, 5-string and tenor banjo,
 violin, viola, cello and double bass – plus a custom tuning for each. Tap a peg to tune one string;
 paired strings (12-string, mandolin) are marked together. Chromatic mode, A4 calibration
-(415–466 Hz), sensitivity, seven temperaments (equal, just, Pythagorean, ¼-comma meantone,
-Werckmeister III–V, Kirnberger II–III, Vallotti, Young, Kellner and five kinds of meantone – 16 in all) on any key, and a pitch pipe. Steady read-out that
+(415–466 Hz), sensitivity, 16 temperaments (equal, just, Pythagorean, five meantones,
+Werckmeister III–V, Kirnberger II–III, Vallotti, Young II, Kellner) on any key, and a pitch pipe. Steady read-out that
 holds the last note for a moment after it fades.
 
 **Practice** – a metronome in 2/4, 3/4, 4/4, 5/4, 6/8, 9/8, 12/8, 5/8 and 7/8 (with groupings such as
