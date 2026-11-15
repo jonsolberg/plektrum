@@ -152,7 +152,18 @@ function vfor(c) {
   return vs[clamp(c.v || 0, 0, vs.length - 1)] || null;
 }
 
+/** Sharps or flats for a chord's notes, following its own key (E major → G♯, F major → B♭). */
+function chordSpell(r, ti) {
+  const sfx = TYPES[ti].sfx;
+  if (MIXED[mod12(r)].includes('♭')) return 'f';     // keep the root as it is named (E♭m → E♭ G♭ B♭)
+  if (MIXED[mod12(r)].includes('♯')) return 's';
+  const minor = /^m(?!aj)/.test(sfx) || sfx.startsWith('dim') || sfx === 'm7b5';
+  const sp = keySpell(r, minor);
+  if (sp) return sp;
+  return /7|9|11|13/.test(sfx) && !/maj/.test(sfx) ? 'f' : undefined;   // C7 → B♭
+}
 /* ---------------- chord diagram ---------------- */
+const INLAYS = new Set([3, 5, 7, 9, 12, 15, 17, 19, 21]);
 /**
  * SVG chord box. Strings run vertically, low E on the left (on the right when left-handed).
  */
@@ -164,7 +175,7 @@ function diagram(v, root, opt = {}) {
   const H = top + sy * rows + (labels ? 34 : names ? 22 : 10);
   const dotText = (i, f) => {
     const pc = mod12(STD[i] + f);
-    if (mode === 'note') return nn(pc);
+    if (mode === 'note') return nn(pc, opt.spell);
     if (mode === 'interval') return labels.get(pc) || '';
     return v.fing[i] ? String(v.fing[i]) : '';
   };
@@ -180,7 +191,19 @@ function diagram(v, root, opt = {}) {
   for (let j = 0; j <= rows; j++) s += `<line x1="${x(0) - (S.lefty ? -0 : 0)}" x2="${x(5)}" y1="${top + j * sy}" y2="${top + j * sy}" style="stroke:var(--fret)" stroke-width="1.4"/>`;
   for (let i = 0; i < 6; i++) s += `<line x1="${x(i)}" x2="${x(i)}" y1="${top}" y2="${top + rows * sy}" style="stroke:var(--str)" stroke-width="${1 + (5 - i) * 0.16}"/>`;
   if (base === 1) s += `<rect x="${Math.min(x(0), x(5)) - 1}" y="${top - 4}" width="${Math.abs(x(5) - x(0)) + 2}" height="5" rx="1.5" style="fill:var(--ink)"/>`;
-  else s += `<text x="${S.lefty ? W - 6 : 6}" y="${top + sy * 0.5 + 4}" font-size="11" font-weight="600" text-anchor="${S.lefty ? 'end' : 'start'}" style="fill:var(--muted)">${base}</text>`;
+  // fret numbers beside the frets that carry position markers (3, 5, 7, 9, 12 …) and the first fret shown
+  const lx = S.lefty ? W - 5 : 5, anchor = S.lefty ? 'end' : 'start';
+  for (let j = 0; j < rows; j++) {
+    const fr = base + j, yc = top + (j + 0.5) * sy;
+    const marked = INLAYS.has(fr);
+    if (!mini && marked) {
+      const mid = (a, b) => (x(a) + x(b)) / 2;
+      if (fr % 12 === 0) s += `<circle cx="${mid(1, 2)}" cy="${yc}" r="2.6" style="fill:var(--fret)"/><circle cx="${mid(3, 4)}" cy="${yc}" r="2.6" style="fill:var(--fret)"/>`;
+      else s += `<circle cx="${mid(2, 3)}" cy="${yc}" r="2.6" style="fill:var(--fret)"/>`;
+    }
+    if ((j === 0 && base > 1) || (!mini && marked))
+      s += `<text x="${lx}" y="${yc + 3.8}" font-size="${mini ? 11 : 10}" font-weight="${j === 0 && base > 1 ? 700 : 500}" text-anchor="${anchor}" style="fill:var(--muted)">${fr}</text>`;
+  }
   for (let i = 0; i < 6; i++) {
     const f = v.frets[i];
     if (f < 0) s += `<path d="M${x(i) - 4} ${top - 16}l8 8M${x(i) + 4} ${top - 16}l-8 8" style="stroke:var(--muted)" stroke-width="1.6" stroke-linecap="round"/>`;
@@ -212,13 +235,13 @@ function diagram(v, root, opt = {}) {
     if (f < 0) continue;
     const pc = mod12(STD[i] + f), isRoot = pc === root;
     const yb = top + rows * sy;
-    s += `<text x="${x(i)}" y="${yb + 15}" font-size="10" font-weight="700" text-anchor="middle" style="fill:${isRoot ? 'var(--root)' : 'var(--ink)'}">${nn(pc)}</text>`;
+    s += `<text x="${x(i)}" y="${yb + 15}" font-size="10" font-weight="700" text-anchor="middle" style="fill:${isRoot ? 'var(--root)' : 'var(--ink)'}">${nn(pc, opt.spell)}</text>`;
     s += `<text x="${x(i)}" y="${yb + 28}" font-size="9" text-anchor="middle" style="fill:${isRoot ? 'var(--root)' : 'var(--muted)'}">${labels.get(pc) || ''}</text>`;
   }
   if (names) for (let i = 0; i < 6; i++) {
     const f = v.frets[i];
     if (f < 0) continue;
-    s += `<text x="${x(i)}" y="${top + rows * sy + 16}" font-size="9.5" text-anchor="middle" style="fill:var(--muted)">${nn(STD[i] + f)}</text>`;
+    s += `<text x="${x(i)}" y="${top + rows * sy + 16}" font-size="9.5" text-anchor="middle" style="fill:var(--muted)">${nn(STD[i] + f, opt.spell)}</text>`;
   }
   return s + '</svg>';
 }
@@ -264,6 +287,7 @@ const Chords = {
     T.req.concat(T.opt).sort((a, b) => a - b).forEach(s => pcs.push({ pc: mod12(c.r + s), lab: intervalLabel(c.t, s) }));
     if (c.b != null && !pcs.some(p => p.pc === c.b)) pcs.unshift({ pc: c.b, lab: t('bassShort') });
     const labels = new Map(pcs.map(p => [p.pc, p.lab]));
+    const sp = chordSpell(c.r, c.t);
     const posTxt = v ? (v.pos <= 1 && v.frets.some(f => f === 0) ? t('openPos') : t('atFret', { n: v.pos })) : '';
     $('#tab-chords').innerHTML = `
       <div class="card">
@@ -285,7 +309,7 @@ const Chords = {
         ${v ? `
         <div class="diagwrap">
           <button class="iconbtn" data-a="vprev" ${c.v === 0 ? 'disabled style="opacity:.25"' : ''}>${I.left}</button>
-          <div id="bigdiag" data-a="playCur">${diagram(v, c.r, { cls: 'big', labels, dot: S.dotLabel })}</div>
+          <div id="bigdiag" data-a="playCur">${diagram(v, c.r, { cls: 'big', labels, dot: S.dotLabel, spell: sp })}</div>
           <button class="iconbtn" data-a="vnext" ${c.v >= vs.length - 1 ? 'disabled style="opacity:.25"' : ''}>${I.right}</button>
         </div>
         <div class="voicenav">${t('fingering', { i: c.v + 1, n: vs.length })} · ${posTxt}</div>
