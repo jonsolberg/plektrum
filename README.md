@@ -63,17 +63,20 @@ Werckmeister III–V, Kirnberger II–III, Vallotti, Young II, Kellner) on any k
 holds the last note for a moment after it fades.
 
 **Practice** – a start page with music theory lessons and separate exercises (ten questions each, best score kept):
-- Music theory for beginners: 40 short lessons in seven chapters, in an order you can follow from day one –
+- Music theory for beginners: 52 short lessons in nine chapters – one a week for a year, in an order you can follow from day one –
   *Getting started* (tuning, chord charts and tab, first chords, strumming), *Notes and rhythm* (the twelve
   notes, the neck, rhythm, reading the staff, note values, syncopation and swing), *Scales and keys*,
   *Chords* (triads, inversions, arpeggios, 7th chords, power chords, barre chords), *Harmony and songs*
   (chords in a key, minor keys, cadences, secondary dominants, borrowed chords, 12-bar blues, finding the
   key, capo, song form, learning by ear), *Soloing* (pentatonic boxes, tab techniques, improvising, modes)
-  and *Further on the guitar* (CAGED, triads on the top strings, shell voicings, fingerpicking, open
-  tunings). One idea at a time, with piano, guitar-neck and sheet-music examples you can play (notes, dots,
+  *Further on the guitar* (CAGED, triads on the top strings, shell voicings, fingerpicking, open
+  tunings), *Going further* (ear training, sixteenths, ties and triplets, 6/8 and odd time, colour chords,
+  diminished and augmented chords, smooth chord changes) and *Putting it all together* (transposing and the
+  number system, soloing over the changes, reading a lead sheet, writing your own song, practising well and a
+  wrap-up song that uses everything). One idea at a time, with piano, guitar-neck and sheet-music examples you can play (notes, dots,
   chords and strum arrows light up as they sound), a "Try it" exercise, a "Remember" summary and links to
   the matching quiz or tool
-- Save the lessons as a nicely laid-out A4 PDF book – cover, contents in seven chapters and all 40
+- Save the lessons as a nicely laid-out A4 PDF book – cover, contents in nine chapters and all 52
   lessons, or just the one you are reading. It goes straight to Downloads and opens in your PDF viewer,
   ready to print or share. See the [sample PDF](docs/plektrum-music-theory.pdf), also as an
   [e-book (EPUB)](docs/plektrum-music-theory.epub) for phones and e-readers

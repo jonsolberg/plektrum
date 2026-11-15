@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.30';
+const VERSION = '1.31';
 const REPO = 'https://github.com/jonsolberg/plektrum';
 const KOFI = 'https://ko-fi.com/jonsolberg';
 
@@ -69,7 +69,7 @@ const STR = {
     lTipBass: 'Listens to the lowest note. Works best when the bass is clear, or when you play the line yourself.',
     lTipMelody: 'Listens for one note at a time – a solo, a sung melody or a riff. Works best when that part is the loudest.',
     lMicDenied: 'Plektrum needs the microphone to listen.',
-    learn: 'Music theory', learnDesc: 'Short lessons with examples you can play', lessonsN: '{n} lessons', lessonN: 'Lesson {n} of {of}', inListening: 'Listening to', inBuiltin: 'phone microphone', inUsb: 'USB input', inHeadset: 'headset / cable input', inBt: 'Bluetooth headset', inOther: 'external input', inDefault: 'default input', inNotUsed: '{d} is connected but not being used – choose it under Input below, or unplug and plug it in again with the tuner running.', inAuto: 'Automatic', inLabel: 'Input', inLabelD: 'Phone microphone or a cable (USB-C adapter)', inN: 'Input {n}', inSaved: 'Saved choice (not connected)', inNoMatch: 'This input could not be selected directly – Android uses a connected cable automatically.', lTry: 'Try it', lKey: 'Remember', lPiano: 'On the piano', lGuitar: 'On the guitar neck', lPrintAll: 'Save all lessons as PDF', lPrintOne: 'PDF', lPdfBusy: 'Creating PDF…', lPdfDone: 'Saved to Downloads: {f}', lPdfFail: 'Could not save the PDF – opening the print screen instead', lPdfTitle: 'Music theory', lPdfSub: '{n} lessons for string players – from tuning your guitar to CAGED and jazz chords', lPdfToc: 'Contents', lPdfHint: 'Every example can be played in the app: Practice → Music theory.', lPdfIntro: 'Music theory explained for guitarists and other string players – one idea at a time, with examples on the piano and the guitar neck, a short exercise and a summary in every lesson. No previous knowledge needed.', lPdfFoot: 'a toolbox for string players',
+    learn: 'Music theory', learnDesc: 'Short lessons with examples you can play', lessonsN: '{n} lessons', lessonN: 'Lesson {n} of {of}', inListening: 'Listening to', inBuiltin: 'phone microphone', inUsb: 'USB input', inHeadset: 'headset / cable input', inBt: 'Bluetooth headset', inOther: 'external input', inDefault: 'default input', inNotUsed: '{d} is connected but not being used – choose it under Input below, or unplug and plug it in again with the tuner running.', inAuto: 'Automatic', inLabel: 'Input', inLabelD: 'Phone microphone or a cable (USB-C adapter)', inN: 'Input {n}', inSaved: 'Saved choice (not connected)', inNoMatch: 'This input could not be selected directly – Android uses a connected cable automatically.', lTry: 'Try it', lKey: 'Remember', lPiano: 'On the piano', lGuitar: 'On the guitar neck', lPrintAll: 'Save all lessons as PDF', lPrintOne: 'PDF', lPdfBusy: 'Creating PDF…', lPdfDone: 'Saved to Downloads: {f}', lPdfFail: 'Could not save the PDF – opening the print screen instead', lPdfTitle: 'Music theory', lPdfSub: '{n} lessons for string players – one a week for a year, from tuning your guitar to writing your own songs', lPdfToc: 'Contents', lPdfHint: 'Every example can be played in the app: Practice → Music theory.', lPdfIntro: 'Music theory explained for guitarists and other string players – one idea at a time, with examples on the piano and the guitar neck, a short exercise and a summary in every lesson. No previous knowledge needed.', lPdfFoot: 'a toolbox for string players',
     metroDesc: 'Time signatures, subdivisions, accents', qWhichNote: 'Which note is marked?', qFindNote: 'Find {n} on string {k} ({s})',
     qDegree: 'What is the {d} of {k} major?', qScaleIs: '{k} major: {s}', qSig: 'How many sharps or flats in {k} major?',
     qRel: 'What is the relative minor of {k} major?', qRelEx: 'The relative minor starts on the 6th note of the major scale.',
@@ -129,7 +129,7 @@ const STR = {
     lTipBass: 'Lyssnar på den lägsta tonen. Fungerar bäst när basen hörs tydligt, eller när du spelar linjen själv.',
     lTipMelody: 'Lyssnar efter en ton i taget – ett solo, en sjungen melodi eller ett riff. Fungerar bäst när den stämman hörs mest.',
     lMicDenied: 'Plektrum behöver mikrofonen för att kunna lyssna.',
-    learn: 'Musikteori', learnDesc: 'Korta lektioner med exempel du kan spela', lessonsN: '{n} lektioner', lessonN: 'Lektion {n} av {of}', inListening: 'Lyssnar på', inBuiltin: 'telefonens mikrofon', inUsb: 'USB-ingång', inHeadset: 'headset-/kabelingång', inBt: 'Bluetooth-headset', inOther: 'extern ingång', inDefault: 'standardingång', inNotUsed: '{d} är ansluten men används inte – välj den under Ingång nedan, eller dra ur och sätt i den igen medan stämapparaten är igång.', inAuto: 'Automatisk', inLabel: 'Ingång', inLabelD: 'Telefonens mikrofon eller en kabel (USB-C-adapter)', inN: 'Ingång {n}', inSaved: 'Sparat val (inte anslutet)', inNoMatch: 'Den här ingången kunde inte väljas direkt – Android använder en ansluten kabel automatiskt.', lTry: 'Prova', lKey: 'Kom ihåg', lPiano: 'På pianot', lGuitar: 'På gitarrhalsen', lPrintAll: 'Spara alla lektioner som PDF', lPrintOne: 'PDF', lPdfBusy: 'Skapar PDF…', lPdfDone: 'Sparad i Nedladdningar: {f}', lPdfFail: 'Kunde inte spara PDF:en – öppnar utskrift i stället', lPdfTitle: 'Musikteori', lPdfSub: '{n} lektioner för stränginstrument – från att stämma gitarren till CAGED och jazzackord', lPdfToc: 'Innehåll', lPdfHint: 'Alla exempel kan spelas i appen: Öva → Musikteori.', lPdfIntro: 'Musikteori förklarad för gitarrister och andra som spelar stränginstrument – en sak i taget, med exempel på pianot och gitarrhalsen, en kort övning och en sammanfattning i varje lektion. Inga förkunskaper behövs.', lPdfFoot: 'en verktygslåda för stränginstrument',
+    learn: 'Musikteori', learnDesc: 'Korta lektioner med exempel du kan spela', lessonsN: '{n} lektioner', lessonN: 'Lektion {n} av {of}', inListening: 'Lyssnar på', inBuiltin: 'telefonens mikrofon', inUsb: 'USB-ingång', inHeadset: 'headset-/kabelingång', inBt: 'Bluetooth-headset', inOther: 'extern ingång', inDefault: 'standardingång', inNotUsed: '{d} är ansluten men används inte – välj den under Ingång nedan, eller dra ur och sätt i den igen medan stämapparaten är igång.', inAuto: 'Automatisk', inLabel: 'Ingång', inLabelD: 'Telefonens mikrofon eller en kabel (USB-C-adapter)', inN: 'Ingång {n}', inSaved: 'Sparat val (inte anslutet)', inNoMatch: 'Den här ingången kunde inte väljas direkt – Android använder en ansluten kabel automatiskt.', lTry: 'Prova', lKey: 'Kom ihåg', lPiano: 'På pianot', lGuitar: 'På gitarrhalsen', lPrintAll: 'Spara alla lektioner som PDF', lPrintOne: 'PDF', lPdfBusy: 'Skapar PDF…', lPdfDone: 'Sparad i Nedladdningar: {f}', lPdfFail: 'Kunde inte spara PDF:en – öppnar utskrift i stället', lPdfTitle: 'Musikteori', lPdfSub: '{n} lektioner för stränginstrument – en i veckan i ett år, från att stämma gitarren till att skriva egna låtar', lPdfToc: 'Innehåll', lPdfHint: 'Alla exempel kan spelas i appen: Öva → Musikteori.', lPdfIntro: 'Musikteori förklarad för gitarrister och andra som spelar stränginstrument – en sak i taget, med exempel på pianot och gitarrhalsen, en kort övning och en sammanfattning i varje lektion. Inga förkunskaper behövs.', lPdfFoot: 'en verktygslåda för stränginstrument',
     metroDesc: 'Taktarter, underdelningar, betoningar', qWhichNote: 'Vilken ton är markerad?', qFindNote: 'Hitta {n} på sträng {k} ({s})',
     qDegree: 'Vilken ton är {d} i {k}-dur?', qScaleIs: '{k}-dur: {s}', qSig: 'Hur många förtecken har {k}-dur?',
     qRel: 'Vilken är parallelltonarten i moll till {k}-dur?', qRelEx: 'Parallelltonarten i moll börjar på durskalans sjätte ton.',
@@ -239,6 +239,8 @@ const LESSON_CHAPTERS = [
   { t: T2('Harmony and songs', 'Harmonik och låtar'), ids: ['diatonic', 'minorkeys', 'cadences', 'secondary', 'borrowed', 'blues12', 'findkey', 'capo', 'songform', 'byear'] },
   { t: T2('Soloing', 'Solospel'), ids: ['pent', 'pentboxes', 'techniques', 'improv', 'modes'] },
   { t: T2('Further on the guitar', 'Vidare på gitarren'), ids: ['caged', 'triadsneck', 'shell', 'fingerpicking', 'tunings'] },
+  { t: T2('Going further', 'Ett steg till'), ids: ['ear', 'readrhythm', 'oddtime', 'colour', 'dimaug', 'voicelead'] },
+  { t: T2('Putting it all together', 'Allt tillsammans'), ids: ['numbers', 'changes', 'leadsheet', 'songwriting', 'practise', 'wrapup'] },
 ];
 const chapterOf = id => LESSON_CHAPTERS.find(c => c.ids.includes(id));
 const stripMd = x => esc(L(x)).replace(/\*([^*]+)\*/g, '$1');
@@ -270,6 +272,8 @@ function lessonsPrintDoc(only) {
   tmp.innerHTML = idx.map(i => { Practice.lesson = i; return `<div class="plesson" data-i="${i}">${Practice.lessonHtml()}</div>`; }).join('');
   Practice.lesson = keep;
   tmp.querySelectorAll('.lnav, .lgo, .pl, .lprint1, .lcount').forEach(e => e.remove());
+  // "Hear it" does nothing on paper
+  tmp.querySelectorAll('.lrow').forEach(e => { if (e.textContent.trim() === t('hear')) e.remove(); });
   tmp.querySelectorAll('button').forEach(b => { const d = document.createElement('div'); d.className = b.className; d.innerHTML = b.innerHTML; b.replaceWith(d); });
   tmp.querySelectorAll('.lon, .lplaying').forEach(e => e.classList.remove('lon', 'lplaying'));
   // our own lesson header: chapter, number badge, title, goal
@@ -333,7 +337,7 @@ b,strong{color:#15191a}
 .lvis .qkeys{max-width:330px}.lvis .qboard{max-height:170px;width:auto;max-width:100%}
 .diagwrap svg.big{width:140px;height:auto}
 .notes,.lchips{font-family:system-ui,sans-serif}
-.ltab{font-size:9pt;background:#f7f4ee}
+.ltab{font:9pt/1.35 "DejaVu Sans Mono","Roboto Mono","Droid Sans Mono","Liberation Mono","Courier New",Courier,monospace;background:#fff;border:1px solid #e3dccd;border-radius:2mm;padding:2.5mm 3mm;white-space:pre;overflow:visible}
 .ltry{background:#e5f1ee;border:0;border-radius:3mm;padding:3.5mm 5mm;margin:4mm 0;font-size:10.5pt}
 .lkey{background:#fbf1ea;border:0;border-radius:3mm;padding:3.5mm 5mm;margin:5mm 0 0;font-size:10.5pt}
 .ltry .lbl,.lkey .lbl{font:700 8pt system-ui,sans-serif;letter-spacing:1.4px;text-transform:uppercase;margin:0 0 1.5mm}
@@ -376,6 +380,8 @@ function printLessons(only) {
 }
 /* ---------- sheet music (treble clef) for the lessons ---------- */
 const DUR_BEATS = { w: 4, h: 2, q: 1, e: 0.5, s: 0.25 };
+/** beats of a staff item: dotted = 1½ times, triplet = ⅔ */
+const itemBeats = it => (DUR_BEATS[it.d || it.r] || 1) * (it.dot ? 1.5 : 1) * (it.tri ? 2 / 3 : 1);
 /** 'C4', 'F#4', 'Bb3', 'E♭5' → {step (diatonic, C0 = 0), midi, acc} */
 function parseNoteName(n) {
   const m = /^([A-G])([#♯b♭]?)(-?\d)$/.exec(n); if (!m) return null;
@@ -396,7 +402,7 @@ function staffSvg(items, opt = {}) {
   let x = opt.time ? 70 : 50, t = 0, minStep = 30, maxStep = 38, lowY = bot, highY = top;
   const laid = items.map(it => {
     if (it.bar) { const o = { bar: true, x: x + 2 }; x += 14; return o; }
-    const beats = (DUR_BEATS[it.d || it.r] || 1) * (it.dot ? 1.5 : 1);
+    const beats = itemBeats(it);
     const p = it.n ? parseNoteName(it.n) : null;
     if (p) {
       minStep = Math.min(minStep, p.step); maxStep = Math.max(maxStep, p.step);
@@ -420,12 +426,23 @@ function staffSvg(items, opt = {}) {
   const gy = yOf(32), cx = 20;
   g += `<path d="M${cx + 3} ${gy + 2} c0 -5 -8 -5 -8 1 c0 7 12 8 13 -1 c1 -9 -9 -13 -15 -7 c-6 6 -4 19 7 21 c10 2 16 -9 9 -27 c-4 -10 -4 -22 1 -29 c4 -5 8 -1 6 6 c-2 8 -12 14 -12 25 l5 34 c1 6 -7 9 -10 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="${cx - 4}" cy="${gy + 39}" r="3.3" fill="currentColor"/>`;
   if (opt.time) { const [a, b2] = opt.time.split('/'); g += `<text x="${50}" y="${top + sp * 1.62}" font-size="17" font-weight="800" text-anchor="middle" fill="currentColor" font-family="system-ui,sans-serif">${a}</text><text x="${50}" y="${top + sp * 3.62}" font-size="17" font-weight="800" text-anchor="middle" fill="currentColor" font-family="system-ui,sans-serif">${b2}</text>`; }
-  // beams: pairs of eighth notes that start on a beat
-  const beamed = new Set();
-  laid.forEach((o, i) => {
-    const n = laid[i + 1];
-    if (o.p && n && n.p && o.it.d === 'e' && n.it.d === 'e' && !o.it.dot && !n.it.dot && Math.abs(o.t - Math.round(o.t)) < 1e-6) { beamed.add(i); beamed.add(i + 1); o.beamWith = n; }
-  });
+  // beams: eighths and sixteenths are joined in groups inside one beat
+  const beamed = new Set(), beat0 = o => Math.floor(o.t + 1e-6);
+  for (let i = 0; i < laid.length; i++) {
+    const o = laid[i];
+    if (!o.p || !(o.it.d === 'e' || o.it.d === 's') || beamed.has(i)) continue;
+    const grp = [o];
+    for (let j = i + 1; j < laid.length; j++) {
+      const n = laid[j];
+      if (!n.p || !(n.it.d === 'e' || n.it.d === 's') || beat0(n) !== beat0(o) || n.it.tri !== o.it.tri) break;
+      grp.push(n);
+    }
+    if (grp.length < 2) continue;
+    const avg = grp.reduce((a, x) => a + x.p.step, 0) / grp.length, up = avg < 34;
+    const ys = grp.map(x => yOf(x.p.step)), ly = up ? Math.min(...ys) - 30 : Math.max(...ys) + 30;
+    const info = { grp, up, ly };
+    grp.forEach(x => { x.grp = info; beamed.add(laid.indexOf(x)); });
+  }
   laid.forEach((o, i) => {
     if (o.bar) { g += `<line x1="${o.x}" x2="${o.x}" y1="${top}" y2="${bot}" stroke="currentColor" stroke-width="1.2"/>`; return; }
     const it = o.it, X = o.x;
@@ -446,16 +463,24 @@ function staffSvg(items, opt = {}) {
       const col = it.hl ? 'var(--root)' : 'currentColor';
       e += `<ellipse cx="${X}" cy="${y}" rx="${hollow ? 5.7 : 5.3}" ry="3.9" transform="rotate(-20 ${X} ${y})" fill="${hollow ? 'none' : col}" stroke="${col}" stroke-width="${hollow ? 1.9 : 1}"/>`;
       if (it.d !== 'w') {
-        let up = p.step < 34;
-        if (beamed.has(i)) { const pair = o.beamWith || laid[i - 1]; up = (p.step + pair.p.step) / 2 < 34; }
+        const G = o.grp;
+        const up = G ? G.up : p.step < 34;
         const sx = up ? X + 5 : X - 5, sy2 = up ? y - 30 : y + 30;
-        if (beamed.has(i)) {
-          const a2 = o.beamWith ? o : laid[i - 1], b3 = o.beamWith ? o.beamWith : o;
-          const ya = yOf(a2.p.step), yb = yOf(b3.p.step);
-          const uu = (a2.p.step + b3.p.step) / 2 < 34;
-          const ly = uu ? Math.min(ya, yb) - 30 : Math.max(ya, yb) + 30;
+        if (G) {
+          const ly = G.ly, k = G.grp.indexOf(o), sxOf = q => (G.up ? q.x + 5 : q.x - 5);
           e += `<line x1="${sx}" x2="${sx}" y1="${y}" y2="${ly}" stroke="${col}" stroke-width="1.3"/>`;
-          if (o.beamWith) { const sx2 = uu ? b3.x + 5 : b3.x - 5; e += `<line x1="${sx}" x2="${sx2}" y1="${ly}" y2="${ly}" stroke="currentColor" stroke-width="4.2"/>`; }
+          if (k === 0) {
+            const last = G.grp[G.grp.length - 1], dy = G.up ? 6 : -6;
+            e += `<line x1="${sx}" x2="${sxOf(last)}" y1="${ly}" y2="${ly}" stroke="currentColor" stroke-width="4.2"/>`;
+            // second beam for sixteenths: between neighbours, or a short stub
+            G.grp.forEach((q, m) => {
+              if (q.it.d !== 's') return;
+              const nx = G.grp[m + 1], pv = G.grp[m - 1];
+              if (nx && nx.it.d === 's') e += `<line x1="${sxOf(q)}" x2="${sxOf(nx)}" y1="${ly + dy}" y2="${ly + dy}" stroke="currentColor" stroke-width="4.2"/>`;
+              else if (!(pv && pv.it.d === 's')) { const to = nx ? sxOf(q) + 7 : sxOf(q) - 7; e += `<line x1="${sxOf(q)}" x2="${to}" y1="${ly + dy}" y2="${ly + dy}" stroke="currentColor" stroke-width="4.2"/>`; }
+            });
+            if (o.it.tri) { const mx = (sxOf(o) + sxOf(last)) / 2; e += `<text x="${mx}" y="${G.up ? ly - 6 : ly + 15}" font-size="11" font-weight="800" font-style="italic" text-anchor="middle" fill="currentColor" font-family="system-ui,sans-serif">3</text>`; }
+          }
         } else {
           e += `<line x1="${sx}" x2="${sx}" y1="${y}" y2="${sy2}" stroke="${col}" stroke-width="1.3"/>`;
           const flags = it.d === 'e' ? 1 : it.d === 's' ? 2 : 0;
@@ -463,17 +488,24 @@ function staffSvg(items, opt = {}) {
         }
       }
       if (it.dot) e += `<circle cx="${X + 10}" cy="${y - ((p.step - 30) % 2 === 0 ? sp / 2 : 0)}" r="1.9" fill="currentColor"/>`;
+      if (it.tie) {
+        const nx = laid.slice(i + 1).find(q => q.p);
+        if (nx) { const down = p.step >= 34, yy = down ? y - 7 : y + 7, x2 = nx.x - 4, mx = (X + 4 + x2) / 2; e += `<path d="M${X + 4} ${yy} Q${mx} ${yy + (down ? -10 : 10)} ${x2} ${yy}" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>`; }
+      }
+      if (it.tri && !o.grp && it.triStart) e += `<text x="${X + unit * 0.66}" y="${Math.min(yTop + 16, y - 36)}" font-size="11" font-weight="800" font-style="italic" text-anchor="middle" fill="currentColor" font-family="system-ui,sans-serif">⌐ 3 ¬</text>`;
       if (opt.labels) e += `<text x="${X}" y="${nameY}" font-size="11" font-weight="700" text-anchor="middle" fill="${it.hl ? 'var(--root)' : 'currentColor'}" font-family="system-ui,sans-serif">${it.label != null ? (typeof it.label === 'string' ? it.label : L(it.label)) : nn(p.midi, p.acc < 0 ? 'f' : p.acc > 0 ? 's' : undefined)}</text>`;
     }
     if (opt.bars) e += `<rect x="${X - 6}" y="${barY}" width="${Math.max(6, o.beats * unit - 6)}" height="5" rx="2.5" fill="${it.r ? 'none' : 'var(--accent)'}" stroke="${it.r ? 'var(--muted)' : 'none'}" stroke-dasharray="${it.r ? '3 2' : ''}" fill-opacity=".85"/>`;
     g += e + '</g>';
     // the count: every beat (and "&") under the note or rest; held beats are greyed
     if (opt.count) {
-      const step = opt.count === 'and' ? 0.5 : 1;
+      const step = opt.count === 'and' ? 0.5 : opt.count === 'e&a' ? 0.25 : opt.count === 'tri' ? 1 / 3 : 1;
       for (let k = 0; k < o.beats - 1e-6; k += step) {
         const at = o.t + k, inBar = ((at % per) + per) % per, whole = Math.abs(inBar - Math.round(inBar)) < 1e-6;
-        const txt = whole ? String(Math.round(inBar) + 1) : '&';
-        const held = k > 0 || !!it.r;
+        const fr = Math.round((inBar - Math.floor(inBar + 1e-6)) * 12);   // twelfths of a beat
+        const txt = whole ? String(Math.round(inBar) + 1) : fr === 6 ? '&' : fr === 3 ? 'e' : fr === 9 ? 'a' : fr === 4 ? (L({ en: 'trip', sv: 'tri' })) : fr === 8 ? (L({ en: 'let', sv: 'ol' })) : '·';
+        const prevNote = laid.slice(0, i).reverse().find(q => !q.bar);
+        const held = k > 0 || !!it.r || !!(prevNote && prevNote.it.tie);   // a tied note is not played again
         g += `<text class="scn" data-at="${at}" x="${X + k * unit}" y="${countY}" font-size="${whole ? 12 : 10.5}" font-weight="${held ? 500 : 800}" text-anchor="middle" fill="${held ? 'var(--muted)' : 'currentColor'}" font-family="system-ui,sans-serif">${txt}</text>`;
       }
     }
@@ -482,9 +514,17 @@ function staffSvg(items, opt = {}) {
 }
 /** keep lesson fretboards at a sensible height whatever their number of frets */
 function lessonBoardScale(fz) { const F = clamp(Math.max(...fz.dots.map(d => d[1])) + 1, 5, 15), H = 20 + 34 * 5 + 26; return Math.min(1.35, 170 / H) * (F >= 9 ? 1.5 : 1); }
+/** lesson chord names are always written with English letters (B = 11): parse them that way */
+function lessonChord(name) { const h = Theory.hNotation; Theory.hNotation = false; try { return parseChord(name); } finally { Theory.hNotation = h; } }
+/** a lesson chord name for display, in the chosen B/H notation */
+function lessonChordName(name) {
+  const m = /^([A-G])([#♯b♭]?)(.*?)(?:\/([A-G])([#♯b♭]?))?$/.exec(name); if (!m) return pretty(name);
+  const note = (l, a) => { a = a.replace('#', '♯').replace(/^b$/, '♭'); if (Theory.hNotation && l === 'B') return a === '♭' ? 'B' : 'H' + a; return l + a; };
+  return note(m[1], m[2]) + pretty(m[3]) + (m[4] ? '/' + note(m[4], m[5]) : '');
+}
 /** the notes of a chord name as spans that can light up */
 function chordNoteSpans(name) {
-  const p = parseChord(name); if (!p) return '';
+  const p = lessonChord(name); if (!p) return '';
   const T = TYPES[p.t], sp = chordSpell(p.r, p.t);
   const ivs = T.req.concat(T.opt).sort((a, b) => a - b);
   const lab = x => { const l = intervalLabel(p.t, x); return l[0] === '♯' ? 's' : l[0] === '♭' ? 'f' : sp; };
@@ -2919,7 +2959,7 @@ const Practice = {
       if (b.try) return `<div class="ltry"><div class="lbl">${t('lTry')}</div>${md(b.try)}</div>`;
       if (b.key) return `<div class="lkey"><div class="lbl">${t('lKey')}</div><ul>${b.key.map(k => `<li>${md(k)}</li>`).join('')}</ul></div>`;
       if (b.strum) return `<div class="lex">${b.strum.map((r, k) => `<button class="lrow" data-a="lp" data-v="${bi}:${k}">${play}<b>${L(r[0])}<small class="lprog lstrum">${r[1].split('').map((c, i) => `<i class="lch ${c === '-' ? 'rest' : ''}" data-i="${i}">${c === 'D' ? '↓' : c === 'U' ? '↑' : c === 'x' ? '✕' : '·'}</i>`).join('')}</small><small class="lcount">${r[1].length === 8 ? '1 & 2 & 3 & 4 &' : r[1].length === 6 ? '1 2 3 4 5 6' : ''}</small></b></button>`).join('')}</div>`;
-      if (b.prog) return `<div class="lex">${b.prog.map((r, k) => `<button class="lrow" data-a="lp" data-v="${bi}:${k}">${play}<b>${L(r[0])}<small class="lprog">${r[1].map((c, i) => (i && r[1].length > 8 && i % 4 === 0 ? '<span class="lbr"></span>' : '') + `<i class="lch" data-i="${i}">${pretty(c)}</i>`).join('')}</small></b></button>`).join('')}</div>`;
+      if (b.prog) return `<div class="lex">${b.prog.map((r, k) => `<button class="lrow" data-a="lp" data-v="${bi}:${k}">${play}<b>${L(r[0])}<small class="lprog">${r[1].map((c, i) => (i && r[1].length > 8 && i % 4 === 0 ? '<span class="lbr"></span>' : '') + `<i class="lch" data-i="${i}">${lessonChordName(c)}</i>`).join('')}</small></b></button>`).join('')}</div>`;
       if (b.staff) return `<div class="lex">${b.staff.play === false ? '' : `<button class="lrow" data-a="lp" data-v="${bi}">${play}<b>${b.label ? lbl(b.label) : t('hear')}</b></button>`}<div class="lvis lstaff">${staffSvg(b.staff.items, b.staff)}</div></div>`;
       if (b.piano) {
         const pz = b.piano, marks = pz.keys.map(([m, l, k]) => ({ m, t: typeof l === 'number' ? nn(l) : lbl(l), k: k || 'n' }));
@@ -2952,7 +2992,7 @@ const Practice = {
       }
       if (b.modes) return `<div class="lex">${b.modes.map((m, k) => `<button class="lrow" data-a="lp" data-v="${bi}:${k}">${play}<b>C ${L(SCALES.find(x => x.id === m[0])).toLowerCase()}<small>${L(m[1])}</small><small class="lns">${(() => { const sc = SCALES.find(x => x.id === m[0]), sp = spellScale(0, sc); return sc.iv.concat([12]).map((x, i) => `<i class="ln" data-i="${i}">${(sp && sp.get(x % 12)) || nn(x)}</i>`).join(' '); })()}</small></b></button>`).join('')}</div>`;
       if (b.chart) {
-        const p = parseChord(b.chart), v = voicings(p.r, p.t, p.b, CHORD_INSTS[0])[0];
+        const p = lessonChord(b.chart), v = voicings(p.r, p.t, p.b, CHORD_INSTS[0])[0];
         return `<div class="lex" style="text-align:center"><div class="diagwrap" data-a="lp" data-v="${bi}">${diagram(v, p.r, { cls: 'big', tuning: STD, dot: b.dot || 'finger', labels: b.dot === 'interval' ? ivLabels(p.r, p.t) : new Map(), spell: chordSpell(p.r, p.t) })}</div><div class="small muted">${pretty(b.chart)}</div></div>`;
       }
       if (b.tab) return `<div class="lex"><pre class="ltab">${tabHtml(b.tab)}</pre><button class="lrow" data-a="lp" data-v="${bi}">${play}<b>${t('hear')}</b></button></div>`;
@@ -2973,7 +3013,7 @@ const Practice = {
     const mark = (el, when) => { if (el) atTime(when, () => blinkEl(el)); };
     const markRow = (dur) => { if (btn) { btn.classList.add('lplaying'); setTimeout(() => btn.classList.remove('lplaying'), dur * 1000); } };
     const chord = name => {
-      const p = parseChord(name); const vv = p && voicings(p.r, p.t, p.b, CHORD_INSTS[0])[0];
+      const p = lessonChord(name); const vv = p && voicings(p.r, p.t, p.b, CHORD_INSTS[0])[0];
       if (!vv) return;
       const sched = Snd.chord(vv.frets, STD, 0, 'strum');
       if (btn) sched.forEach(({ s, when }) => mark(btn.querySelector(`.ln[data-pc="${mod12(STD[s] + vv.frets[s])}"]`), when));
@@ -2984,15 +3024,16 @@ const Practice = {
       const beat = 60 / (b.staff.bpm || 84); let tt = 0;
       b.staff.items.forEach((it, i) => {
         if (it.bar) return;
-        const len = (DUR_BEATS[it.d || it.r] || 1) * (it.dot ? 1.5 : 1) * beat;
-        if (it.n) { const p = parseNoteName(it.n); Snd.pluck(p.midi - (b.staff.octaveDown ? 12 : 0), now + tt, -1, 0.9); }
+        const len = itemBeats(it) * beat;
+        const prev = b.staff.items.slice(0, i).reverse().find(x => !x.bar);
+        if (it.n && !(prev && prev.tie)) { const p = parseNoteName(it.n); Snd.pluck(p.midi - (b.staff.octaveDown ? 12 : 0), now + tt, -1, 0.9); }   // a tied note keeps sounding
         if (b.staff.click) Snd.tick(now + tt, Number.isInteger(tt / beat) ? 1 : 0.4, false);
         mark(q(`.sn[data-i="${i}"]`), now + tt);
         tt += len;
       });
       (box ? box.querySelectorAll('.scn') : []).forEach(el => mark(el, now + +el.dataset.at * beat));
     } else if (b.strum) {
-      const [, pat, name, bpm] = b.strum[k], p = parseChord(name || 'G'), vv = p && voicings(p.r, p.t, p.b, CHORD_INSTS[0])[0];
+      const [, pat, name, bpm] = b.strum[k], p = lessonChord(name || 'G'), vv = p && voicings(p.r, p.t, p.b, CHORD_INSTS[0])[0];
       const step = 60 / (bpm || 90) / 2, bars = 2;
       for (let bar = 0; bar < bars; bar++) pat.split('').forEach((c, i) => {
         const at = now + (bar * pat.length + i) * step + (b.strum[k][4] && i % 2 ? step * 0.36 : 0);
@@ -3003,7 +3044,7 @@ const Practice = {
     } else if (b.prog) {
       const chs = b.prog[k][1], gap = b.prog[k][2] || 1.1;
       chs.forEach((name, i) => {
-        const p = parseChord(name), vv = p && voicings(p.r, p.t, p.b, CHORD_INSTS[0])[0];
+        const p = lessonChord(name), vv = p && voicings(p.r, p.t, p.b, CHORD_INSTS[0])[0];
         if (vv) Snd.chord(vv.frets, STD, now + i * gap, 'strum', 0.9);
         mark(btn && btn.querySelector(`.lch[data-i="${i}"]`), now + i * gap);
       });
