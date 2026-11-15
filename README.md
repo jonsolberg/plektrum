@@ -74,7 +74,9 @@ holds the last note for a moment after it fades.
   the matching quiz or tool
 - Save the lessons as a nicely laid-out A4 PDF book – cover, contents in seven chapters and all 40
   lessons, or just the one you are reading. It goes straight to Downloads and opens in your PDF viewer,
-  ready to print or share. See the [sample PDF](docs/plektrum-music-theory.pdf)
+  ready to print or share. See the [sample PDF](docs/plektrum-music-theory.pdf), also as an
+  [e-book (EPUB)](docs/plektrum-music-theory.epub) for phones and e-readers
+- Lesson texts, mnemonics and tab follow the note-name setting: B (international) or H (Swedish/German)
 - Metronome in 2/4 to 12/8 plus 5/8 and 7/8 (with groupings such as 2 + 2 + 3), subdivisions, swing,
   tap tempo and accent patterns for syncopation (backbeat, offbeats, Charleston, tresillo, son/rumba/
   bossa clave, shuffle, gallop) – tap any step to accent, soften or silence it

@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.28';
+const VERSION = '1.29';
 const REPO = 'https://github.com/jonsolberg/plektrum';
 const KOFI = 'https://ko-fi.com/jonsolberg';
 
@@ -135,7 +135,9 @@ function t(k, vars) {
   if (vars) for (const v in vars) s = s.replace('{' + v + '}', vars[v]);
   return s;
 }
-const L = o => o[lang()] || o.en;
+/** Lesson texts mark note names that differ between notations as {B|H}: the first for international names, the second for Swedish/German. */
+const NB = s => typeof s === 'string' && s.indexOf('|') >= 0 ? s.replace(/\{([^{}|]*)\|([^{}|]*)\}/g, (m, b, h) => Theory.hNotation ? h : b) : s;
+const L = o => NB(o[lang()] || o.en);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 /* ---------------- icons ---------------- */
@@ -476,10 +478,11 @@ function blinkEl(el) { el.classList.remove('lon'); void el.getBoundingClientRect
 /** pitch class of a written note name such as "C♯/D♭" (first name counts) */
 function pcOfName(t) {
   const m = /^([A-H])([♯#♭b]*)/.exec(String(t)); if (!m) return '';
-  return mod12({ C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11, H: 11 }[m[1]] + [...m[2]].reduce((a, c) => a + (c === '♯' || c === '#' ? 1 : -1), 0));
+  return mod12({ C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: Theory.hNotation ? 10 : 11, H: 11 }[m[1]] + [...m[2]].reduce((a, c) => a + (c === '♯' || c === '#' ? 1 : -1), 0));
 }
 /** tab text with every fret number wrapped, numbered in playing order (left to right) */
 function tabHtml(tab) {
+  if (Theory.hNotation) tab = tab.replace(/^B\|/m, 'H|');   // the B string is the H string in Swedish note names
   const lines = tab.split('\n'), toks = [];
   lines.forEach((ln, li) => { const re = /\d+/g; let m; while ((m = re.exec(ln.slice(2)))) toks.push({ li, col: m.index + 2, len: m[0].length }); });
   const cols = [...new Set(toks.map(x => x.col))].sort((a, b) => a - b);
@@ -2880,12 +2883,13 @@ const Practice = {
   },
 
   /* ---------- lessons ---------- */
-  lessonHtml() {
+  lessonHtml() { return NB(this.lessonHtmlRaw()); },
+  lessonHtmlRaw() {
     const l = LESSONS[this.lesson], i0 = this.lesson;
     const play = `<span class="pl">${I.play}</span>`;
     const body = l.blocks.map((b, bi) => {
       const md = x => esc(L(x)).replace(/\*([^*]+)\*/g, '<b>$1</b>');
-      const lbl = x => x == null ? '' : typeof x === 'string' ? x : L(x);
+      const lbl = x => x == null ? '' : typeof x === 'string' ? NB(x) : L(x);
       if (b.goal) return `<p class="lgoal">${md(b.goal)}</p>`;
       if (b.h) return `<h3>${L(b.h)}</h3>`;
       if (b.p) return `<p class="lp">${md(b.p)}</p>`;
