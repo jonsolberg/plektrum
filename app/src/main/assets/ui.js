@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.10';
+const VERSION = '1.11';
 const REPO = 'https://github.com/jonsolberg/guitarchords';
 
 const store = {
@@ -79,7 +79,7 @@ const STR = {
   sv: {
     chords: 'Ackord', studio: 'Studio', circle: 'Kvintcirkel', scales: 'Skalor', tuner: 'Stämapparat', practice: 'Öva',
     search: 'Sök ackord – Am7, C/G, F♯m7♭5 …', searchL: 'Sök', searchShort: 'Sök ackord', favourites: 'Favoriter', noFavs: 'Tryck på ☆ vid ett ackord för att spara det här.',
-    root: 'Grundton', type: 'Typ', bass: 'Bastone', none: 'ingen', strum: 'Slag', arp: 'Arpeggio',
+    root: 'Grundton', type: 'Typ', bass: 'Baston', none: 'ingen', strum: 'Slag', arp: 'Arpeggio',
     fingering: 'Grepp {i} av {n}', atFret: 'från band {n}', openPos: 'öppet läge', noVoicing: 'Inget spelbart grepp för det här ackordet.',
     favAdded: 'Sparat bland favoriter', favRemoved: 'Borttaget från favoriter', swipe: 'svep eller tryck på pilarna för fler', otherFing: 'Fler grepp', fingers: 'Fingrar', bassShort: 'bas',
     key: 'Tonart', major: 'Dur', minor: 'Moll', tempo: 'Tempo', play: 'Spela', stop: 'Stopp', transpose: 'Transponera',
@@ -390,7 +390,7 @@ const Chords = {
         <div class="lbl">${t('type')}</div>
         <div class="chips">${TYPES.map((x, i) => `<button class="chip ${i === c.t ? 'on' : ''}" data-a="ctype" data-v="${i}">${x.sfx ? pretty(x.sfx) : L({ en: 'maj', sv: 'dur' })}</button>`).join('')}</div>
         <div class="lbl">${t('bass')}</div>
-        <div class="chips scroll"><button class="chip ${c.b == null ? 'on' : ''}" data-a="cbass" data-v="">${t('none')}</button>${[...Array(12).keys()].filter(pc => pc !== c.r).map(pc => `<button class="chip ${pc === c.b ? 'on' : ''}" data-a="cbass" data-v="${pc}">/${nn(pc)}</button>`).join('')}</div>
+        <div class="chips"><button class="chip ${c.b == null ? 'on' : ''}" data-a="cbass" data-v="">${t('none')}</button>${[...Array(12).keys()].filter(pc => pc !== c.r).map(pc => `<button class="chip ${pc === c.b ? 'on' : ''}" data-a="cbass" data-v="${pc}">/${nn(pc)}</button>`).join('')}</div>
       </div>`;
     $('#cinst').addEventListener('change', e => { S.chordInst = e.target.value; saveS(); Snd.setTimbre(S.chordInst); this.c.v = 0; this.save(); this.render(); this.play(); });
     $('#ctun').addEventListener('change', e => {
@@ -519,7 +519,7 @@ function pickerHtml(c, idx, total) {
     <div class="lbl">${t('type')}</div>
     <div class="chips">${TYPES.map((x, i) => `<button class="chip ${i === c.t ? 'on' : ''}" data-a="pktype" data-v="${i}">${x.sfx ? pretty(x.sfx) : L({ en: 'maj', sv: 'dur' })}</button>`).join('')}</div>
     <div class="lbl">${t('bass')}</div>
-    <div class="chips scroll"><button class="chip ${c.b == null ? 'on' : ''}" data-a="pkbass" data-v="">${t('none')}</button>${[...Array(12).keys()].filter(pc => pc !== c.r).map(pc => `<button class="chip ${pc === c.b ? 'on' : ''}" data-a="pkbass" data-v="${pc}">/${nn(pc)}</button>`).join('')}</div>
+    <div class="chips"><button class="chip ${c.b == null ? 'on' : ''}" data-a="pkbass" data-v="">${t('none')}</button>${[...Array(12).keys()].filter(pc => pc !== c.r).map(pc => `<button class="chip ${pc === c.b ? 'on' : ''}" data-a="pkbass" data-v="${pc}">/${nn(pc)}</button>`).join('')}</div>
     <div class="lbl">${t('voicing')}</div>
     <div class="thumbs">${vs.map((x, i) => `<div class="thumb ${i === c.v ? 'on' : ''}" data-a="pkv" data-v="${i}">${diagram(x, c.r, { mini: true })}</div>`).join('')}</div>
     <div class="row" style="margin-top:14px">
