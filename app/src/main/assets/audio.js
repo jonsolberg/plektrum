@@ -418,12 +418,13 @@ const FFT = {
 const Pitch = {
   stream: null, src: null, an: null, buf: null, raf: 0, onResult: null,
 
-  async start(onResult) {
+  async start(onResult, deviceId) {
     this.onResult = onResult;
     const ctx = Snd.init();
-    this.stream = await navigator.mediaDevices.getUserMedia({
-      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
-    });
+    const audio = { echoCancellation: false, noiseSuppression: false, autoGainControl: false };
+    if (deviceId) audio.deviceId = { exact: deviceId };
+    try { this.stream = await navigator.mediaDevices.getUserMedia({ audio }); }
+    catch (e) { if (!deviceId) throw e; delete audio.deviceId; this.stream = await navigator.mediaDevices.getUserMedia({ audio }); }
     this.src = ctx.createMediaStreamSource(this.stream);
     const hp = ctx.createBiquadFilter();
     hp.type = 'highpass'; hp.frequency.value = 22;

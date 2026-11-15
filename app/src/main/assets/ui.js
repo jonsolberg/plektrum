@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.24';
+const VERSION = '1.25';
 const REPO = 'https://github.com/jonsolberg/guitarchords';
 
 const store = {
@@ -19,7 +19,7 @@ const store = {
 };
 const S = Object.assign({
   lang: 'auto', theme: 'auto', lefty: false, names: false, hNotation: false, style: 'strum', volume: 0.8, sound: true,
-  a4: 440, temp: 'equal', tempRoot: 0, tuning: 'std', custom: [40, 45, 50, 55, 59, 64], tunerMode: 'guitar', tunerView: 'needle', tunerSens: 0.52, instrument: 'guitar', customs: {}, tunerHist: false, chordInst: 'guitar', quizInst: 'guitar', chordTun: {}, showTuning: true, dotLabel: 'finger',
+  a4: 440, temp: 'equal', tempRoot: 0, tuning: 'std', custom: [40, 45, 50, 55, 59, 64], tunerMode: 'guitar', tunerView: 'needle', tunerSens: 0.52, instrument: 'guitar', customs: {}, tunerHist: false, tunerInput: '', chordInst: 'guitar', quizInst: 'guitar', chordTun: {}, showTuning: true, dotLabel: 'finger',
   tab: 'chords',
 }, store.get('settings', {}));
 const saveS = () => store.set('settings', S);
@@ -58,7 +58,7 @@ const STR = {
     sens: 'Sensitivity', sensD: 'Raise it for quiet acoustics, lower it in noisy rooms',
     grouping: 'Grouping', subdiv: 'Subdivision', swingD: 'Plays the off-beats late, like a shuffle', accentPat: 'Accent pattern',
     customPat: 'Custom', resetAcc: 'Reset accents', stepHint: 'Tap a step: normal → accent → soft → silent',
-    learn: 'Music theory', learnDesc: 'Short lessons with examples you can play', lessonsN: '{n} lessons', lessonN: 'Lesson {n} of {of}', lTry: 'Try it', lKey: 'Remember', lPiano: 'On the piano', lGuitar: 'On the guitar neck', lPrintAll: 'Save all lessons as PDF', lPrintOne: 'PDF', lPdfBusy: 'Creating PDF…', lPdfDone: 'Saved to Downloads: {f}', lPdfFail: 'Could not save the PDF – opening the print screen instead', lPdfTitle: 'Music theory', lPdfSub: '{n} lessons for string players – from tuning your guitar to CAGED and jazz chords', lPdfToc: 'Contents', lPdfHint: 'Every example can be played in the app: Practice → Music theory.', lPdfIntro: 'Music theory explained for guitarists and other string players – one idea at a time, with examples on the piano and the guitar neck, a short exercise and a summary in every lesson. No previous knowledge needed.', lPdfFoot: 'a toolbox for string players',
+    learn: 'Music theory', learnDesc: 'Short lessons with examples you can play', lessonsN: '{n} lessons', lessonN: 'Lesson {n} of {of}', inListening: 'Listening to', inBuiltin: 'phone microphone', inUsb: 'USB input', inHeadset: 'headset / cable input', inBt: 'Bluetooth headset', inOther: 'external input', inDefault: 'default input', inNotUsed: '{d} is connected but not being used – pick it below, or unplug and plug it in again with the tuner running.', inAuto: 'Input: automatic', lTry: 'Try it', lKey: 'Remember', lPiano: 'On the piano', lGuitar: 'On the guitar neck', lPrintAll: 'Save all lessons as PDF', lPrintOne: 'PDF', lPdfBusy: 'Creating PDF…', lPdfDone: 'Saved to Downloads: {f}', lPdfFail: 'Could not save the PDF – opening the print screen instead', lPdfTitle: 'Music theory', lPdfSub: '{n} lessons for string players – from tuning your guitar to CAGED and jazz chords', lPdfToc: 'Contents', lPdfHint: 'Every example can be played in the app: Practice → Music theory.', lPdfIntro: 'Music theory explained for guitarists and other string players – one idea at a time, with examples on the piano and the guitar neck, a short exercise and a summary in every lesson. No previous knowledge needed.', lPdfFoot: 'a toolbox for string players',
     metroDesc: 'Time signatures, subdivisions, accents', qWhichNote: 'Which note is marked?', qFindNote: 'Find {n} on string {k} ({s})',
     qDegree: 'What is the {d} of {k} major?', qScaleIs: '{k} major: {s}', qSig: 'How many sharps or flats in {k} major?',
     qRel: 'What is the relative minor of {k} major?', qRelEx: 'The relative minor starts on the 6th note of the major scale.',
@@ -107,7 +107,7 @@ const STR = {
     sens: 'Känslighet', sensD: 'Höj för tysta akustiska gitarrer, sänk i stökiga rum',
     grouping: 'Gruppering', subdiv: 'Underdelning', swingD: 'Spelar offbeat-slagen sent, som shuffle', accentPat: 'Betoningsmönster',
     customPat: 'Eget', resetAcc: 'Återställ betoningar', stepHint: 'Tryck på ett steg: normal → betonad → svag → tyst',
-    learn: 'Musikteori', learnDesc: 'Korta lektioner med exempel du kan spela', lessonsN: '{n} lektioner', lessonN: 'Lektion {n} av {of}', lTry: 'Prova', lKey: 'Kom ihåg', lPiano: 'På pianot', lGuitar: 'På gitarrhalsen', lPrintAll: 'Spara alla lektioner som PDF', lPrintOne: 'PDF', lPdfBusy: 'Skapar PDF…', lPdfDone: 'Sparad i Nedladdningar: {f}', lPdfFail: 'Kunde inte spara PDF:en – öppnar utskrift i stället', lPdfTitle: 'Musikteori', lPdfSub: '{n} lektioner för stränginstrument – från att stämma gitarren till CAGED och jazzackord', lPdfToc: 'Innehåll', lPdfHint: 'Alla exempel kan spelas i appen: Öva → Musikteori.', lPdfIntro: 'Musikteori förklarad för gitarrister och andra som spelar stränginstrument – en sak i taget, med exempel på pianot och gitarrhalsen, en kort övning och en sammanfattning i varje lektion. Inga förkunskaper behövs.', lPdfFoot: 'en verktygslåda för stränginstrument',
+    learn: 'Musikteori', learnDesc: 'Korta lektioner med exempel du kan spela', lessonsN: '{n} lektioner', lessonN: 'Lektion {n} av {of}', inListening: 'Lyssnar på', inBuiltin: 'telefonens mikrofon', inUsb: 'USB-ingång', inHeadset: 'headset-/kabelingång', inBt: 'Bluetooth-headset', inOther: 'extern ingång', inDefault: 'standardingång', inNotUsed: '{d} är ansluten men används inte – välj den nedan, eller dra ur och sätt i den igen medan stämapparaten är igång.', inAuto: 'Ingång: automatisk', lTry: 'Prova', lKey: 'Kom ihåg', lPiano: 'På pianot', lGuitar: 'På gitarrhalsen', lPrintAll: 'Spara alla lektioner som PDF', lPrintOne: 'PDF', lPdfBusy: 'Skapar PDF…', lPdfDone: 'Sparad i Nedladdningar: {f}', lPdfFail: 'Kunde inte spara PDF:en – öppnar utskrift i stället', lPdfTitle: 'Musikteori', lPdfSub: '{n} lektioner för stränginstrument – från att stämma gitarren till CAGED och jazzackord', lPdfToc: 'Innehåll', lPdfHint: 'Alla exempel kan spelas i appen: Öva → Musikteori.', lPdfIntro: 'Musikteori förklarad för gitarrister och andra som spelar stränginstrument – en sak i taget, med exempel på pianot och gitarrhalsen, en kort övning och en sammanfattning i varje lektion. Inga förkunskaper behövs.', lPdfFoot: 'en verktygslåda för stränginstrument',
     metroDesc: 'Taktarter, underdelningar, betoningar', qWhichNote: 'Vilken ton är markerad?', qFindNote: 'Hitta {n} på sträng {k} ({s})',
     qDegree: 'Vilken ton är {d} i {k}-dur?', qScaleIs: '{k}-dur: {s}', qSig: 'Hur många förtecken har {k}-dur?',
     qRel: 'Vilken är parallelltonarten i moll till {k}-dur?', qRelEx: 'Parallelltonarten i moll börjar på durskalans sjätte ton.',
@@ -150,6 +150,7 @@ const I = {
   arp: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="17" r="2.4"/><circle cx="12" cy="12" r="2.4"/><circle cx="19" cy="7" r="2.4"/></svg>',
   star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3.2l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 17l-5.4 2.9 1.1-6.1-4.5-4.2 6.1-.8z"/></svg>',
   left: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
+  plug: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v5M15 2v5M6 7h12v4a6 6 0 0 1-12 0z"/><path d="M12 17v5"/></svg>',
   print: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg>',
   right: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>',
   search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L20 20"/></svg>',
@@ -1683,6 +1684,7 @@ const Tuner = {
         <div class="tchips"><span id="tnHz">— Hz</span><span id="tnTarget">${S.a4.toFixed(1)} Hz A4</span></div>
         ${S.tunerHist ? '<canvas class="history" id="thist"></canvas>' : ''}
         <div class="level"><i id="tlevel"></i></div>
+        <div class="tinput" id="tinput">${running ? this.inputHtml() : ''}</div>
         <button class="btn ${running ? '' : 'primary'} tgo" data-a="tstart">${running ? I.stop + t('stopTuner') : I.mic + t('startTuner')}</button>
       </div>
       <div class="card">
@@ -1721,6 +1723,7 @@ const Tuner = {
     $('#tsens').addEventListener('input', e => { S.tunerSens = +e.target.value; this.applyGate(); saveS(); });
     this.canvas = $('#thist');
     if (this.hasSig && this.last) this.show(this.last);
+    if (running) { const ti = $('#tinput'); if (ti) ti.dataset.h = ''; this.paintInput(); }
     this.paint(0);
   },
 
@@ -1762,12 +1765,53 @@ const Tuner = {
     return s + '</svg>';
   },
 
+  /* which input the tuner is listening to (Android tells us), and a picker when there is a choice */
+  inputs: null, devs: [],
+  readInputs() {
+    try { this.inputs = AND && AND.audioInputs ? JSON.parse(AND.audioInputs()) : null; } catch (e) { this.inputs = null; }
+  },
+  async listDevices() {
+    try { this.devs = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'audioinput' && d.deviceId && d.label); } catch (e) { this.devs = []; }
+  },
+  inputHtml() {
+    const inp = this.inputs, act = inp && inp.active && inp.active[0];
+    const ext = inp && inp.available ? inp.available.filter(d => d.type !== 'builtin') : [];
+    const name = d => d.type === 'builtin' ? t('inBuiltin') : d.type === 'usb' ? t('inUsb') + (d.name ? ` · ${esc(d.name)}` : '') : d.type === 'headset' ? t('inHeadset') : d.type === 'bluetooth' ? t('inBt') : t('inOther');
+    let h = '';
+    if (act) h += `<span class="tin ${act.type === 'builtin' ? '' : 'ext'}">${act.type === 'builtin' ? I.mic : I.plug}${t('inListening')}: <b>${name(act)}</b></span>`;
+    else if (!AND) h += `<span class="tin">${I.mic}${t('inListening')}: <b>${t('inDefault')}</b></span>`;
+    if (act && act.type === 'builtin' && ext.length) h += `<div class="tinwarn">${t('inNotUsed', { d: name(ext[0]) })}</div>`;
+    if (this.devs.length > 1) h += `<select id="tinsel" class="tinsel"><option value="">${t('inAuto')}</option>${this.devs.map(d => `<option value="${esc(d.deviceId)}" ${d.deviceId === S.tunerInput ? 'selected' : ''}>${esc(d.label)}</option>`).join('')}</select>`;
+    return h;
+  },
+  paintInput() {
+    const el = $('#tinput'); if (!el) return;
+    const h = this.inputHtml();
+    if (el.dataset.h === h) return;
+    el.dataset.h = h; el.innerHTML = h;
+    const sel = $('#tinsel');
+    if (sel) sel.addEventListener('change', async e => {
+      S.tunerInput = e.target.value; saveS();
+      Pitch.stop(); await Pitch.start(r => this.onPitch(r), S.tunerInput); this.applyRange(); this.applyGate();
+      setTimeout(() => { this.readInputs(); this.paintInput(); }, 600);
+    });
+  },
+  watchInput(on) {
+    clearInterval(this.inputTimer); this.inputTimer = null;
+    if (!on) return;
+    const tick = () => { this.readInputs(); this.paintInput(); };
+    this.listDevices().then(() => { tick(); });
+    setTimeout(tick, 500);
+    this.inputTimer = setInterval(tick, 2000);
+  },
+
   async toggle() {
     if (Pitch.running) { this.stop(); return; }
     this.applyGate();
     try {
-      await Pitch.start(r => this.onPitch(r));
+      await Pitch.start(r => this.onPitch(r), S.tunerInput || '');
       this.applyRange();
+      this.watchInput(true);
     } catch (e) {
       toast(t('micDenied'));
     }
@@ -1776,6 +1820,7 @@ const Tuner = {
   },
   stop() {
     Pitch.stop();
+    this.watchInput(false);
     this.freqs = []; this.last = null; this.hasSig = false; this.cents = null;
     keepAwake();
     if (S.tab === 'tuner') this.render();

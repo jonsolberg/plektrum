@@ -22,6 +22,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.media.AudioDeviceInfo;
+import android.media.AudioManager;
+import android.media.AudioRecordingConfiguration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -325,6 +328,28 @@ public class MainActivity extends Activity {
         pv.loadDataWithBaseURL("file:///android_asset/", html, "text/html", "utf-8", null);
     }
 
+    private static String deviceType(int type) {
+        switch (type) {
+            case AudioDeviceInfo.TYPE_BUILTIN_MIC: return "builtin";
+            case AudioDeviceInfo.TYPE_USB_HEADSET:
+            case AudioDeviceInfo.TYPE_USB_DEVICE:
+            case AudioDeviceInfo.TYPE_USB_ACCESSORY: return "usb";
+            case AudioDeviceInfo.TYPE_WIRED_HEADSET:
+            case AudioDeviceInfo.TYPE_LINE_ANALOG:
+            case AudioDeviceInfo.TYPE_LINE_DIGITAL: return "headset";
+            case AudioDeviceInfo.TYPE_BLUETOOTH_SCO:
+            case 26: /* TYPE_BLE_HEADSET (API 31) */ return "bluetooth";
+            default: return null;   // telephony, FM tuner, echo reference … not useful for the tuner
+        }
+    }
+
+    private static String deviceJson(AudioDeviceInfo d) {
+        String type = deviceType(d.getType());
+        CharSequence n = d.getProductName();
+        String name = n == null ? "" : n.toString().replace("\\", "").replace("\"", "'");
+        return "{\"type\":\"" + (type == null ? "other" : type) + "\",\"name\":\"" + name + "\"}";
+    }
+
     private class Bridge {
         @JavascriptInterface
         public void keepAwake(boolean on) {
@@ -342,6 +367,39 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void setDark(boolean dark) {
             runOnUiThread(() -> applyBars(dark));
+        }
+
+        /**
+         * Which audio inputs exist and which one our recording (the tuner) is really using.
+         * JSON: {"active":[{"type":"usb","name":"…"}], "available":[…]} – type is builtin, usb, headset, bluetooth or other.
+         */
+        @JavascriptInterface
+        public String audioInputs() {
+            StringBuilder sb = new StringBuilder("{\"active\":[");
+            try {
+                AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                boolean first = true;
+                for (AudioRecordingConfiguration c : am.getActiveRecordingConfigurations()) {
+                    AudioDeviceInfo d = c.getAudioDevice();
+                    if (d == null) continue;
+                    if (!first) sb.append(',');
+                    sb.append(deviceJson(d));
+                    first = false;
+                }
+                sb.append("],\"available\":[");
+                first = true;
+                for (AudioDeviceInfo d : am.getDevices(AudioManager.GET_DEVICES_INPUTS)) {
+                    String type = deviceType(d.getType());
+                    if (type == null) continue;
+                    if (!first) sb.append(',');
+                    sb.append(deviceJson(d));
+                    first = false;
+                }
+                sb.append("]}");
+            } catch (Throwable t) {
+                return "{\"active\":[],\"available\":[]}";
+            }
+            return sb.toString();
         }
 
         /** Save an HTML document as an A4 PDF in Downloads and open it. */
