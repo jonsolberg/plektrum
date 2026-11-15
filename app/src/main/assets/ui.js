@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.15';
+const VERSION = '1.16';
 const REPO = 'https://github.com/jonsolberg/guitarchords';
 
 const store = {
@@ -2559,6 +2559,7 @@ const Practice = {
       if (b.p) return `<p class="lp">${md(b.p)}</p>`;
       if (b.try) return `<div class="ltry"><div class="lbl">${t('lTry')}</div>${md(b.try)}</div>`;
       if (b.key) return `<div class="lkey"><div class="lbl">${t('lKey')}</div><ul>${b.key.map(k => `<li>${md(k)}</li>`).join('')}</ul></div>`;
+      if (b.prog) return `<div class="lex">${b.prog.map((r, k) => `<button class="lrow" data-a="lp" data-v="${bi}:${k}">${play}<b>${L(r[0])}<small class="lprog">${r[1].map((c, i) => (i && r[1].length > 8 && i % 4 === 0 ? '<span class="lbr"></span>' : '') + `<i class="lch" data-i="${i}">${pretty(c)}</i>`).join('')}</small></b></button>`).join('')}</div>`;
       if (b.piano) {
         const pz = b.piano, marks = pz.keys.map(([m, l, k]) => ({ m, t: typeof l === 'number' ? nn(l) : lbl(l), k: k || 'n' }));
         return `<div class="lex"><button class="lrow" data-a="lp" data-v="${bi}">${play}<b>${b.label ? L(b.label) : t('hear')}<small>${t('lPiano')}</small></b></button><div class="lvis">${keysSvg(marks, pz.lo, pz.hi)}</div></div>`;
@@ -2581,7 +2582,7 @@ const Practice = {
       }
       if (b.notes && !b.tab) return `<div class="lex"><button class="lrow" data-a="lp" data-v="${bi}">${play}<b>${L(b.label)}<small>${b.notes.map((m, i) => `<i class="ln" data-i="${i}">${nn(m)}</i>`).join(' ')}</small></b></button></div>`;
       if (b.intervals) return `<div class="lex">${[...Array(12).keys()].map(k => `<button class="lrow" data-a="lp" data-v="${bi}:${k + 1}">${play}<b>${ivName(k + 1)}<small><i class="ln" data-i="0">C</i> → <i class="ln" data-i="1">${nn(k + 1, 's')}</i></small></b><span>${semis(k + 1)}</span></button>`).join('')}</div>`;
-      if (b.table) return `<div class="lex">${b.table.map((r, k) => `<button class="lrow" data-a="lp" data-v="${bi}:${k}">${play}<b>${typeof r[0] === 'string' ? r[0] : L(r[0])}${r[1] ? `<small>${r[1]}</small>` : ''}<small class="lns">${chordNoteSpans(r[2])}</small></b><span>${pretty(r[2])}</span></button>`).join('')}</div>`;
+      if (b.table) return `<div class="lex">${b.table.map((r, k) => `<button class="lrow" data-a="lp" data-v="${bi}:${k}">${play}<b>${lbl(r[0])}${r[1] ? `<small>${lbl(r[1])}</small>` : ''}<small class="lns">${chordNoteSpans(r[2])}</small></b><span>${pretty(r[2])}</span></button>`).join('')}</div>`;
       if (b.diatonic != null) {
         const sp = spellScale(b.diatonic, SCALES.find(x => x.id === 'major'));
         const chs = DIATONIC_MAJOR.map(r => romanChord(r, b.diatonic, false));
@@ -2618,7 +2619,15 @@ const Practice = {
       if (box && box.querySelector('.hl')) sched.forEach(({ s, when }) => mark(box.querySelector(`.hl[data-s="${s}"]`), when));
       markRow(1.4);
     };
-    if (b.piano) {
+    if (b.prog) {
+      const chs = b.prog[k][1], gap = b.prog[k][2] || 1.1;
+      chs.forEach((name, i) => {
+        const p = parseChord(name), vv = p && voicings(p.r, p.t, p.b, CHORD_INSTS[0])[0];
+        if (vv) Snd.chord(vv.frets, STD, now + i * gap, 'strum', 0.9);
+        mark(btn && btn.querySelector(`.lch[data-i="${i}"]`), now + i * gap);
+      });
+      if (btn) { btn.classList.add('lplaying'); setTimeout(() => btn.classList.remove('lplaying'), (chs.length * gap + 0.6) * 1000); }
+    } else if (b.piano) {
       const ms = b.piano.play || b.piano.keys.map(x => x[0]), gap = b.piano.chord ? 0 : ms.length > 4 ? 0.3 : 0.55;
       ms.forEach((m, i) => { Snd.pluck(m, now + i * gap, -1, 0.85); mark(q(`.km[data-m="${m}"]`), now + i * gap); });
       if (!b.piano.chord && b.piano.end) ms.forEach(m => { Snd.pluck(m, now + ms.length * gap + 0.3, -1, 0.7); mark(q(`.km[data-m="${m}"]`), now + ms.length * gap + 0.3); });
