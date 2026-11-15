@@ -18,20 +18,40 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Build debug APK
+      # Signed with the release key when the repository secrets are set, otherwise a debug build.
+      # Secrets: PLEKTRUM_KEYSTORE_BASE64 (the .jks file, base64), PLEKTRUM_KEYSTORE_PASSWORD,
+      #          PLEKTRUM_KEY_ALIAS, PLEKTRUM_KEY_PASSWORD
+      - name: Build APK
+        env:
+          KS_B64: ${{ secrets.PLEKTRUM_KEYSTORE_BASE64 }}
+          PLEKTRUM_KEYSTORE_PASSWORD: ${{ secrets.PLEKTRUM_KEYSTORE_PASSWORD }}
+          PLEKTRUM_KEY_ALIAS: ${{ secrets.PLEKTRUM_KEY_ALIAS }}
+          PLEKTRUM_KEY_PASSWORD: ${{ secrets.PLEKTRUM_KEY_PASSWORD }}
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug
+          mkdir -p out
+          if [ -n "$KS_B64" ]; then
+            echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+            export PLEKTRUM_KEYSTORE="$RUNNER_TEMP/release.jks"
+            ./gradlew assembleRelease
+            cp app/build/outputs/apk/release/app-release.apk out/Plektrum.apk
+            echo "Signed with the release key"
+          else
+            ./gradlew assembleDebug
+            cp app/build/outputs/apk/debug/app-debug.apk out/Plektrum.apk
+            echo "::warning::No signing secrets – this is a debug build"
+          fi
+          rm -f "$RUNNER_TEMP/release.jks"
 
       - uses: actions/upload-artifact@v4
         with:
           name: plektrum-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: out/Plektrum.apk
 
       - name: Publish APK to the "apk" branch
         if: github.ref == 'refs/heads/main'
         run: |
-          mkdir /tmp/out && cp app/build/outputs/apk/debug/app-debug.apk /tmp/out/Plektrum.apk
+          mkdir /tmp/out && cp out/Plektrum.apk /tmp/out/Plektrum.apk
           cd /tmp/out
           git init -q -b apk
           git config user.name "github-actions"
@@ -48,8 +68,8 @@ jobs:
           VERSION=$(grep -oP 'versionName\s*=?\s*"\K[^"]+' app/build.gradle* | head -1)
           TAG="v$VERSION"
           # Fixed name, so releases/latest/download/Plektrum.apk always points at the newest build.
-          cp "app/build/outputs/apk/debug/app-debug.apk" Plektrum.apk
-          cp "app/build/outputs/apk/debug/app-debug.apk" "Plektrum-$VERSION.apk"
+          cp out/Plektrum.apk Plektrum.apk
+          cp out/Plektrum.apk "Plektrum-$VERSION.apk"
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" "Plektrum-$VERSION.apk" Plektrum.apk --clobber
           else
