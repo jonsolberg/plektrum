@@ -43,7 +43,10 @@ new standard, baritone, and a custom tuning), tune a single string by tapping it
 (415–466 Hz), seven temperaments (equal, just, Pythagorean, ¼-comma meantone, Werckmeister III,
 Kirnberger III, Vallotti) on any key, and a pitch pipe.
 
-**Practice** – metronome (40–240 BPM, 2–7 beats per bar, tap tempo) and a ten-question chord challenge.
+**Practice** – a metronome in 2/4, 3/4, 4/4, 5/4, 6/8, 9/8, 12/8, 5/8 and 7/8 (with groupings such as
+2 + 2 + 3), subdivisions, swing, tap tempo and accent patterns for syncopation (backbeat, offbeats,
+Charleston, tresillo, son/rumba/bossa clave, shuffle, gallop) – tap any step to accent, soften or
+silence it. Plus a ten-question chord challenge.
 
 Plus left-handed mode, light/dark/automatic theme, English and Swedish (follows the phone), and
 optional Swedish note names (H and B).

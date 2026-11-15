@@ -28,7 +28,7 @@ const saveS = () => store.set('settings', S);
 const STR = {
   en: {
     chords: 'Chords', studio: 'Studio', circle: 'Circle', scales: 'Scales', tuner: 'Tuner', practice: 'Practice',
-    search: 'Find a chord – Am7, C/G, F♯m7♭5 …', favourites: 'Favourites', noFavs: 'Tap ☆ on a chord to keep it here.',
+    search: 'Find a chord – Am7, C/G, F♯m7♭5 …', searchL: 'Search', favourites: 'Favourites', noFavs: 'Tap ☆ on a chord to keep it here.',
     root: 'Root', type: 'Type', bass: 'Bass note', none: 'none', strum: 'Strum', arp: 'Arpeggio',
     fingering: 'Fingering {i} of {n}', atFret: 'from fret {n}', openPos: 'open position', noVoicing: 'No playable fingering for this one.',
     favAdded: 'Saved to favourites', favRemoved: 'Removed from favourites', swipe: 'swipe or tap the arrows for more', otherFing: 'Other fingerings', fingers: 'Fingers', bassShort: 'bass',
@@ -55,18 +55,20 @@ const STR = {
     needle: 'Needle', strobe: 'Strobe', tapStart: 'Press Start and play a string', tuneUp: 'Tune up', tuneDown: 'Tune down',
     semisLow: '{n} semitone(s) low – tune up', semisHigh: '{n} semitone(s) high – tune down',
     sens: 'Sensitivity', sensD: 'Raise it for quiet acoustics, lower it in noisy rooms',
+    grouping: 'Grouping', subdiv: 'Subdivision', swingD: 'Plays the off-beats late, like a shuffle', accentPat: 'Accent pattern',
+    customPat: 'Custom', resetAcc: 'Reset accents', stepHint: 'Tap a step: normal → accent → soft → silent',
     metronome: 'Metronome', perBar: 'Beats per bar', tap: 'Tap', start: 'Start', challenge: 'Chord challenge',
     challengeDesc: 'Ten chord diagrams – name each one.', go: 'Start', which: 'Which chord is this?', next: 'Next',
     right: 'Right!', wrongIs: 'That was {c}', result: '{s} of 10', best: 'Best: {b} of 10', again: 'Play again', hear: 'Hear it',
-    settings: 'Settings', language: 'Language', auto: 'Automatic', theme: 'Theme', light: 'Light', dark: 'Dark',
+    settings: 'Settings', setDisplay: 'Display', soundOn: 'Play sounds', language: 'Language', auto: 'Automatic', theme: 'Theme', light: 'Light', dark: 'Dark',
     lefty: 'Left-handed', leftyD: 'Mirror diagrams and fretboards', namesS: 'Note names on diagrams',
-    hNot: 'Swedish note names', hNotD: 'B is called H, B♭ is called B', playStyle: 'Tap a diagram to', sound: 'Sound', volume: 'Volume',
+    hNot: 'Swedish note names', hNotD: 'B is called H, B♭ is called B', playStyle: 'Tapping a chord chart plays', sound: 'Sound', volume: 'Volume',
     about: 'About', aboutT: 'A toolbox for guitarists: chords, progressions, the circle of fifths, scales, a tuner and a metronome. Works fully offline.',
     license: 'Free software under the GNU GPL v3.', source: 'Source code',
   },
   sv: {
     chords: 'Ackord', studio: 'Studio', circle: 'Kvintcirkel', scales: 'Skalor', tuner: 'Stämapparat', practice: 'Öva',
-    search: 'Sök ackord – Am7, C/G, F♯m7♭5 …', favourites: 'Favoriter', noFavs: 'Tryck på ☆ vid ett ackord för att spara det här.',
+    search: 'Sök ackord – Am7, C/G, F♯m7♭5 …', searchL: 'Sök', favourites: 'Favoriter', noFavs: 'Tryck på ☆ vid ett ackord för att spara det här.',
     root: 'Grundton', type: 'Typ', bass: 'Bastone', none: 'ingen', strum: 'Slag', arp: 'Arpeggio',
     fingering: 'Grepp {i} av {n}', atFret: 'från band {n}', openPos: 'öppet läge', noVoicing: 'Inget spelbart grepp för det här ackordet.',
     favAdded: 'Sparat bland favoriter', favRemoved: 'Borttaget från favoriter', swipe: 'svep eller tryck på pilarna för fler', otherFing: 'Fler grepp', fingers: 'Fingrar', bassShort: 'bas',
@@ -93,12 +95,14 @@ const STR = {
     needle: 'Visare', strobe: 'Stroboskop', tapStart: 'Tryck på Starta och spela en sträng', tuneUp: 'Stäm upp', tuneDown: 'Stäm ner',
     semisLow: '{n} halvton(er) för lågt – stäm upp', semisHigh: '{n} halvton(er) för högt – stäm ner',
     sens: 'Känslighet', sensD: 'Höj för tysta akustiska gitarrer, sänk i stökiga rum',
+    grouping: 'Gruppering', subdiv: 'Underdelning', swingD: 'Spelar offbeat-slagen sent, som shuffle', accentPat: 'Betoningsmönster',
+    customPat: 'Eget', resetAcc: 'Återställ betoningar', stepHint: 'Tryck på ett steg: normal → betonad → svag → tyst',
     metronome: 'Metronom', perBar: 'Slag per takt', tap: 'Knacka', start: 'Starta', challenge: 'Ackordutmaning',
     challengeDesc: 'Tio ackorddiagram – namnge vart och ett.', go: 'Börja', which: 'Vilket ackord är det här?', next: 'Nästa',
     right: 'Rätt!', wrongIs: 'Det var {c}', result: '{s} av 10', best: 'Bäst: {b} av 10', again: 'Spela igen', hear: 'Lyssna',
-    settings: 'Inställningar', language: 'Språk', auto: 'Automatiskt', theme: 'Tema', light: 'Ljust', dark: 'Mörkt',
+    nav_tuner: 'Stämma', nav_circle: 'Kvintcirkel', settings: 'Inställningar', setDisplay: 'Visning', soundOn: 'Spela upp ljud', language: 'Språk', auto: 'Automatiskt', theme: 'Tema', light: 'Ljust', dark: 'Mörkt',
     lefty: 'Vänsterhänt', leftyD: 'Spegelvänd diagram och greppbräda', namesS: 'Tonnamn i diagrammen',
-    hNot: 'Svenska tonnamn', hNotD: 'B heter H, B♭ heter B', playStyle: 'Tryck på ett diagram för', sound: 'Ljud', volume: 'Volym',
+    hNot: 'Svenska tonnamn', hNotD: 'B heter H, B♭ heter B', playStyle: 'Ett tryck på ackorddiagrammet spelar', sound: 'Ljud', volume: 'Volym',
     about: 'Om', aboutT: 'En verktygslåda för gitarrister: ackord, progressioner, kvintcirkeln, skalor, stämapparat och metronom. Fungerar helt utan nätverk.',
     license: 'Fri programvara under GNU GPL v3.', source: 'Källkod',
   },
@@ -128,6 +132,8 @@ const I = {
   star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3.2l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 17l-5.4 2.9 1.1-6.1-4.5-4.2 6.1-.8z"/></svg>',
   left: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
   right: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>',
+  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L20 20"/></svg>',
+  close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
   trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
   send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>',
   mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>',
@@ -171,7 +177,6 @@ function chordSpell(r, ti) {
   return /7|9|11|13/.test(sfx) && !/maj/.test(sfx) ? 'f' : undefined;   // C7 → B♭
 }
 /* ---------------- chord diagram ---------------- */
-const INLAYS = new Set([3, 5, 7, 9, 12, 15, 17, 19, 21]);
 /**
  * SVG chord box. Strings run vertically, low E on the left (on the right when left-handed).
  */
@@ -179,8 +184,8 @@ function diagram(v, root, opt = {}) {
   const mini = !!opt.mini, labels = !mini && opt.labels ? opt.labels : null;
   const names = !mini && !labels && S.names;
   const mode = labels ? (opt.dot || 'finger') : 'finger';
-  const W = 120, padL = 20, sx = 16, top = 26, sy = 22, rows = 5;
-  const H = top + sy * rows + (labels ? 34 : names ? 22 : 10);
+  const W = 124, padL = 23, sx = 16, top = 26, sy = 22, rows = 5;
+  const H = top + sy * rows + (names ? 22 : 10);
   const dotText = (i, f) => {
     const pc = mod12(STD[i] + f);
     if (mode === 'note') return nn(pc, opt.spell);
@@ -199,23 +204,19 @@ function diagram(v, root, opt = {}) {
   for (let j = 0; j <= rows; j++) s += `<line x1="${x(0) - (S.lefty ? -0 : 0)}" x2="${x(5)}" y1="${top + j * sy}" y2="${top + j * sy}" style="stroke:var(--fret)" stroke-width="1.4"/>`;
   for (let i = 0; i < 6; i++) s += `<line x1="${x(i)}" x2="${x(i)}" y1="${top}" y2="${top + rows * sy}" style="stroke:var(--str)" stroke-width="${1 + (5 - i) * 0.16}"/>`;
   if (base === 1) s += `<rect x="${Math.min(x(0), x(5)) - 1}" y="${top - 4}" width="${Math.abs(x(5) - x(0)) + 2}" height="5" rx="1.5" style="fill:var(--ink)"/>`;
-  // fret numbers beside the frets that carry position markers (3, 5, 7, 9, 12 …) and the first fret shown
-  const lx = S.lefty ? W - 5 : 5, anchor = S.lefty ? 'end' : 'start';
-  for (let j = 0; j < rows; j++) {
-    const fr = base + j, yc = top + (j + 0.5) * sy;
-    const marked = INLAYS.has(fr);
-    if (!mini && marked) {
-      const mid = (a, b) => (x(a) + x(b)) / 2;
-      if (fr % 12 === 0) s += `<circle cx="${mid(1, 2)}" cy="${yc}" r="2.6" style="fill:var(--fret)"/><circle cx="${mid(3, 4)}" cy="${yc}" r="2.6" style="fill:var(--fret)"/>`;
-      else s += `<circle cx="${mid(2, 3)}" cy="${yc}" r="2.6" style="fill:var(--fret)"/>`;
-    }
-    if ((j === 0 && base > 1) || (!mini && marked))
-      s += `<text x="${lx}" y="${yc + 3.8}" font-size="${mini ? 11 : 10}" font-weight="${j === 0 && base > 1 ? 700 : 500}" text-anchor="${anchor}" style="fill:var(--muted)">${fr}</text>`;
-  }
+  else s += `<text x="${S.lefty ? W - 2 : 2}" y="${top + sy * 0.5 + 4}" font-size="11" font-weight="700" text-anchor="${S.lefty ? 'end' : 'start'}" style="fill:var(--muted)">${base}</text>`;
   for (let i = 0; i < 6; i++) {
     const f = v.frets[i];
     if (f < 0) s += `<path d="M${x(i) - 4} ${top - 16}l8 8M${x(i) + 4} ${top - 16}l-8 8" style="stroke:var(--muted)" stroke-width="1.6" stroke-linecap="round"/>`;
-    else if (f === 0) s += `<circle cx="${x(i)}" cy="${top - 12}" r="4.2" fill="none" style="stroke:${mod12(STD[i]) === root ? 'var(--root)' : 'var(--ink)'}" stroke-width="1.6"/>`;
+    else if (f === 0) {
+      const isR = mod12(STD[i]) === root;
+      if (mode === 'finger') s += `<circle cx="${x(i)}" cy="${top - 12}" r="4.2" fill="none" style="stroke:${isR ? 'var(--root)' : 'var(--ink)'}" stroke-width="1.6"/>`;
+      else {
+        const txt = dotText(i, 0);
+        s += `<circle cx="${x(i)}" cy="${top - 12}" r="7" style="fill:var(--card);stroke:${isR ? 'var(--root)' : 'var(--ink)'}" stroke-width="1.4"/>`;
+        s += `<text x="${x(i)}" y="${top - 8.6}" font-size="${fs(txt)}" font-weight="700" text-anchor="middle" style="fill:${isR ? 'var(--root)' : 'var(--ink)'}">${txt}</text>`;
+      }
+    }
   }
   if (v.barre) {
     const xa = Math.min(x(v.barre.from), x(v.barre.to)), xb = Math.max(x(v.barre.from), x(v.barre.to));
@@ -237,14 +238,6 @@ function diagram(v, root, opt = {}) {
     }
     s += `<circle cx="${x(i)}" cy="${y(f)}" r="7" style="fill:${isRoot ? 'var(--root)' : 'var(--accent)'}"/>`;
     if (!mini) { const txt = dotText(i, f); if (txt) s += `<text x="${x(i)}" y="${y(f) + 3.4}" font-size="${fs(txt)}" font-weight="700" text-anchor="middle" style="fill:${isRoot ? '#fff' : 'var(--on-accent)'}">${txt}</text>`; }
-  }
-  if (labels) for (let i = 0; i < 6; i++) {
-    const f = v.frets[i];
-    if (f < 0) continue;
-    const pc = mod12(STD[i] + f), isRoot = pc === root;
-    const yb = top + rows * sy;
-    s += `<text x="${x(i)}" y="${yb + 15}" font-size="10" font-weight="700" text-anchor="middle" style="fill:${isRoot ? 'var(--root)' : 'var(--ink)'}">${nn(pc, opt.spell)}</text>`;
-    s += `<text x="${x(i)}" y="${yb + 28}" font-size="9" text-anchor="middle" style="fill:${isRoot ? 'var(--root)' : 'var(--muted)'}">${labels.get(pc) || ''}</text>`;
   }
   if (names) for (let i = 0; i < 6; i++) {
     const f = v.frets[i];
@@ -299,21 +292,18 @@ const Chords = {
     const posTxt = v ? (v.pos <= 1 && v.frets.some(f => f === 0) ? t('openPos') : t('atFret', { n: v.pos })) : '';
     $('#tab-chords').innerHTML = `
       <div class="card">
-        <div class="search">
-          <input type="search" id="csearch" placeholder="${esc(t('search'))}" autocomplete="off" autocapitalize="off" spellcheck="false">
+        ${this.searching ? `
+        <div class="search row" style="flex-wrap:nowrap">
+          <input type="search" id="csearch" class="grow" placeholder="${esc(t('search'))}" autocomplete="off" autocapitalize="off" spellcheck="false">
+          <button class="iconbtn" data-a="searchClose" aria-label="close">${I.close}</button>
           <div class="sugg" id="csugg"></div>
-        </div>
-        <div class="lbl" style="margin-top:14px">${t('favourites')}</div>
-        <div class="favs">${this.favs.length ? this.favs.map((f, i) => `
-          <div class="fav" data-a="openFav" data-v="${i}">${diagram(vfor(f), f.r, { mini: true })}<b>${cname(f.r, f.t, f.b)}</b></div>`).join('')
-          : `<div class="empty">${t('noFavs')}</div>`}</div>
-      </div>
-      <div class="card">
+        </div>` : `
         <div class="chordhead">
-          <div><div class="chordname">${cname(c.r, c.t, c.b)}</div>
+          <div class="grow" style="min-width:0"><div class="chordname">${cname(c.r, c.t, c.b)}</div>
           <div class="chordlong">${nn(c.r)} ${L(T)}${c.b != null ? ' / ' + nn(c.b) : ''}</div></div>
+          <button class="iconbtn" data-a="searchOpen" aria-label="${esc(t('searchL'))}">${I.search}</button>
           <button class="iconbtn star ${this.isFav() ? 'on' : ''}" data-a="fav" aria-label="favourite">${I.star}</button>
-        </div>
+        </div>`}
         ${v ? `
         <div class="diagwrap">
           <button class="iconbtn" data-a="vprev" ${c.v === 0 ? 'disabled style="opacity:.25"' : ''}>${I.left}</button>
@@ -321,14 +311,20 @@ const Chords = {
           <button class="iconbtn" data-a="vnext" ${c.v >= vs.length - 1 ? 'disabled style="opacity:.25"' : ''}>${I.right}</button>
         </div>
         <div class="voicenav">${t('fingering', { i: c.v + 1, n: vs.length })} · ${posTxt}</div>
-        <div style="max-width:320px;margin:0 auto 12px">${seg('dotl', [['finger', t('fingers')], ['note', t('notesL')], ['interval', t('degrees')]], S.dotLabel)}</div>
-        <div class="row" style="justify-content:center;margin-bottom:12px">
-          <button class="btn primary" data-a="strum">${I.play}${t('strum')}</button>
-          <button class="btn" data-a="arp">${I.arp}${t('arp')}</button>
+        <div class="chordbar">
+          ${seg('dotl', [['finger', t('fingers')], ['note', t('notesL')], ['interval', '1·3·5']], S.dotLabel)}
+          <button class="btn primary sq" data-a="strum" aria-label="${esc(t('strum'))}">${I.play}</button>
+          <button class="btn sq" data-a="arp" aria-label="${esc(t('arp'))}">${I.arp}</button>
         </div>
-        ${vs.length > 1 ? `<div class="lbl">${t('otherFing')}</div>` : ''}
+        ${vs.length > 1 ? `<div class="lbl" style="margin-top:10px">${t('otherFing')}</div>` : ''}
         <div class="thumbs" id="thumbs">${vs.map((x, i) => `<div class="thumb ${i === c.v ? 'on' : ''}" data-a="vsel" data-v="${i}">${diagram(x, c.r, { mini: true })}</div>`).join('')}</div>
         ` : `<div class="empty" style="padding:30px 0;text-align:center">${t('noVoicing')}</div>`}
+      </div>
+      <div class="card">
+        <div class="lbl">${t('favourites')}</div>
+        <div class="favs">${this.favs.length ? this.favs.map((f, i) => `
+          <div class="fav" data-a="openFav" data-v="${i}">${diagram(vfor(f), f.r, { mini: true })}<b>${cname(f.r, f.t, f.b)}</b></div>`).join('')
+          : `<div class="empty">${t('noFavs')}</div>`}</div>
       </div>
       <div class="card">
         <div class="lbl">${t('root')}</div>
@@ -338,9 +334,9 @@ const Chords = {
         <div class="lbl">${t('bass')}</div>
         <div class="chips scroll"><button class="chip ${c.b == null ? 'on' : ''}" data-a="cbass" data-v="">${t('none')}</button>${[...Array(12).keys()].filter(pc => pc !== c.r).map(pc => `<button class="chip ${pc === c.b ? 'on' : ''}" data-a="cbass" data-v="${pc}">/${nn(pc)}</button>`).join('')}</div>
       </div>`;
-    const th = $('#thumbs .thumb.on');
-    if (th) th.scrollIntoView({ block: 'nearest', inline: 'center' });
-    this.bindSearch();
+    const th = $('#thumbs .thumb.on'), row = $('#thumbs');
+    if (th) row.scrollLeft = th.offsetLeft - row.offsetLeft - (row.clientWidth - th.clientWidth) / 2;
+    if (this.searching) this.bindSearch();
     this.bindSwipe();
   },
 
@@ -391,12 +387,17 @@ const Chords = {
       box.innerHTML = list.map((s, i) => `<button data-i="${i}" class="${i === hi ? 'hi' : ''}">${s.n}</button>`).join('');
       box.style.display = list.length ? 'block' : 'none';
     };
-    const pick = s => { inp.blur(); box.style.display = 'none'; this.set({ r: s.r, t: s.t, b: s.b, v: 0 }, true); };
+    const pick = s => { this.searching = false; this.set({ r: s.r, t: s.t, b: s.b, v: 0 }, true); };
     inp.addEventListener('input', show);
     inp.addEventListener('keydown', e => { if (e.key === 'Enter' && list[hi]) pick(list[hi]); });
     box.addEventListener('mousedown', e => e.preventDefault());
     box.addEventListener('click', e => { const b = e.target.closest('button'); if (b) pick(list[+b.dataset.i]); });
-    inp.addEventListener('blur', () => setTimeout(() => { box.style.display = 'none'; }, 150));
+    inp.addEventListener('keydown', e => { if (e.key === 'Escape') { this.searching = false; this.render(); } });
+    inp.addEventListener('blur', () => setTimeout(() => {
+      box.style.display = 'none';
+      if (this.searching && !inp.value.trim()) { this.searching = false; this.render(); }
+    }, 200));
+    setTimeout(() => inp.focus(), 30);
   },
   bindSwipe() {
     const el = $('#bigdiag');
@@ -429,6 +430,8 @@ const Chords = {
       case 'strum': this.play('strum'); break;
       case 'arp': this.play('arp'); break;
       case 'fav': this.toggleFav(); break;
+      case 'searchOpen': this.searching = true; this.render(); break;
+      case 'searchClose': this.searching = false; this.render(); break;
       case 'openFav': { const f = this.favs[+v]; this.set({ r: f.r, t: f.t, b: f.b, v: f.v }, true); window.scrollTo({ top: 0, behavior: 'smooth' }); break; }
       default: return false;
     }
@@ -868,7 +871,7 @@ const CircleTab = {
         <div class="list">${progs.map((g, i) => `
           <div class="item ${i === this.playingProg ? 'on' : ''}">
             <button class="iconbtn" data-a="cprog" data-v="${i}">${i === this.playingProg ? I.stop : I.play}</button>
-            <div class="t"><b>${L(g)} <span style="display:inline;color:var(--muted);font-weight:500">${g.seq.join('–')}</span></b>
+            <div class="t"><b>${L(g)} <span style="display:inline;color:var(--muted);font-weight:500;overflow-wrap:anywhere;white-space:normal">${g.seq.join('–')}</span></b>
               <span>${g.seq.map(r => { const c = romanChord(r, k.key, k.minor); return chordName(c.r, c.t, null, sp); }).join(' – ')}</span></div>
             <button class="iconbtn" data-a="cstudio" data-v="${i}" aria-label="${t('toStudio')}">${I.send}</button>
           </div>`).join('')}</div>
@@ -1429,52 +1432,154 @@ const Tuner = {
 /* =======================================================================
    PRACTICE – metronome & chord challenge
    ======================================================================= */
+const METRO_SIGS = [
+  { id: '2/4', beats: 2, unit: '♩' },
+  { id: '3/4', beats: 3, unit: '♩' },
+  { id: '4/4', beats: 4, unit: '♩' },
+  { id: '5/4', beats: 5, unit: '♩', groups: [[3, 2], [2, 3]] },
+  { id: '6/8', beats: 2, unit: '♩.', compound: true },
+  { id: '9/8', beats: 3, unit: '♩.', compound: true },
+  { id: '12/8', beats: 4, unit: '♩.', compound: true },
+  { id: '5/8', beats: 5, unit: '♪', groups: [[3, 2], [2, 3]] },
+  { id: '7/8', beats: 7, unit: '♪', groups: [[2, 2, 3], [3, 2, 2], [2, 3, 2]] },
+];
+// Accent patterns for practising syncopation (4/4). 3 = accent, 2 = normal, 1 = soft, 0 = silent.
+const METRO_PRESETS = [
+  { id: 'std',        en: 'Every beat',                 sv: 'Varje slag' },
+  { id: 'backbeat',   sub: 1, p: '0303',             en: 'Backbeat (2 & 4 only)',      sv: 'Backbeat (bara 2 & 4)' },
+  { id: 'offbeat',    sub: 2, p: '03030303',         en: 'Offbeats (the "&")',          sv: 'Offbeat ("och")' },
+  { id: 'charleston', sub: 2, p: '30020000',         en: 'Charleston',                 sv: 'Charleston' },
+  { id: 'tresillo',   sub: 2, p: '30030030',         en: 'Tresillo (3-3-2)',           sv: 'Tresillo (3-3-2)' },
+  { id: 'son',        sub: 4, p: '3002002000202000', en: 'Son clave (3-2)',            sv: 'Son clave (3-2)' },
+  { id: 'rumba',      sub: 4, p: '3002000200202000', en: 'Rumba clave (3-2)',          sv: 'Rumba clave (3-2)' },
+  { id: 'bossa',      sub: 4, p: '3002002000200200', en: 'Bossa nova clave',           sv: 'Bossa nova-clave' },
+  { id: 'shuffle',    sub: 3, p: '301201201201',     en: 'Shuffle',                    sv: 'Shuffle' },
+  { id: 'gallop',     sub: 4, p: '3022202220222022', en: 'Gallop',                     sv: 'Galopp' },
+  { id: 'push',       sub: 2, p: '30020202',         en: 'Syncopated push',            sv: 'Synkoperad framförskjutning' },
+];
+
 const Metro = {
-  m: Object.assign({ bpm: 100, per: 4 }, store.get('metro', {})),
-  taps: [],
+  m: Object.assign({ bpm: 100, sig: '4/4', group: 0, sub: 1, swing: false, preset: 'std', custom: null }, store.get('metro', {})),
+  taps: [], cur: -1,
   clock: new BeatClock((n, time) => Metro.beat(n, time)),
   save() { store.set('metro', this.m); },
+  sig() { return METRO_SIGS.find(x => x.id === this.m.sig) || METRO_SIGS[2]; },
+  subChoices() {
+    const g = this.sig();
+    if (g.compound) return [[1, '♩.'], [3, '♪♪♪'], [6, '♬♬♬']];
+    if (g.unit === '♪') return [[1, '♪'], [2, '♬']];
+    return [[1, '♩'], [2, '♪♪'], [3, '3'], [4, '♬♬']];
+  },
+  canSwing() { const g = this.sig(); return !g.compound && g.unit !== '♪' && (this.m.sub === 2 || this.m.sub === 4); },
   marking(b) {
     return b < 60 ? 'Largo' : b < 76 ? 'Adagio' : b < 108 ? 'Andante' : b < 120 ? 'Moderato' : b < 156 ? 'Allegro' : b < 176 ? 'Vivace' : 'Presto';
   },
+  /** Beat indices where a group starts (5/4 as 3 + 2 → 0, 3). */
+  groupStarts() {
+    const g = this.sig();
+    if (!g.groups) return null;
+    const sizes = g.groups[this.m.group] || g.groups[0];
+    const out = [];
+    let a = 0;
+    for (const s of sizes) { out.push(a); a += s; }
+    return out;
+  },
+  /** One level per step: 3 accent, 2 beat, 1 subdivision, 0 silent. */
+  levels() {
+    const g = this.sig(), sub = this.m.sub, n = g.beats * sub;
+    if (this.m.custom && this.m.custom.length === n) return this.m.custom;
+    const gs = this.groupStarts();
+    const out = [];
+    for (let i = 0; i < n; i++) {
+      const beat = Math.floor(i / sub), onBeat = i % sub === 0;
+      if (i === 0) out.push(3);
+      else if (onBeat && gs && gs.includes(beat)) out.push(3);
+      else if (onBeat) out.push(2);
+      else out.push(1);
+    }
+    return out;
+  },
   html() {
-    const m = this.m;
+    const m = this.m, g = this.sig(), lv = this.levels(), sub = m.sub;
+    const lo = g.unit === '♪' ? 60 : 30, hi = g.unit === '♪' ? 400 : 240;
+    const groupsHtml = g.groups ? `<div class="lbl">${t('grouping')}</div>${seg('mgroup', g.groups.map((x, i) => [i, x.join(' + ')]), m.group)}` : '';
+    const gs = this.groupStarts();
+    let cells = '';
+    lv.forEach((l, i) => {
+      const beat = Math.floor(i / sub);
+      const newGroup = i > 0 && i % sub === 0 && (!gs || gs.includes(beat));
+      cells += `${newGroup ? '<span class="msep"></span>' : ''}<button class="mstep l${l} ${i % sub === 0 ? 'b' : ''}" data-a="mlevel" data-v="${i}" aria-label="${i + 1}"><i></i></button>`;
+    });
     return `<div class="card">
       <div class="lbl">${t('metronome')}</div>
-      <div class="bpm"><span id="mbpm">${m.bpm}</span> <small>BPM</small></div>
-      <div class="muted" style="text-align:center;font-size:14px" id="mmark">${this.marking(m.bpm)}</div>
-      <div class="beats" id="mbeats">${[...Array(m.per).keys()].map(i => `<div class="beat ${i === 0 ? 'first' : ''}"></div>`).join('')}</div>
-      <div class="row">
+      <div class="bpm"><small class="unit">${g.unit} =</small> <span id="mbpm">${m.bpm}</span></div>
+      <div class="muted" style="text-align:center;font-size:14px" id="mmark">${this.marking(m.bpm)} · ${g.id}</div>
+      <div class="msteps" id="msteps">${cells}</div>
+      <div class="small muted" style="text-align:center;margin:-6px 0 10px">${t('stepHint')}</div>
+      <div class="row tempo">
         <button class="btn" data-a="mstep" data-v="-5">−5</button><button class="btn" data-a="mstep" data-v="-1">−1</button>
-        <input class="grow" type="range" min="40" max="240" value="${m.bpm}" id="mbpmr" style="min-width:100px">
+        <input class="grow" type="range" min="${lo}" max="${hi}" value="${m.bpm}" id="mbpmr">
         <button class="btn" data-a="mstep" data-v="1">+1</button><button class="btn" data-a="mstep" data-v="5">+5</button>
       </div>
-      <div class="lbl">${t('perBar')}</div>
-      ${seg('mper', [[2, '2'], [3, '3'], [4, '4'], [5, '5'], [6, '6'], [7, '7']], m.per)}
       <div class="row" style="margin-top:12px">
         <button class="btn" data-a="mtap" style="min-width:90px">${t('tap')}</button>
         <button class="btn primary grow" data-a="mstart">${this.clock.running ? I.stop + t('stop') : I.play + t('start')}</button>
-      </div></div>`;
+      </div>
+      <div class="lbl">${t('timeSig')}</div>
+      <div class="chips">${METRO_SIGS.map(x => `<button class="chip ${x.id === m.sig ? 'on' : ''}" data-a="msig" data-v="${x.id}">${x.id}</button>`).join('')}</div>
+      ${groupsHtml}
+      <div class="lbl">${t('subdiv')}</div>
+      ${seg('msub', this.subChoices(), sub)}
+      ${this.canSwing() ? `<div class="setrow" style="padding-bottom:0"><div>${t('swing')}<small>${t('swingD')}</small></div>
+        <label class="switch"><input type="checkbox" id="mswing" ${m.swing ? 'checked' : ''}><span></span></label></div>` : ''}
+      ${m.sig === '4/4' ? `<div class="lbl">${t('accentPat')}</div>
+        <select id="mpreset">${METRO_PRESETS.map(x => `<option value="${x.id}" ${x.id === m.preset ? 'selected' : ''}>${L(x)}</option>`).join('')}
+        ${m.preset === 'custom' ? `<option value="custom" selected>${t('customPat')}</option>` : ''}</select>` : ''}
+      ${m.custom ? `<div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn small" data-a="mreset">${t('resetAcc')}</button></div>` : ''}
+    </div>`;
   },
   bind() {
     const r = $('#mbpmr');
     r.addEventListener('input', () => this.setBpm(+r.value, true));
+    const sw = $('#mswing');
+    if (sw) sw.addEventListener('change', e => { this.m.swing = e.target.checked; this.save(); });
+    const ps = $('#mpreset');
+    if (ps) ps.addEventListener('change', e => this.applyPreset(e.target.value));
+  },
+  applyPreset(id) {
+    const pr = METRO_PRESETS.find(x => x.id === id);
+    if (!pr) return;
+    this.m.preset = id;
+    if (pr.p) { this.m.sub = pr.sub; this.m.custom = pr.p.split('').map(Number); }
+    else { this.m.custom = null; }
+    this.save(); Practice.render();
   },
   setBpm(b, fromSlider) {
-    this.m.bpm = clamp(Math.round(b), 40, 240);
+    const g = this.sig(), lo = g.unit === '♪' ? 60 : 30, hi = g.unit === '♪' ? 400 : 240;
+    this.m.bpm = clamp(Math.round(b), lo, hi);
     this.clock.setBpm(this.m.bpm);
     $('#mbpm').textContent = this.m.bpm;
-    $('#mmark').textContent = this.marking(this.m.bpm);
+    $('#mmark').textContent = this.marking(this.m.bpm) + ' · ' + g.id;
     if (!fromSlider) $('#mbpmr').value = this.m.bpm;
     this.save();
   },
   beat(n, time) {
-    const i = n % this.m.per;
-    Snd.click(time, i === 0);
-    atTime(time, () => {
-      document.querySelectorAll('#mbeats .beat').forEach((el, k) => el.classList.toggle('on', k === i));
-      setTimeout(() => { const el = document.querySelectorAll('#mbeats .beat')[i]; if (el) el.classList.remove('on'); }, Math.min(150, 30000 / this.m.bpm));
-    });
+    const g = this.sig(), sub = this.m.sub, lv = this.levels();
+    const bib = n % g.beats, spb = 60 / this.clock.bpm;
+    for (let j = 0; j < sub; j++) {
+      let off = j * spb / sub;
+      if (this.m.swing && this.canSwing()) {
+        if (sub === 2 && j === 1) off += spb / 6;
+        if (sub === 4 && j % 2 === 1) off += spb / 12;
+      }
+      const step = bib * sub + j, l = lv[step], tt = time + off;
+      if (l) Snd.tick(tt, l, step === 0);
+      atTime(tt, () => this.hl(step));
+    }
+  },
+  hl(i) {
+    if (!this.clock.running) i = -1;
+    document.querySelectorAll('#msteps .mstep').forEach((el, k) => el.classList.toggle('on', k === i));
   },
   action(a, v) {
     switch (a) {
@@ -1492,13 +1597,41 @@ const Metro = {
         }
         break;
       }
+      case 'msig': {
+        if (v === this.m.sig) break;
+        const was = this.sig();
+        const f = u => u === '♪' ? 1 : u === '♩.' ? 3 : 2;
+        const eighths = this.m.bpm * f(was.unit);
+        this.m.sig = v; this.m.group = 0; this.m.custom = null; this.m.preset = 'std';
+        const g = this.sig();
+        this.m.sub = g.compound ? 3 : 1;
+        this.m.bpm = clamp(Math.round(eighths / f(g.unit)), g.unit === '♪' ? 60 : 30, g.unit === '♪' ? 400 : 240);
+        this.clock.setBpm(this.m.bpm);
+        this.save(); Practice.render();
+        break;
+      }
+      case 'mlevel': {
+        const lv = this.levels().slice(), i = +v;
+        lv[i] = { 2: 3, 3: 1, 1: 0, 0: 2 }[lv[i]];          // normal → accent → soft → silent → normal
+        this.m.custom = lv; this.m.preset = 'custom';
+        const step = lv[i];
+        if (step) Snd.tick(Snd.now(), step, i === 0);
+        this.save(); Practice.render();
+        break;
+      }
+      case 'mreset': this.m.custom = null; this.m.preset = 'std'; this.save(); Practice.render(); break;
       default: return false;
     }
     return true;
   },
   seg(k, v) {
-    if (k !== 'mper') return false;
-    this.m.per = +v; this.save(); Practice.render();
+    if (k === 'mgroup') { this.m.group = +v; this.m.custom = null; this.m.preset = 'std'; }
+    else if (k === 'msub') {
+      this.m.sub = +v;
+      const pr = METRO_PRESETS.find(x => x.id === this.m.preset);
+      if (!(pr && pr.p && pr.sub === this.m.sub)) { this.m.custom = null; this.m.preset = 'std'; }
+    } else return false;
+    this.save(); Practice.render();
     return true;
   },
 };
@@ -1598,17 +1731,30 @@ const Practice = {
    ======================================================================= */
 function settingsHtml() {
   const sw = (id, on) => `<label class="switch"><input type="checkbox" data-set="${id}" ${on ? 'checked' : ''}><span></span></label>`;
+  const stack = (label, ctl, note) => `<div class="setstack"><div class="t">${label}${note ? `<small class="muted" style="display:block;font-size:12.5px">${note}</small>` : ''}</div>${ctl}</div>`;
+  const toggle = (label, id, on, note) => `<div class="setrow"><div>${label}${note ? `<small>${note}</small>` : ''}</div>${sw(id, on)}</div>`;
   return `<h2>${t('settings')}</h2>
-    <div class="setrow"><div>${t('language')}</div><div style="width:58%">${seg('slang', [['auto', t('auto')], ['en', 'English'], ['sv', 'Svenska']], S.lang)}</div></div>
-    <div class="setrow"><div>${t('theme')}</div><div style="width:58%">${seg('stheme', [['auto', t('auto')], ['light', t('light')], ['dark', t('dark')]], S.theme)}</div></div>
-    <div class="setrow"><div>${t('lefty')}<small>${t('leftyD')}</small></div>${sw('lefty', S.lefty)}</div>
-    <div class="setrow"><div>${t('hNot')}<small>${t('hNotD')}</small></div>${sw('hNotation', S.hNotation)}</div>
-    <div class="setrow"><div>${t('playStyle')}</div><div style="width:50%">${seg('sstyle', [['strum', t('strum')], ['arp', t('arp')]], S.style)}</div></div>
-    <div class="setrow"><div>${t('sound')}</div>${sw('sound', S.sound)}</div>
-    <div class="setrow"><div style="flex:none">${t('volume')}</div><input type="range" min="0" max="1" step="0.05" value="${S.volume}" data-set="volume" style="flex:1"></div>
-    <div class="lbl">${t('about')}</div>
-    <div class="small" style="line-height:1.5"><b>Plektrum ${VERSION}</b><br>${t('aboutT')}<br>© 2026 Jon Solberg · ${t('license')}<br>
-    <a href="#" data-a="openRepo">${t('source')}: github.com/jonsolberg/guitarchords</a></div>`;
+    <div class="sethead">${t('setDisplay')}</div>
+    <div class="setgroup">
+      ${stack(t('language'), seg('slang', [['auto', t('auto')], ['en', 'English'], ['sv', 'Svenska']], S.lang))}
+      ${stack(t('theme'), seg('stheme', [['auto', t('auto')], ['light', t('light')], ['dark', t('dark')]], S.theme))}
+    </div>
+    <div class="sethead">${t('chords')}</div>
+    <div class="setgroup">
+      ${toggle(t('lefty'), 'lefty', S.lefty, t('leftyD'))}
+      ${toggle(t('hNot'), 'hNotation', S.hNotation, t('hNotD'))}
+      ${stack(t('playStyle'), seg('sstyle', [['strum', t('strum')], ['arp', t('arp')]], S.style))}
+    </div>
+    <div class="sethead">${t('sound')}</div>
+    <div class="setgroup">
+      ${toggle(t('soundOn'), 'sound', S.sound)}
+      ${stack(t('volume'), `<input type="range" min="0" max="1" step="0.05" value="${S.volume}" data-set="volume">`)}
+    </div>
+    <div class="sethead">${t('about')}</div>
+    <div class="setgroup small" style="line-height:1.55;padding:12px 14px">
+      <b>Plektrum ${VERSION}</b><br>${t('aboutT')}<br>© 2026 Jon Solberg · ${t('license')}<br>
+      <a href="#" data-a="openRepo">${t('source')}: github.com/jonsolberg/guitarchords</a>
+    </div>`;
 }
 function openSettings() {
   Sheet.open(settingsHtml(), () => renderAll());
@@ -1668,7 +1814,7 @@ function renderChrome() {
   $('#title').innerHTML = I.logo + 'Plektrum';
   $('#settingsBtn').innerHTML = I.settings;
   $('#settingsBtn').setAttribute('aria-label', t('settings'));
-  $('#nav').innerHTML = TABS.map(k => `<button data-tab="${k}" class="${S.tab === k ? 'on' : ''}">${I[k]}<span>${t(k)}</span></button>`).join('');
+  $('#nav').innerHTML = TABS.map(k => `<button data-tab="${k}" class="${S.tab === k ? 'on' : ''}">${I[k]}<span>${t('nav_' + k) !== 'nav_' + k ? t('nav_' + k) : t(k)}</span></button>`).join('');
 }
 const RENDER = { chords: () => Chords.render(), studio: () => Studio.render(), circle: () => CircleTab.render(),
                  scales: () => Scales.render(), tuner: () => Tuner.render(), practice: () => Practice.render() };

@@ -60,18 +60,21 @@ input[type=search],input[type=text],select{width:100%;padding:11px 13px;border-r
 input:focus,select:focus{border-color:var(--accent)}
 input[type=range]{width:100%;accent-color:var(--accent)}
 .seg{display:flex;background:var(--card2);border-radius:12px;padding:3px;gap:3px}
-.seg button{flex:1;border:0;background:none;border-radius:9px;padding:7px 6px;font-size:14px;cursor:pointer;color:var(--muted)}
+.seg button{flex:1 1 0;min-width:0;border:0;background:none;border-radius:9px;padding:7px 4px;font-size:14px;cursor:pointer;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .seg button.on{background:var(--card);color:var(--ink);font-weight:650;box-shadow:0 1px 3px rgba(0,0,0,.12)}
 
 /* chord view */
 .chordhead{display:flex;align-items:flex-end;gap:10px}
-.chordname{font-size:38px;font-weight:750;line-height:1.05;letter-spacing:-.5px}
+.chordname{font-size:34px;font-weight:750;line-height:1.05;letter-spacing:-.5px}
 .chordlong{color:var(--muted);font-size:14px;margin-top:2px}
 .star{margin-left:auto}
 .star.on svg{fill:var(--root);color:var(--root)}
 .diagwrap{display:flex;align-items:center;justify-content:center;gap:4px;margin:6px 0 2px}
-.diagwrap .big{width:min(72vw,290px)}
-.voicenav{text-align:center;color:var(--muted);font-size:13px;margin-bottom:10px}
+.diagwrap .big{width:min(62vw,250px)}
+.chordbar{display:flex;gap:8px;align-items:center;max-width:380px;margin:0 auto}
+.chordbar .seg{flex:1}
+.btn.sq{width:44px;min-width:44px;padding:0}
+.voicenav{text-align:center;color:var(--muted);font-size:13px;margin-bottom:8px}
 .notes{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:4px 0 12px}
 .note{border:0;cursor:pointer;font:inherit;color:inherit;display:flex;flex-direction:column;align-items:center;background:var(--card2);border-radius:10px;padding:4px 9px;min-width:40px}
 .note b{font-size:15px}.note span{font-size:11px;color:var(--muted)}
@@ -170,6 +173,19 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 /* practice */
 .bpm{font-size:64px;font-weight:750;text-align:center;font-variant-numeric:tabular-nums;line-height:1}
 .bpm small{font-size:16px;color:var(--muted);font-weight:500}
+.msteps{display:flex;flex-wrap:nowrap;justify-content:center;align-items:flex-end;gap:3px;margin:16px 0 12px}
+.msep{flex:0 0 6px}
+.mstep{flex:1 1 0;min-width:6px;max-width:26px;height:46px;border:0;border-radius:7px;background:var(--card2);padding:0;display:flex;align-items:flex-end;cursor:pointer}
+.mstep i{display:block;width:100%;border-radius:6px;background:var(--accent);transition:transform .05s}
+.mstep.l3 i{height:100%;background:var(--root)}
+.mstep.l2 i{height:66%}
+.mstep.l1 i{height:34%;opacity:.55}
+.mstep.l0 i{height:0}
+.mstep.on{outline:3px solid var(--ink);outline-offset:1px}
+.row.tempo{flex-wrap:nowrap;gap:6px}
+.row.tempo .btn{min-width:0;padding:0 9px;flex:none}
+.row.tempo input{min-width:60px}
+.bpm .unit{font-size:28px;color:var(--muted);font-weight:600}
 .beats{display:flex;justify-content:center;gap:12px;margin:16px 0}
 .beat{width:22px;height:22px;border-radius:11px;background:var(--card2);transition:background .05s,transform .05s}
 .beat.first{width:26px;height:26px;border-radius:13px}
@@ -191,6 +207,12 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .sheet .grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:4px auto 10px}
 .sheet h2{font-size:19px;margin:0 0 10px}
 .setrow{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.setgroup{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:4px 14px;margin-bottom:12px}
+.setgroup .setrow:last-child{border-bottom:0}
+.setstack{padding:10px 0;border-bottom:1px solid var(--line)}
+.setstack:last-child{border-bottom:0}
+.setstack .t{margin-bottom:8px}
+.sethead{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;font-weight:600;margin:14px 4px 6px}
 .setrow:last-child{border-bottom:0}
 .setrow>div:first-child{flex:1}
 .setrow small{display:block;color:var(--muted);font-size:12.5px}

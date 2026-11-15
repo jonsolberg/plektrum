@@ -195,6 +195,21 @@ const Snd = {
     o.start(when); o.stop(when + 0.08);
   },
 
+  /** Metronome tick: level 3 accent, 2 normal, 1 soft (subdivision). */
+  tick(when, level, barStart) {
+    if (!this.enabled) return;
+    const ctx = this.init();
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = 'triangle';
+    o.frequency.value = level === 3 ? (barStart ? 1760 : 1480) : level === 2 ? 1175 : 880;
+    const peak = level === 3 ? 0.9 : level === 2 ? 0.55 : 0.22;
+    g.gain.setValueAtTime(0.0001, when);
+    g.gain.exponentialRampToValueAtTime(peak, when + 0.002);
+    g.gain.exponentialRampToValueAtTime(0.0001, when + (level === 1 ? 0.035 : 0.06));
+    o.connect(g); g.connect(this.out);
+    o.start(when); o.stop(when + 0.08);
+  },
+
   /** Steady reference tone for the pitch pipe. Returns a stop() function. */
   tone(freq) {
     const ctx = this.init();
