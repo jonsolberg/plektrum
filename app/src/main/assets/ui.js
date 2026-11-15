@@ -335,7 +335,7 @@ const Chords = {
         <div class="lbl">${t('bass')}</div>
         <div class="chips scroll"><button class="chip ${c.b == null ? 'on' : ''}" data-a="cbass" data-v="">${t('none')}</button>${[...Array(12).keys()].filter(pc => pc !== c.r).map(pc => `<button class="chip ${pc === c.b ? 'on' : ''}" data-a="cbass" data-v="${pc}">/${nn(pc)}</button>`).join('')}</div>
       </div>`;
-    $('#cinst').addEventListener('change', e => { S.chordInst = e.target.value; saveS(); this.c.v = 0; this.save(); this.render(); this.play(); });
+    $('#cinst').addEventListener('change', e => { S.chordInst = e.target.value; saveS(); Snd.setTimbre(S.chordInst); this.c.v = 0; this.save(); this.render(); this.play(); });
     const th = $('#thumbs .thumb.on'), row = $('#thumbs');
     if (th) row.scrollLeft = th.offsetLeft - row.offsetLeft - (row.clientWidth - th.clientWidth) / 2;
     this.bindSwipe();
@@ -438,7 +438,7 @@ const Chords = {
       case 'strum': this.play('strum'); break;
       case 'arp': this.play('arp'); break;
       case 'fav': this.toggleFav(); break;
-      case 'openFav': { const f = this.favs[+v]; S.chordInst = f.inst || 'guitar'; saveS(); this.set({ r: f.r, t: f.t, b: f.b, v: f.v }, true); window.scrollTo({ top: 0, behavior: 'smooth' }); break; }
+      case 'openFav': { const f = this.favs[+v]; S.chordInst = f.inst || 'guitar'; saveS(); Snd.setTimbre(S.chordInst); this.set({ r: f.r, t: f.t, b: f.b, v: f.v }, true); window.scrollTo({ top: 0, behavior: 'smooth' }); break; }
       default: return false;
     }
     return true;
@@ -1268,12 +1268,13 @@ const Tuner = {
         <div class="setrow"><div>${t('sens')}<small>${t('sensD')}</small></div>
           <input type="range" id="tsens" min="0" max="1" step="0.05" value="${S.tunerSens}" style="width:45%"></div>
         <div class="setrow"><div style="flex:1">${t('temperament')}
-          <select id="ttemp" style="margin-top:6px">${TEMPERAMENTS.map(x => `<option value="${x.id}" ${x.id === S.temp ? 'selected' : ''}>${L(x)}</option>`).join('')}</select></div></div>
+          <select id="ttemp" style="margin-top:6px">${TEMPER_GROUPS.map(g => `<optgroup label="${esc(L(g))}">${TEMPERAMENTS.filter(x => x.g === g.id).map(x => `<option value="${x.id}" ${x.id === S.temp ? 'selected' : ''}>${L(x)}</option>`).join('')}</optgroup>`).join('')}</select>
+          <small style="margin-top:6px">${esc(L(this.temp().d))}</small></div></div>
         ${S.temp !== 'equal' ? `<div class="lbl">${t('tempRoot')}</div>${rootGrid('ttroot', S.tempRoot)}` : ''}
       </div>`;
     $('#ttuning').addEventListener('change', e => { S.tuning = e.target.value; this.resetReading(); saveS(); this.render(); });
     $('#tinst').addEventListener('change', e => {
-      S.instrument = e.target.value; S.tuning = this.inst().tunings[0].id;
+      S.instrument = e.target.value; S.tuning = this.inst().tunings[0].id; Snd.setTimbre(S.instrument);
       this.resetReading(); this.stopPipe(); saveS(); this.render();
     });
     $('#ttemp').addEventListener('change', e => { S.temp = e.target.value; saveS(); this.render(); });
@@ -2051,7 +2052,12 @@ function renderChrome() {
 }
 const RENDER = { chords: () => Chords.render(), studio: () => Studio.render(), circle: () => CircleTab.render(),
                  scales: () => Scales.render(), tuner: () => Tuner.render(), practice: () => Practice.render() };
+/** each tab plays with its own instrument's sound */
+function soundFor(tab) {
+  Snd.setTimbre(tab === 'tuner' ? S.instrument : tab === 'scales' ? (Scales.instId ? Scales.instId() : 'guitar') : S.chordInst);
+}
 function showTab(k) {
+  soundFor(k);
   if (S.tab === 'tuner' && k !== 'tuner') { if (Pitch.running) Tuner.stop(); Tuner.stopPipe(); }
   S.tab = k; saveS();
   document.querySelectorAll('main > section').forEach(s => s.classList.toggle('on', s.id === 'tab-' + k));
@@ -2096,6 +2102,7 @@ document.addEventListener('visibilitychange', () => {
 window.onAppPause = () => { if (Pitch.running) Tuner.stop(); Tuner.stopPipe(); };
 
 /* boot */
+soundFor(S.tab);
 Studio.init();
 Chords.bindSearch();
 if (!TABS.includes(S.tab)) S.tab = 'chords';

@@ -463,15 +463,70 @@ const INSTRUMENTS = [
   ] },
 ];
 
+/* ---------- temperaments ----------
+ * Most historical temperaments are defined by how much each fifth round the circle is narrowed
+ * (or widened); the cents per note follow from that. Fifths: C–G G–D D–A A–E E–B B–F♯ F♯–C♯
+ * C♯–G♯ G♯–D♯ D♯–A♯ A♯–F F–C.
+ */
+const PYTH_COMMA = 1200 * Math.log2(531441 / 524288), SYNT_COMMA = 1200 * Math.log2(81 / 80);
+const SCHISMA = PYTH_COMMA - SYNT_COMMA, PURE_FIFTH = 1200 * Math.log2(1.5);
+function fromFifths(temper) {
+  const off = new Array(12);
+  let pitch = 0;
+  for (let k = 0; k < 12; k++) {
+    const pc = (7 * k) % 12;
+    let o = (((pitch % 1200) + 1200) % 1200) - pc * 100;
+    if (o > 600) o -= 1200;
+    if (o < -600) o += 1200;
+    off[pc] = Math.round(o * 100) / 100;
+    pitch += PURE_FIFTH + temper[k];
+  }
+  return off;
+}
+const fifths = map => { const a = new Array(12).fill(0); for (const k in map) a[k] = map[k]; return a; };
+/** meantone: every fifth narrowed by x cents, the rest (the "wolf") lands on G♯–E♭ */
+const meantone = x => { const a = new Array(12).fill(-x); a[8] = 11 * x - PYTH_COMMA; return fromFifths(a); };
+const P4 = PYTH_COMMA / 4, P3 = PYTH_COMMA / 3, P5 = PYTH_COMMA / 5, P6 = PYTH_COMMA / 6;
+const TEMPER_GROUPS = [
+  { id: 'eq', en: 'Equal', sv: 'Liksvävande' },
+  { id: 'just', en: 'Just & Pythagorean', sv: 'Ren & pytagoreisk' },
+  { id: 'mean', en: 'Meantone', sv: 'Medeltonstemperatur' },
+  { id: 'well', en: 'Well temperaments', sv: 'Välltempererade' },
+];
 // cents relative to equal temperament, with C as the temperament's root
 const TEMPERAMENTS = [
-  { id: 'equal', en: 'Equal temperament', sv: 'Liksvävande', c: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] },
-  { id: 'just',  en: 'Just intonation',   sv: 'Ren stämning', c: [0, 11.73, 3.91, 15.64, -13.69, -1.96, -9.78, 1.96, 13.69, -15.64, 17.6, -11.73] },
-  { id: 'pyth',  en: 'Pythagorean',       sv: 'Pytagoreisk', c: [0, -9.78, 3.91, -5.87, 7.82, -1.96, 11.73, 1.96, -7.82, 5.87, -3.91, 9.78] },
-  { id: 'mean',  en: '¼-comma meantone',  sv: 'Medeltonstemperatur (¼ komma)', c: [0, -23.95, -6.84, 10.26, -13.69, 3.42, -20.53, -3.42, -27.37, -10.26, 6.84, -17.11] },
-  { id: 'werck', en: 'Werckmeister III',  sv: 'Werckmeister III', c: [0, -9.78, -7.82, -5.87, -9.78, -1.96, -11.73, -3.91, -7.82, -11.73, -3.91, -7.82] },
-  { id: 'kirn',  en: 'Kirnberger III',    sv: 'Kirnberger III', c: [0, -9.78, -6.84, -5.87, -13.69, -1.96, -9.78, -3.42, -7.82, -10.26, -3.91, -11.73] },
-  { id: 'vall',  en: 'Vallotti',          sv: 'Vallotti', c: [0, -5.87, -3.91, -1.96, -7.82, 1.96, -7.82, -1.96, -3.91, -5.87, 0, -9.78] },
+  { id: 'equal', g: 'eq', en: 'Equal temperament', sv: 'Liksvävande', c: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    d: { en: 'Every semitone the same size. Today\'s standard.', sv: 'Alla halvtoner lika stora. Dagens standard.' } },
+  { id: 'just', g: 'just', en: 'Just intonation', sv: 'Ren stämning', c: [0, 11.73, 3.91, 15.64, -13.69, -1.96, -9.78, 1.96, 13.69, -15.64, 17.6, -11.73],
+    d: { en: 'Pure thirds and fifths in one key; others sound out of tune.', sv: 'Rena terser och kvinter i en tonart; andra låter falskt.' } },
+  { id: 'pyth', g: 'just', en: 'Pythagorean', sv: 'Pytagoreisk', c: [0, -9.78, 3.91, -5.87, 7.82, -1.96, 11.73, 1.96, -7.82, 5.87, -3.91, 9.78],
+    d: { en: 'Pure fifths; bright, wide major thirds. Medieval music.', sv: 'Rena kvinter; ljusa, breda durterser. Medeltida musik.' } },
+  { id: 'mean', g: 'mean', en: '¼-comma meantone', sv: '¼-komma medelton', c: meantone(SYNT_COMMA / 4),
+    d: { en: 'Pure major thirds – Renaissance keyboards. One sour "wolf" fifth.', sv: 'Rena durterser – renässansens klaviatur. En sur "varg"-kvint.' } },
+  { id: 'mean3', g: 'mean', en: '⅓-comma meantone', sv: '⅓-komma medelton', c: meantone(SYNT_COMMA / 3),
+    d: { en: 'Pure minor thirds; very sweet in nearby keys.', sv: 'Rena mollterser; mycket mjuk i närliggande tonarter.' } },
+  { id: 'mean27', g: 'mean', en: '²⁄₇-comma meantone', sv: '²⁄₇-komma medelton', c: meantone(SYNT_COMMA * 2 / 7),
+    d: { en: 'Zarlino\'s meantone, between ¼ and ⅓ comma.', sv: 'Zarlinos medelton, mellan ¼ och ⅓ komma.' } },
+  { id: 'mean5', g: 'mean', en: '⅕-comma meantone', sv: '⅕-komma medelton', c: meantone(SYNT_COMMA / 5),
+    d: { en: 'A milder meantone with more usable keys.', sv: 'En mildare medelton med fler användbara tonarter.' } },
+  { id: 'mean6', g: 'mean', en: '⅙-comma meantone', sv: '⅙-komma medelton', c: meantone(SYNT_COMMA / 6),
+    d: { en: 'Silbermann\'s organs; close to equal but with warmer thirds.', sv: 'Silbermanns orglar; nära liksvävande men med varmare terser.' } },
+  { id: 'werck', g: 'well', en: 'Werckmeister III', sv: 'Werckmeister III', c: fromFifths(fifths({ 0: -P4, 1: -P4, 2: -P4, 5: -P4 })),
+    d: { en: 'Werckmeister 1691: every key usable, the common ones purer.', sv: 'Werckmeister 1691: alla tonarter går, de vanliga renare.' } },
+  { id: 'werck4', g: 'well', en: 'Werckmeister IV', sv: 'Werckmeister IV', c: fromFifths(fifths({ 0: -P3, 2: -P3, 4: -P3, 6: -P3, 10: -P3, 8: P3, 9: P3 })),
+    d: { en: 'Werckmeister\'s ⅓-comma well temperament.', sv: 'Werckmeisters välltemperering med ⅓ komma.' } },
+  { id: 'werck5', g: 'well', en: 'Werckmeister V', sv: 'Werckmeister V', c: fromFifths(fifths({ 2: -P4, 3: -P4, 6: -P4, 7: -P4, 11: -P4, 8: P4 })),
+    d: { en: 'Werckmeister\'s ¼-comma variant with a widened G♯–E♭.', sv: 'Werckmeisters ¼-kommavariant med vidgad G♯–E♭.' } },
+  { id: 'kirn2', g: 'well', en: 'Kirnberger II', sv: 'Kirnberger II', c: fromFifths(fifths({ 2: -SYNT_COMMA / 2, 3: -SYNT_COMMA / 2, 6: -SCHISMA })),
+    d: { en: 'Kirnberger: pure C major and G major triads.', sv: 'Kirnberger: rena C-dur- och G-durackord.' } },
+  { id: 'kirn', g: 'well', en: 'Kirnberger III', sv: 'Kirnberger III', c: fromFifths(fifths({ 0: -SYNT_COMMA / 4, 1: -SYNT_COMMA / 4, 2: -SYNT_COMMA / 4, 3: -SYNT_COMMA / 4, 6: -SCHISMA })),
+    d: { en: 'Kirnberger: pure C–E third, every key usable.', sv: 'Kirnberger: ren C–E-ters, alla tonarter går.' } },
+  { id: 'vall', g: 'well', en: 'Vallotti', sv: 'Vallotti', c: fromFifths(fifths({ 11: -P6, 0: -P6, 1: -P6, 2: -P6, 3: -P6, 4: -P6 })),
+    d: { en: 'Gentle and even – a favourite for Baroque music.', sv: 'Mjuk och jämn – en favorit för barockmusik.' } },
+  { id: 'young2', g: 'well', en: 'Young II', sv: 'Young II', c: fromFifths(fifths({ 0: -P6, 1: -P6, 2: -P6, 3: -P6, 4: -P6, 5: -P6 })),
+    d: { en: 'Thomas Young 1799: like Vallotti, shifted one fifth.', sv: 'Thomas Young 1799: som Vallotti, flyttad en kvint.' } },
+  { id: 'kellner', g: 'well', en: 'Kellner (Bach)', sv: 'Kellner (Bach)', c: fromFifths(fifths({ 0: -P5, 1: -P5, 2: -P5, 3: -P5, 5: -P5 })),
+    d: { en: 'Herbert Kellner\'s reconstruction of a temperament for Bach.', sv: 'Herbert Kellners rekonstruktion av en temperatur för Bach.' } },
 ];
 /** Cent offset of pitch class pc for a temperament rooted on `root`, keeping A at the calibration pitch. */
 function temperOffset(temp, root, pc) {
@@ -484,6 +539,6 @@ function targetFreq(m, a4, temp, root) {
 }
 
 if (typeof module !== 'undefined') module.exports = {
-  STD, CHORD_INSTS, TYPES, SCALES, TUNINGS, INSTRUMENTS, TEMPERAMENTS, PROGRESSIONS, CIRCLE, Theory, nn, voicings, parseChord, chordName,
+  STD, CHORD_INSTS, TYPES, SCALES, TUNINGS, INSTRUMENTS, TEMPERAMENTS, TEMPER_GROUPS, PROGRESSIONS, CIRCLE, Theory, nn, voicings, parseChord, chordName,
   scalePositions, romanChord, keySignature, targetFreq, typeIndex,
 };

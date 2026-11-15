@@ -5,8 +5,28 @@
  */
 'use strict';
 
+/**
+ * Sound of each instrument family. bright: how much of the pluck's high end survives the attack;
+ * t60: ring time (s) of the low notes, shortening by t60slope per semitone; pick: pluck position
+ * (fraction of the string); body: resonance [Hz, Q, dB]; tone: final low-pass; pair: second string
+ * of a course, detuned by this many cents (mandolin); bow: bowed instead of plucked.
+ */
+const TIMBRES = {
+  guitar:   { bright: 0.55, t60: 4.2, slope: 0.07, min: 1.2, pick: 0.18, body: [220, 1.1, 4], tone: 5200, gain: 0.42 },
+  uke:      { bright: 0.28, t60: 1.8, slope: 0.025, min: 0.6, pick: 0.15, body: [380, 1.0, 5], tone: 2800, gain: 0.55 },
+  mandolin: { bright: 0.78, t60: 1.6, slope: 0.025, min: 0.5, pick: 0.09, body: [750, 1.3, 4], tone: 7500, gain: 0.32, pair: 6 },
+  banjo:    { bright: 0.9, t60: 1.0, slope: 0.012, min: 0.35, pick: 0.06, body: [1500, 1.8, 9], tone: 9500, gain: 0.42 },
+  bass:     { bright: 0.32, t60: 6.5, slope: 0.05, min: 2, pick: 0.24, body: [110, 0.9, 5], tone: 1700, gain: 0.62 },
+  bow:      { bow: true, body: [520, 0.8, 3], tone: 4800, gain: 0.2 },
+};
+const TIMBRE_OF = {
+  guitar: 'guitar', guitar7: 'guitar', guitar12: 'guitar', uke: 'uke', ukebari: 'uke', mandolin: 'mandolin', mandola: 'mandolin',
+  banjo5: 'banjo', banjo4: 'banjo', bass: 'bass', bass4: 'bass', bass5: 'bass', bass6: 'bass',
+  violin: 'bow', viola: 'bow', cello: 'bow', dbass: 'bow',
+};
+
 const Snd = {
-  ctx: null, out: null, volume: 0.8, enabled: true,
+  ctx: null, out: null, volume: 0.8, enabled: true, timbre: 'guitar',
   bufs: new Map(), voices: [],
 
   init() {
@@ -21,7 +41,8 @@ const Snd = {
       body.type = 'peaking'; body.frequency.value = 220; body.Q.value = 1.1; body.gain.value = 4;
       this.out = this.ctx.createGain();
       this.out.connect(body); body.connect(tone); tone.connect(comp); comp.connect(this.ctx.destination);
-      this.comp = comp;
+      this.comp = comp; this.bodyF = body; this.toneF = tone;
+      this.setTimbre(this.timbre);
       this.drums = this.ctx.createGain();            // drums skip the guitar body/tone filters
       this.drums.gain.value = 0.7;
       this.drums.connect(comp);
@@ -35,20 +56,34 @@ const Snd = {
   },
   now() { return this.init().currentTime; },
 
+  /** Switch the instrument sound: an instrument id (mandolin, banjo5 …) or a timbre name. */
+  setTimbre(id) {
+    const name = TIMBRE_OF[id] || (TIMBRES[id] ? id : 'guitar');
+    this.timbre = name;
+    if (!this.ctx) return;
+    const tb = TIMBRES[name], t = this.ctx.currentTime;
+    this.bodyF.frequency.setTargetAtTime(tb.body[0], t, 0.02);
+    this.bodyF.Q.setTargetAtTime(tb.body[1], t, 0.02);
+    this.bodyF.gain.setTargetAtTime(tb.body[2], t, 0.02);
+    this.toneF.frequency.setTargetAtTime(tb.tone, t, 0.02);
+  },
+
   /** Karplus–Strong string with a fractional delay so high notes stay in tune. */
   buffer(midi) {
-    if (this.bufs.has(midi)) return this.bufs.get(midi);
+    const tb = TIMBRES[this.timbre].bow ? TIMBRES.guitar : TIMBRES[this.timbre];
+    const key = this.timbre + midi;
+    if (this.bufs.has(key)) return this.bufs.get(key);
     const ctx = this.ctx, sr = ctx.sampleRate;
     const f = 440 * Math.pow(2, (midi - 69) / 12);
     const D = sr / f - 0.5, N = Math.floor(D), fr = D - N;
-    const t60 = Math.max(1.2, 4.2 - (midi - 40) * 0.07);
+    const t60 = Math.max(tb.min, tb.t60 - (midi - 40) * tb.slope);
     const rho = Math.pow(0.001, 1 / (f * t60));
     const len = Math.floor(sr * Math.min(4, t60 + 0.3));
     const b = ctx.createBuffer(1, len, sr), d = b.getChannelData(0);
     let lp = 0;
-    const pick = Math.max(1, Math.round(N * 0.18));        // pluck position comb → less "plinky"
+    const pick = Math.max(1, Math.round(N * tb.pick));      // pluck position comb
     const ex = new Float32Array(N + 2);
-    for (let i = 0; i < N + 2; i++) { lp += 0.55 * ((Math.random() * 2 - 1) - lp); ex[i] = lp; }
+    for (let i = 0; i < N + 2; i++) { lp += tb.bright * ((Math.random() * 2 - 1) - lp); ex[i] = lp; }
     for (let i = 0; i < N + 2 && i < len; i++) d[i] = 0.9 * (ex[i] - (i >= pick ? ex[i - pick] * 0.5 : 0));
     for (let i = N + 2; i < len; i++) {
       const r1 = d[i - N] * (1 - fr) + d[i - N - 1] * fr;
@@ -57,7 +92,7 @@ const Snd = {
     }
     const fade = Math.floor(sr * 0.25);
     for (let i = 0; i < fade; i++) d[len - 1 - i] *= i / fade;
-    this.bufs.set(midi, b);
+    this.bufs.set(key, b);
     return b;
   },
 
@@ -73,14 +108,49 @@ const Snd = {
       v.g.gain.setTargetAtTime(0, when, 0.015);
       v.src.stop(when + 0.12);
     }
+    const tb = TIMBRES[this.timbre];
+    if (tb.bow) { this.bowNote(midi, when, string, vel); return; }
     const src = ctx.createBufferSource();
     src.buffer = this.buffer(midi);
     const g = ctx.createGain();
-    g.gain.value = 0.42 * vel;
+    g.gain.value = tb.gain * vel;
     src.connect(g); g.connect(this.out);
     src.start(when);
+    if (tb.pair) {
+      // the second string of the course, a hair out of tune and a moment later
+      const s2 = ctx.createBufferSource();
+      s2.buffer = src.buffer;
+      s2.detune.value = tb.pair;
+      s2.connect(g);
+      s2.start(when + 0.004 + Math.random() * 0.004);
+      src.onended = () => { try { s2.stop(); } catch (e) { /* already stopped */ } };
+      const stop = src.stop.bind(src);
+      src.stop = t => { stop(t); s2.stop(t); };
+    }
     const voice = { src, g };
     if (string >= 0) { this.voices[string] = voice; src.onended = () => { if (this.voices[string] === voice) this.voices[string] = null; }; }
+  },
+
+  /** Bowed note (violin family): two slightly detuned saws, bow attack, gentle delayed vibrato. */
+  bowNote(midi, when, string = -1, vel = 1, dur = 1.4) {
+    const ctx = this.ctx, f = 440 * Math.pow(2, (midi - 69) / 12);
+    const g = ctx.createGain(), lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass'; lp.frequency.value = Math.min(6000, f * 7); lp.Q.value = 0.8;
+    const oscs = [0, 7].map(det => { const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f; o.detune.value = det; o.connect(lp); return o; });
+    const vib = ctx.createOscillator(), vg = ctx.createGain();
+    vib.frequency.value = 5.6; vg.gain.setValueAtTime(0, when); vg.gain.linearRampToValueAtTime(f * 0.0045, when + 0.45);
+    vib.connect(vg); oscs.forEach(o => vg.connect(o.frequency));
+    const peak = TIMBRES.bow.gain * vel;
+    g.gain.setValueAtTime(0.0001, when);
+    g.gain.exponentialRampToValueAtTime(peak * 1.3, when + 0.06);          // the bow catching the string
+    g.gain.exponentialRampToValueAtTime(peak, when + 0.18);
+    g.gain.setValueAtTime(peak, when + dur);
+    g.gain.exponentialRampToValueAtTime(0.0001, when + dur + 0.35);
+    lp.connect(g); g.connect(this.out);
+    oscs.forEach(o => { o.start(when); o.stop(when + dur + 0.4); });
+    vib.start(when); vib.stop(when + dur + 0.4);
+    const src = { stop: t => oscs.forEach(o => { try { o.stop(t); } catch (e) { /* done */ } }) };
+    if (string >= 0) this.voices[string] = { src, g };
   },
 
   /** frets[6] (-1 muted). style: 'strum' | 'arp' | 'up' */
