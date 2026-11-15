@@ -134,6 +134,7 @@ const I = {
   right: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>',
   search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L20 20"/></svg>',
   close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r="1.1" fill="currentColor" stroke="none"/></svg>',
   trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
   send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>',
   mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>',
@@ -770,9 +771,38 @@ const Studio = {
 /* =======================================================================
    CIRCLE OF FIFTHS
    ======================================================================= */
+/** How-to text for the circle of fifths. Examples follow the key on the circle. */
+const CIRCLE_GUIDE = {
+  en: {
+    title: 'How to use the circle of fifths',
+    s: [
+      ['What it shows', 'The twelve keys sit like the hours on a clock. Each step clockwise is a fifth up and adds one sharp (C → G → D …). Each step anticlockwise is a fourth up and adds one flat (C → F → B♭ …). Outer ring: major chords. Middle ring: their relative minors. Inner ring: the diminished chord of each key.'],
+      ['The chords of a key', 'Tap a key and its slice lights up. It holds the seven chords of the key: the key itself (I) with its neighbours IV and V in the outer ring, ii, vi and iii just inside them, and vii° in the centre. In {key} that is {list}. These are the chords most songs in {key} use, and any of them sound good together.'],
+      ['Building a progression', 'Start and end on I. V pulls strongly back home to I ({V} → {I}). Stepping to a neighbouring chord always sounds smooth; jumping across the circle sounds dramatic. Try the progressions further down: ▶ plays one on the circle, → sends it to the Studio.'],
+      ['Major and minor', 'A major key and the minor key just inside it share the same notes and chords ({I} major and {vi}). Switch between Major and Minor to see the same chords counted from the minor chord.'],
+      ['Key signatures', 'The number of steps from C tells how many sharps or flats a key has. It is shown in the middle. Sharps are added in the order F♯ C♯ G♯ D♯ A♯ E♯, flats in the order B♭ E♭ A♭ D♭ G♭ C♭ – the same order you meet them going round the circle.'],
+      ['Changing key and transposing', 'Neighbouring keys share six of their seven chords, so moving one step round the circle is the smoothest key change. To transpose a song, move every chord the same number of steps round the circle.'],
+      ['Borrowed chords', 'For more colour, borrow chords from the parallel minor key, such as iv ({iv}) or ♭VII ({bVII}), which sits one step anticlockwise from IV.'],
+    ],
+  },
+  sv: {
+    title: 'Så använder du kvintcirkeln',
+    s: [
+      ['Vad cirkeln visar', 'De tolv tonarterna sitter som timmarna på en klocka. Varje steg medurs är en kvint upp och lägger till ett korsförtecken (C → G → D …). Varje steg moturs är en kvart upp och lägger till ett b-förtecken (C → F → B♭ …). Yttre ringen: durackord. Mellersta ringen: deras parallella mollackord. Inre ringen: tonartens förminskade ackord.'],
+      ['Ackorden i en tonart', 'Tryck på en tonart så lyser dess del upp. Där finns tonartens sju ackord: tonarten själv (I) med grannarna IV och V i yttre ringen, ii, vi och iii innanför dem, och vii° i mitten. I {key} är det {list}. Det är de ackord de flesta låtar i {key} använder, och de låter bra ihop i vilken ordning som helst.'],
+      ['Bygga en progression', 'Börja och sluta på I. V drar starkt hem till I ({V} → {I}). Ett steg till ett grannackord låter alltid mjukt; ett hopp tvärs över cirkeln låter dramatiskt. Prova progressionerna längre ner: ▶ spelar en på cirkeln, → skickar den till Studio.'],
+      ['Dur och moll', 'En durtonart och molltonarten precis innanför har samma toner och ackord ({I}-dur och {vi}). Växla mellan Dur och Moll för att se samma ackord räknade från mollackordet.'],
+      ['Förtecken', 'Antalet steg från C visar hur många kors- eller b-förtecken tonarten har. Det står i mitten. Korsen tillkommer i ordningen F♯ C♯ G♯ D♯ A♯ E♯, b:na i ordningen B♭ E♭ A♭ D♭ G♭ C♭ – samma ordning som du möter dem runt cirkeln.'],
+      ['Byta tonart och transponera', 'Närliggande tonarter delar sex av sina sju ackord, så ett steg runt cirkeln är det mjukaste tonartsbytet. För att transponera en låt flyttar du alla ackord lika många steg runt cirkeln.'],
+      ['Lånade ackord', 'För mer färg kan du låna ackord från den parallella molltonarten, till exempel iv ({iv}) eller ♭VII ({bVII}), som ligger ett steg moturs från IV.'],
+    ],
+  },
+};
+
 const CircleTab = {
   k: Object.assign({ key: 0, minor: false }, store.get('circle', {})),
   lit: null,            // chord currently sounding {r,t}
+  guideOpen: store.get('circleGuide', false),
   playingProg: -1,
   clock: new BeatClock((n, time) => CircleTab.beat(n, time)),
   save() { store.set('circle', this.k); },
@@ -843,6 +873,22 @@ const CircleTab = {
     return s + '</svg>';
   },
 
+  guideHtml() {
+    const g = CIRCLE_GUIDE[lang()] || CIRCLE_GUIDE.en;
+    const maj = this.majorPc(), sp = keySpell(maj, false);
+    const ch = r => { const c = romanChord(r, maj, false); return chordName(c.r, c.t, null, sp); };
+    const vars = {
+      key: nn(maj, sp) + (lang() === 'sv' ? '-dur' : ' major'),
+      list: DIATONIC_MAJOR.map(ch).join(', '),
+      I: nn(maj, sp), V: ch('V'), vi: ch('vi'), iv: ch('iv'), bVII: ch('♭VII'),
+    };
+    const fill = txt => esc(txt).replace(/\{(\w+)\}/g, (m, k) => `<b>${esc(vars[k] || m)}</b>`);
+    return `<details class="card guide" id="cguide" ${this.guideOpen ? 'open' : ''}>
+      <summary>${I.info}<span>${g.title}</span></summary>
+      ${g.s.map(([h, p]) => `<h3>${h}</h3><p>${fill(p)}</p>`).join('')}
+    </details>`;
+  },
+
   render() {
     const k = this.k, sp = keySpell(k.key, k.minor);
     const sig = keySignature(k.key, k.minor);
@@ -858,8 +904,8 @@ const CircleTab = {
           <span><b style="color:var(--ink)">${this.keyName()}</b> · ${sigTxt}</span>
           <span>${k.minor ? t('relMajor') : t('relMinor')}: <b style="color:var(--ink)">${rel}</b></span>
         </div>
-        <div class="small muted" style="margin-top:8px">${t('circleHint')}</div>
       </div>
+      ${this.guideHtml()}
       <div class="card">
         <div class="lbl">${t('chordsIn', { key: this.keyName() })}</div>
         <div class="dchords">${dia.map((c, i) => `<div class="dchord" data-a="cdia" data-v="${i}"><i>${c.roman}</i><b>${chordName(c.r, c.t, null, sp)}</b></div>`).join('')}</div>
@@ -876,6 +922,8 @@ const CircleTab = {
             <button class="iconbtn" data-a="cstudio" data-v="${i}" aria-label="${t('toStudio')}">${I.send}</button>
           </div>`).join('')}</div>
       </div>`;
+    const gd = $('#cguide');
+    if (gd) gd.addEventListener('toggle', () => { this.guideOpen = gd.open; store.set('circleGuide', gd.open); });
   },
   redrawCircle() {
     const el = $('#circleSvg');
