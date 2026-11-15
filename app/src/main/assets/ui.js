@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.17';
+const VERSION = '1.18';
 const REPO = 'https://github.com/jonsolberg/guitarchords';
 
 const store = {
@@ -204,7 +204,7 @@ function blink(el) {
   el.classList.add('on');
 }
 /** keep lesson fretboards at a sensible height whatever their number of frets */
-function lessonBoardScale(fz) { const F = clamp(Math.max(...fz.dots.map(d => d[1])) + 1, 5, 12), H = 20 + 34 * 5 + 26; return Math.min(1.35, 170 / H) * (F >= 9 ? 1.5 : 1); }
+function lessonBoardScale(fz) { const F = clamp(Math.max(...fz.dots.map(d => d[1])) + 1, 5, 15), H = 20 + 34 * 5 + 26; return Math.min(1.35, 170 / H) * (F >= 9 ? 1.5 : 1); }
 /** the notes of a chord name as spans that can light up */
 function chordNoteSpans(name) {
   const p = parseChord(name); if (!p) return '';
@@ -2083,14 +2083,15 @@ function quizBoard(tu, o = {}) {
   const fx = f => f === 0 ? nut - 15 : nut + (f - 0.5) * fw;
   let g = `<svg class="qboard" viewBox="0 0 ${W} ${H}"${o.maxScale ? ` style="max-width:${Math.round(W * o.maxScale)}px"` : ''} xmlns="http://www.w3.org/2000/svg">`;
   g += `<rect x="${Math.min(X(nut), X(nut + F * fw))}" y="${top - 7}" width="${F * fw}" height="${sy * (N - 1) + 14}" rx="4" style="fill:var(--wood)"/>`;
-  [3, 5, 7, 9].filter(f => f <= F).forEach(f => { g += `<circle cx="${X(nut + (f - 0.5) * fw)}" cy="${top + sy * (N - 1) / 2}" r="4" style="fill:var(--fret)" opacity=".7"/>`; });
+  [3, 5, 7, 9, 15].filter(f => f <= F).forEach(f => { g += `<circle cx="${X(nut + (f - 0.5) * fw)}" cy="${top + sy * (N - 1) / 2}" r="4" style="fill:var(--fret)" opacity=".7"/>`; });
   if (F >= 12) g += `<circle cx="${X(nut + 11.5 * fw)}" cy="${top + sy * (N - 1) * 0.25}" r="4" style="fill:var(--fret)" opacity=".7"/><circle cx="${X(nut + 11.5 * fw)}" cy="${top + sy * (N - 1) * 0.75}" r="4" style="fill:var(--fret)" opacity=".7"/>`;
   for (let f = 0; f <= F; f++) {
     g += `<line x1="${X(nut + f * fw)}" x2="${X(nut + f * fw)}" y1="${top - 7}" y2="${top + sy * (N - 1) + 7}" style="stroke:${f ? 'var(--fret)' : 'var(--ink)'}" stroke-width="${f ? 2 : 4}"/>`;
     if (f) g += `<text x="${X(nut + (f - 0.5) * fw)}" y="${H - 3}" font-size="10" text-anchor="middle" style="fill:var(--muted)">${f}</text>`;
   }
+  if (o.names) for (let s = 0; s < N; s++) g += `<text x="${X(5)}" y="${Y(s) + 3.5}" font-size="10" font-weight="700" text-anchor="middle" style="fill:var(--muted)">${nn(tu.n[s] + tu.start[s])}</text>`;
   for (let s = 0; s < N; s++) {
-    const x0 = tu.start[s] ? nut + (tu.start[s] - 0.5) * fw : nut - 26;
+    const x0 = tu.start[s] ? nut + (tu.start[s] - 0.5) * fw : nut - (o.names ? 20 : 26);
     const hot = o.string === s;
     g += `<line x1="${X(x0)}" x2="${X(nut + F * fw)}" y1="${Y(s)}" y2="${Y(s)}" style="stroke:${hot ? 'var(--accent)' : 'var(--str)'}" stroke-width="${hot ? 3 : clamp(0.8 + (66 - tu.n[s] - tu.start[s]) / 20, 0.8, 2.6)}"/>`;
   }
@@ -2559,16 +2560,17 @@ const Practice = {
       if (b.p) return `<p class="lp">${md(b.p)}</p>`;
       if (b.try) return `<div class="ltry"><div class="lbl">${t('lTry')}</div>${md(b.try)}</div>`;
       if (b.key) return `<div class="lkey"><div class="lbl">${t('lKey')}</div><ul>${b.key.map(k => `<li>${md(k)}</li>`).join('')}</ul></div>`;
+      if (b.strum) return `<div class="lex">${b.strum.map((r, k) => `<button class="lrow" data-a="lp" data-v="${bi}:${k}">${play}<b>${L(r[0])}<small class="lprog lstrum">${r[1].split('').map((c, i) => `<i class="lch ${c === '-' ? 'rest' : ''}" data-i="${i}">${c === 'D' ? '↓' : c === 'U' ? '↑' : c === 'x' ? '✕' : '·'}</i>`).join('')}</small><small class="lcount">${r[1].length === 8 ? '1 & 2 & 3 & 4 &' : r[1].length === 6 ? '1 2 3 4 5 6' : ''}</small></b></button>`).join('')}</div>`;
       if (b.prog) return `<div class="lex">${b.prog.map((r, k) => `<button class="lrow" data-a="lp" data-v="${bi}:${k}">${play}<b>${L(r[0])}<small class="lprog">${r[1].map((c, i) => (i && r[1].length > 8 && i % 4 === 0 ? '<span class="lbr"></span>' : '') + `<i class="lch" data-i="${i}">${pretty(c)}</i>`).join('')}</small></b></button>`).join('')}</div>`;
       if (b.piano) {
         const pz = b.piano, marks = pz.keys.map(([m, l, k]) => ({ m, t: typeof l === 'number' ? nn(l) : lbl(l), k: k || 'n' }));
         return `<div class="lex"><button class="lrow" data-a="lp" data-v="${bi}">${play}<b>${b.label ? L(b.label) : t('hear')}<small>${t('lPiano')}</small></b></button><div class="lvis">${keysSvg(marks, pz.lo, pz.hi)}</div></div>`;
       }
       if (b.fret) {
-        const fz = b.fret, tu = { n: STD, start: STD.map(() => 0) };
+        const fz = b.fret, tn = fz.tun || STD, tu = { n: tn, start: tn.map(() => 0) };
         const col = k => k === 'r' ? 'var(--root)' : k === 'n' ? 'var(--accent-soft)' : 'var(--accent)';
         const dots = fz.dots.map(([s, f, l, k]) => ({ s, f, label: typeof l === 'number' ? nn(l) : lbl(l), color: col(k), ink: k === 'n' ? 'var(--accent)' : '#fff' }));
-        return `<div class="lex"><button class="lrow" data-a="lp" data-v="${bi}">${play}<b>${b.label ? L(b.label) : t('hear')}<small>${t('lGuitar')}</small></b></button><div class="lvis">${quizBoard(tu, { dots, frets: clamp(Math.max(...fz.dots.map(d => d[1])) + 1, 5, 12), maxScale: lessonBoardScale(fz) })}</div></div>`;
+        return `<div class="lex"><button class="lrow" data-a="lp" data-v="${bi}">${play}<b>${b.label ? L(b.label) : t('hear')}<small>${t('lGuitar')}</small></b></button><div class="lvis">${quizBoard(tu, { dots, frets: clamp(Math.max(...fz.dots.map(d => d[1])) + 1, 5, 15), maxScale: lessonBoardScale(fz), names: true })}</div></div>`;
       }
       if (b.chips) {
         const c = b.chips, chips = `<div class="notes lchips">${c.row.map(([n, l, hi], i) => `<div class="note ${hi ? 'r' : ''}" data-i="${i}" data-pc="${typeof n === 'number' ? n : pcOfName(lbl(n))}"><b>${typeof n === 'number' ? nn(n) : lbl(n)}</b>${lbl(l) ? `<span>${lbl(l)}</span>` : ''}</div>`).join('')}</div>`;
@@ -2584,9 +2586,9 @@ const Practice = {
       if (b.intervals) return `<div class="lex">${[...Array(12).keys()].map(k => `<button class="lrow" data-a="lp" data-v="${bi}:${k + 1}">${play}<b>${ivName(k + 1)}<small><i class="ln" data-i="0">C</i> → <i class="ln" data-i="1">${nn(k + 1, 's')}</i></small></b><span>${semis(k + 1)}</span></button>`).join('')}</div>`;
       if (b.table) return `<div class="lex">${b.table.map((r, k) => `<button class="lrow" data-a="lp" data-v="${bi}:${k}">${play}<b>${lbl(r[0])}${r[1] ? `<small>${lbl(r[1])}</small>` : ''}<small class="lns">${chordNoteSpans(r[2])}</small></b><span>${pretty(r[2])}</span></button>`).join('')}</div>`;
       if (b.diatonic != null) {
-        const sp = spellScale(b.diatonic, SCALES.find(x => x.id === 'major'));
-        const chs = DIATONIC_MAJOR.map(r => romanChord(r, b.diatonic, false));
-        return `<div class="lex"><div class="ttl" style="margin-bottom:8px">${sp.get(b.diatonic)} ${t('major').toLowerCase()}</div>
+        const mi = !!b.minor, sp = spellScale(b.diatonic, SCALES.find(x => x.id === (mi ? 'minor' : 'major')));
+        const chs = (mi ? DIATONIC_MINOR : DIATONIC_MAJOR).map(r => romanChord(r, b.diatonic, mi));
+        return `<div class="lex"><div class="ttl" style="margin-bottom:8px">${sp.get(b.diatonic)} ${t(mi ? 'minor' : 'major').toLowerCase()}</div>
           <div class="dchords">${chs.map((c, k) => `<div class="dchord" data-a="lp" data-v="${bi}:${k}"><i>${c.roman}</i><b>${sp.get(c.r)}${pretty(TYPES[c.t].sfx)}</b></div>`).join('')}</div></div>`;
       }
       if (b.modes) return `<div class="lex">${b.modes.map((m, k) => `<button class="lrow" data-a="lp" data-v="${bi}:${k}">${play}<b>C ${L(SCALES.find(x => x.id === m[0])).toLowerCase()}<small>${L(m[1])}</small><small class="lns">${(() => { const sc = SCALES.find(x => x.id === m[0]), sp = spellScale(0, sc); return sc.iv.concat([12]).map((x, i) => `<i class="ln" data-i="${i}">${(sp && sp.get(x % 12)) || nn(x)}</i>`).join(' '); })()}</small></b></button>`).join('')}</div>`;
@@ -2619,7 +2621,16 @@ const Practice = {
       if (box && box.querySelector('.hl')) sched.forEach(({ s, when }) => mark(box.querySelector(`.hl[data-s="${s}"]`), when));
       markRow(1.4);
     };
-    if (b.prog) {
+    if (b.strum) {
+      const [, pat, name, bpm] = b.strum[k], p = parseChord(name || 'G'), vv = p && voicings(p.r, p.t, p.b, CHORD_INSTS[0])[0];
+      const step = 60 / (bpm || 90) / 2, bars = 2;
+      for (let bar = 0; bar < bars; bar++) pat.split('').forEach((c, i) => {
+        const at = now + (bar * pat.length + i) * step;
+        if (c !== '-') Snd.stroke(c === 'D' && i % 2 ? 'd' : c, vv.frets, STD, at);
+        mark(btn && btn.querySelector(`.lch[data-i="${i}"]`), at);
+      });
+      if (btn) { btn.classList.add('lplaying'); setTimeout(() => btn.classList.remove('lplaying'), (pat.length * bars * step + 0.4) * 1000); }
+    } else if (b.prog) {
       const chs = b.prog[k][1], gap = b.prog[k][2] || 1.1;
       chs.forEach((name, i) => {
         const p = parseChord(name), vv = p && voicings(p.r, p.t, p.b, CHORD_INSTS[0])[0];
@@ -2632,9 +2643,9 @@ const Practice = {
       ms.forEach((m, i) => { Snd.pluck(m, now + i * gap, -1, 0.85); mark(q(`.km[data-m="${m}"]`), now + i * gap); });
       if (!b.piano.chord && b.piano.end) ms.forEach(m => { Snd.pluck(m, now + ms.length * gap + 0.3, -1, 0.7); mark(q(`.km[data-m="${m}"]`), now + ms.length * gap + 0.3); });
     } else if (b.fret) {
-      const ds = b.fret.dots, gap = b.fret.chord ? 0.03 : 0.32;
+      const ds = b.fret.dots, gap = b.fret.chord ? 0.03 : 0.32, tn = b.fret.tun || STD;
       const order = b.fret.chord ? ds.map((d, i) => i).sort((a, b2) => ds[a][0] - ds[b2][0] || ds[a][1] - ds[b2][1]) : ds.map((d, i) => i);
-      order.forEach((di, i) => { const [s, f] = ds[di]; Snd.pluck(STD[s] + f, now + i * gap, s, 0.85); mark(q(`.fd[data-i="${di}"]`), now + i * gap); });
+      order.forEach((di, i) => { const [s, f] = ds[di]; Snd.pluck(tn[s] + f, now + i * gap, s, 0.85); mark(q(`.fd[data-i="${di}"]`), now + i * gap); });
     } else if (b.chips) {
       const pl = b.chips.play, gap = pl.length > 3 ? 0.26 : 0.5;
       const chips = box ? [...box.querySelectorAll('.note')] : [];
@@ -2653,7 +2664,7 @@ const Practice = {
     }
     else if (b.table) chord(b.table[k][2]);
     else if (b.diatonic != null) {
-      const c = romanChord(DIATONIC_MAJOR[k], b.diatonic, false); chord(nn(c.r, 's') + TYPES[c.t].sfx);
+      const c = romanChord((b.minor ? DIATONIC_MINOR : DIATONIC_MAJOR)[k], b.diatonic, !!b.minor); chord(nn(c.r, 's') + TYPES[c.t].sfx);
       const tile = box && box.querySelector(`.dchord[data-v="${v}"]`); if (tile) { tile.classList.add('lplaying'); setTimeout(() => tile.classList.remove('lplaying'), 1400); }
     } else if (b.modes) {
       const sc = SCALES.find(x => x.id === b.modes[k][0]), up = sc.iv.concat([12]).map(x => 60 + x);
@@ -2667,9 +2678,9 @@ const Practice = {
       Snd.phrase(ev, now, 3);
       ev.forEach((e, i) => (box ? box.querySelectorAll(`.tn[data-i="${i}"]`) : []).forEach(el => mark(el, now + e.t)));
     } else if (b.notes) {
-      const gap = b.tab ? 0.34 : b.notes.length > 2 ? 0.26 : 0.8;
+      const gap = b.gap || (b.tab ? 0.34 : b.notes.length > 2 ? 0.26 : 0.8);
       b.notes.forEach((m, i) => {
-        Snd.pluck(m, now + i * gap, -1, 0.9);
+        [].concat(m).forEach((mm, j) => Snd.pluck(mm, now + i * gap + j * 0.012, -1, Array.isArray(m) ? 0.75 : 0.9));
         if (b.tab) (box ? box.querySelectorAll(`.tn[data-i="${i}"]`) : []).forEach(el => mark(el, now + i * gap));
         else mark(btn && btn.querySelector(`.ln[data-i="${i}"]`), now + i * gap);
       });
@@ -2684,6 +2695,7 @@ const Practice = {
       case 'lp': this.lessonPlay(v); break;
       case 'lgo':
         if (v.startsWith('tab:')) showTab(v.slice(4));
+        else if (LESSONS.some(l => l.id === v)) { this.lesson = LESSONS.findIndex(l => l.id === v); this.render(); window.scrollTo(0, 0); }
         else this.open(v);
         break;
       case 'qgo': this.started = true; QuizRun.start(this.view); this.render(); if (QuizRun.cur.autoplay) setTimeout(() => QuizRun.cur.play(), 250); break;

@@ -62,12 +62,14 @@ Werckmeister III–V, Kirnberger II–III, Vallotti, Young II, Kellner) on any k
 holds the last note for a moment after it fades.
 
 **Practice** – a start page with music theory lessons and separate exercises (ten questions each, best score kept):
-- Music theory for beginners: 20 short lessons – notes, intervals, finding notes on the neck, the major
+- Music theory for beginners: 30 short lessons – notes, intervals, finding notes on the neck, the major
   scale, keys, minor scales, how chords are built, inversions and slash chords, arpeggios, 7th chords,
-  chords in a key, cadences, the 12-bar blues, finding the key of a song, transposing and the capo,
-  pentatonic & blues, modes, rhythm, reading chord charts and tab, and tab techniques. One idea at a
-  time, with piano and guitar examples you can play (keys, dots and chords light up as they sound),
-  a "Try it" exercise, a "Remember" summary and links to the matching quiz or tool
+  chords in a key, chords in minor keys, cadences, secondary dominants, borrowed chords, the 12-bar
+  blues, finding the key of a song, transposing and the capo, pentatonic & blues, the five pentatonic
+  boxes, modes, rhythm, strumming patterns, reading chord charts and tab, barre chords, power chords
+  and riffs, the CAGED system, fingerpicking, tab techniques, and drop D and open tunings. One idea at
+  a time, with piano and guitar examples you can play (keys, dots, chords and strum arrows light up as
+  they sound), a "Try it" exercise, a "Remember" summary and links to the matching quiz or tool
 - Metronome in 2/4 to 12/8 plus 5/8 and 7/8 (with groupings such as 2 + 2 + 3), subdivisions, swing,
   tap tempo and accent patterns for syncopation (backbeat, offbeats, Charleston, tresillo, son/rumba/
   bossa clave, shuffle, gallop) – tap any step to accent, soften or silence it
