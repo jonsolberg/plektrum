@@ -16,11 +16,15 @@ package se.jonsolberg.plektrum;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.print.PrintAttributes;
+import android.print.PrintDocumentAdapter;
+import android.print.PrintManager;
 import android.view.View;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
@@ -185,6 +189,36 @@ public class MainActivity extends Activity {
     }
 
     /** Called from JavaScript as window.Android.* */
+    /** Kept alive until the next print job – the print framework reads from it while the dialog is open. */
+    private WebView printView;
+
+    private void printDocument(String title, String html) {
+        WebView pv = new WebView(this);
+        pv.getSettings().setJavaScriptEnabled(false);
+        pv.setWebViewClient(new WebViewClient() {
+            private boolean started;
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                return true;
+            }
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                if (started) return;
+                started = true;
+                PrintManager pm = (PrintManager) getSystemService(Context.PRINT_SERVICE);
+                if (pm == null) return;
+                PrintDocumentAdapter adapter = view.createPrintDocumentAdapter(title);
+                PrintAttributes attrs = new PrintAttributes.Builder()
+                        .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
+                        .setColorMode(PrintAttributes.COLOR_MODE_COLOR)
+                        .build();
+                pm.print(title, adapter, attrs);
+            }
+        });
+        pv.loadDataWithBaseURL("file:///android_asset/", html, "text/html", "utf-8", null);
+        printView = pv;
+    }
+
     private class Bridge {
         @JavascriptInterface
         public void keepAwake(boolean on) {
@@ -202,6 +236,13 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void setDark(boolean dark) {
             runOnUiThread(() -> applyBars(dark));
+        }
+
+        /** Print an HTML document (A4) – Android's print screen also offers "Save as PDF". */
+        @JavascriptInterface
+        public void printHtml(String title, String html) {
+            if (html == null) return;
+            runOnUiThread(() -> printDocument(title == null ? "Plektrum" : title, html));
         }
 
         @JavascriptInterface

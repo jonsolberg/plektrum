@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.18';
+const VERSION = '1.19';
 const REPO = 'https://github.com/jonsolberg/guitarchords';
 
 const store = {
@@ -58,7 +58,7 @@ const STR = {
     sens: 'Sensitivity', sensD: 'Raise it for quiet acoustics, lower it in noisy rooms',
     grouping: 'Grouping', subdiv: 'Subdivision', swingD: 'Plays the off-beats late, like a shuffle', accentPat: 'Accent pattern',
     customPat: 'Custom', resetAcc: 'Reset accents', stepHint: 'Tap a step: normal → accent → soft → silent',
-    learn: 'Music theory', learnDesc: 'Short lessons with examples you can play', lessonsN: '{n} lessons', lessonN: 'Lesson {n} of {of}', lTry: 'Try it', lKey: 'Remember', lPiano: 'On the piano', lGuitar: 'On the guitar neck',
+    learn: 'Music theory', learnDesc: 'Short lessons with examples you can play', lessonsN: '{n} lessons', lessonN: 'Lesson {n} of {of}', lTry: 'Try it', lKey: 'Remember', lPiano: 'On the piano', lGuitar: 'On the guitar neck', lPrintAll: 'Print all / save as PDF', lPrintOne: 'Print / PDF', lPdfTitle: 'Music theory', lPdfSub: '{n} lessons for string players – from the twelve notes to the CAGED system', lPdfToc: 'Contents', lPdfHint: 'Every example can be played in the app: Practice → Music theory.',
     metroDesc: 'Time signatures, subdivisions, accents', qWhichNote: 'Which note is marked?', qFindNote: 'Find {n} on string {k} ({s})',
     qDegree: 'What is the {d} of {k} major?', qScaleIs: '{k} major: {s}', qSig: 'How many sharps or flats in {k} major?',
     qRel: 'What is the relative minor of {k} major?', qRelEx: 'The relative minor starts on the 6th note of the major scale.',
@@ -107,7 +107,7 @@ const STR = {
     sens: 'Känslighet', sensD: 'Höj för tysta akustiska gitarrer, sänk i stökiga rum',
     grouping: 'Gruppering', subdiv: 'Underdelning', swingD: 'Spelar offbeat-slagen sent, som shuffle', accentPat: 'Betoningsmönster',
     customPat: 'Eget', resetAcc: 'Återställ betoningar', stepHint: 'Tryck på ett steg: normal → betonad → svag → tyst',
-    learn: 'Musikteori', learnDesc: 'Korta lektioner med exempel du kan spela', lessonsN: '{n} lektioner', lessonN: 'Lektion {n} av {of}', lTry: 'Prova', lKey: 'Kom ihåg', lPiano: 'På pianot', lGuitar: 'På gitarrhalsen',
+    learn: 'Musikteori', learnDesc: 'Korta lektioner med exempel du kan spela', lessonsN: '{n} lektioner', lessonN: 'Lektion {n} av {of}', lTry: 'Prova', lKey: 'Kom ihåg', lPiano: 'På pianot', lGuitar: 'På gitarrhalsen', lPrintAll: 'Skriv ut alla / spara som PDF', lPrintOne: 'Skriv ut / PDF', lPdfTitle: 'Musikteori', lPdfSub: '{n} lektioner för stränginstrument – från de tolv tonerna till CAGED-systemet', lPdfToc: 'Innehåll', lPdfHint: 'Alla exempel kan spelas i appen: Öva → Musikteori.',
     metroDesc: 'Taktarter, underdelningar, betoningar', qWhichNote: 'Vilken ton är markerad?', qFindNote: 'Hitta {n} på sträng {k} ({s})',
     qDegree: 'Vilken ton är {d} i {k}-dur?', qScaleIs: '{k}-dur: {s}', qSig: 'Hur många förtecken har {k}-dur?',
     qRel: 'Vilken är parallelltonarten i moll till {k}-dur?', qRelEx: 'Parallelltonarten i moll börjar på durskalans sjätte ton.',
@@ -150,6 +150,7 @@ const I = {
   arp: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="17" r="2.4"/><circle cx="12" cy="12" r="2.4"/><circle cx="19" cy="7" r="2.4"/></svg>',
   star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3.2l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 17l-5.4 2.9 1.1-6.1-4.5-4.2 6.1-.8z"/></svg>',
   left: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
+  print: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg>',
   right: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>',
   search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L20 20"/></svg>',
   close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
@@ -202,6 +203,59 @@ function blink(el) {
   el.classList.remove('on');
   void el.getBoundingClientRect();
   el.classList.add('on');
+}
+/** A4 print layout of the lessons (all, or one), for Android's print screen ("Save as PDF") */
+function lessonsPrintDoc(only) {
+  const keep = Practice.lesson, idx = only == null ? LESSONS.map((_, i) => i) : [only];
+  const tmp = document.createElement('div');
+  const parts = idx.map(i => { Practice.lesson = i; return `<div class="plesson">${Practice.lessonHtml()}</div>`; });
+  Practice.lesson = keep;
+  tmp.innerHTML = parts.join('');
+  tmp.querySelectorAll('.lnav, .lgo, .pl, .lprint1, .lcount').forEach(e => e.remove());
+  tmp.querySelectorAll('button').forEach(b => { const d = document.createElement('div'); d.className = b.className; d.innerHTML = b.innerHTML; b.replaceWith(d); });
+  tmp.querySelectorAll('.lon, .lplaying').forEach(e => e.classList.remove('lon', 'lplaying'));
+  const css = [...document.querySelectorAll('style')].map(x => x.textContent).join('\n');
+  const n = LESSONS.length;
+  const cover = only != null ? '' : `<div class="pcover">
+      <div class="pmark">${document.querySelector('#title svg') ? document.querySelector('#title svg').outerHTML : ''}<span>Plektrum</span></div>
+      <h1>${t('lPdfTitle')}</h1><p class="psub">${t('lPdfSub', { n })}</p>
+      <h2>${t('lPdfToc')}</h2>
+      <ol class="ptoc">${LESSONS.map(l => `<li><b>${esc(L(l.title))}</b>${l.blocks[0].goal ? `<span>${esc(L(l.blocks[0].goal).replace(/\*/g, ''))}</span>` : ''}</li>`).join('')}</ol>
+      <p class="phint">${t('lPdfHint')}</p></div>`;
+  const title = only == null ? `Plektrum – ${t('lPdfTitle')}` : `Plektrum – ${L(LESSONS[only].title)}`;
+  return { title, html: `<!DOCTYPE html><html lang="${lang()}"><head><meta charset="utf-8"><title>${esc(title)}</title><style>${css}
+@page{size:A4;margin:16mm 15mm 17mm;@bottom-center{content:counter(page);font:9pt system-ui,sans-serif;color:#8a8a8a}}
+html,body{background:#fff!important;color:#1e2422;margin:0;padding:0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:10.5pt;touch-action:auto}
+.card{box-shadow:none!important;border:0!important;background:#fff!important;padding:0!important;margin:0!important;border-radius:0}
+.plesson{break-before:page}
+.pdoc>.plesson:first-child{break-before:auto}
+.lesson h2{font-size:20pt!important;margin-top:2px!important}
+.lesson .lp{font-size:10.5pt;line-height:1.5;margin:7px 0}
+.lesson h3{font-size:12pt;break-after:avoid;margin:14px 0 4px}
+.lex,.ltry,.lkey,.lvis,.dchords{break-inside:avoid}
+.lex{background:#f4f1ea;margin:8px 0;padding:8px 12px}
+.lrow{padding:5px 0;border-bottom-color:#e2dccf}
+.lvis .qkeys{max-width:360px}.lvis .qboard{max-height:190px;width:auto;max-width:100%}
+.diagwrap svg.big{width:150px;height:auto}
+.lgoal{font-size:11pt}
+.lhead{display:block}
+.pcover{padding-top:4mm}
+.pmark{display:flex;align-items:center;gap:10px;font-size:22pt;font-weight:700;color:#0d6b61}.pmark svg{width:34px;height:34px}
+.pcover h1{font-size:28pt;margin:6mm 0 2mm;letter-spacing:-.5px}
+.psub{font-size:11.5pt;color:#555;margin:0 0 7mm;max-width:150mm}
+.pcover h2{font-size:13pt;text-transform:uppercase;letter-spacing:1.2px;color:#0d6b61;margin:0 0 4mm}
+.ptoc{columns:2;column-gap:10mm;padding-left:6mm;margin:0;font-size:9.5pt;line-height:1.3}
+.ptoc li{break-inside:avoid;margin:0 0 1.5mm}.ptoc li b{display:block;font-size:9.5pt}.ptoc li span{color:#666;font-size:8pt;line-height:1.25;display:block}
+.phint{margin-top:6mm;color:#666;font-size:9.5pt}
+</style></head><body><div class="pdoc">${cover}${tmp.innerHTML}</div></body></html>` };
+}
+function printLessons(only) {
+  const doc = lessonsPrintDoc(only);
+  if (AND && AND.printHtml) { AND.printHtml(doc.title, doc.html); return; }
+  const w = window.open('', '_blank');                       // browsers: the normal print dialog
+  if (!w) return;
+  w.document.open(); w.document.write(doc.html); w.document.close();
+  setTimeout(() => w.print(), 400);
 }
 /** keep lesson fretboards at a sensible height whatever their number of frets */
 function lessonBoardScale(fz) { const F = clamp(Math.max(...fz.dots.map(d => d[1])) + 1, 5, 15), H = 20 + 34 * 5 + 26; return Math.min(1.35, 170 / H) * (F >= 9 ? 1.5 : 1); }
@@ -2527,7 +2581,7 @@ const Practice = {
     const head = `<div class="pback"><button class="btn small" data-a="pback">${I.left}${this.backLabel()}</button><b>${this.view === 'lesson' ? '' : this.title(this.view)}</b></div>`;
     if (this.view === 'metro') { el.innerHTML = head + Metro.html(); Metro.bind(); return; }
     if (this.view === 'learn') {
-      el.innerHTML = head + `<div class="lessons">${LESSONS.map((l, i) => `<button class="lesson-item" data-a="lopen" data-v="${i}"><i>${i + 1}</i><b>${L(l.title)}</b>${I.right}</button>`).join('')}</div>`;
+      el.innerHTML = head + `<button class="btn lprint" data-a="lprint" data-v="all">${I.print}${t('lPrintAll')}</button><div class="lessons">${LESSONS.map((l, i) => `<button class="lesson-item" data-a="lopen" data-v="${i}"><i>${i + 1}</i><b>${L(l.title)}</b>${I.right}</button>`).join('')}</div>`;
       return;
     }
     if (this.view === 'lesson') { el.innerHTML = head + this.lessonHtml(); return; }
@@ -2600,7 +2654,7 @@ const Practice = {
       if (b.go) return `<div class="lgo">${b.go.map(([target, label]) => `<button class="btn small" data-a="lgo" data-v="${target}">${L(label)}</button>`).join('')}</div>`;
       return '';
     }).join('');
-    return `<div class="card lesson"><div class="lbl" style="margin:0">${t('lessonN', { n: i0 + 1, of: LESSONS.length })}</div>
+    return `<div class="card lesson"><div class="lhead"><div class="lbl" style="margin:0">${t('lessonN', { n: i0 + 1, of: LESSONS.length })}</div><button class="btn small lprint1" data-a="lprint" data-v="${i0}">${I.print}${t('lPrintOne')}</button></div>
       <h2 style="margin:4px 0 0;font-size:22px">${L(l.title)}</h2>${body}</div>
       <div class="lnav">${i0 > 0 ? `<button class="btn" data-a="lnav" data-v="-1">${I.left}${L(LESSONS[i0 - 1].title)}</button>` : ''}
         ${i0 < LESSONS.length - 1 ? `<button class="btn primary" data-a="lnav" data-v="1">${L(LESSONS[i0 + 1].title)}${I.right}</button>` : ''}</div>`;
@@ -2693,6 +2747,7 @@ const Practice = {
       case 'lopen': this.lesson = +v; this.open('lesson'); break;
       case 'lnav': this.lesson = clamp(this.lesson + +v, 0, LESSONS.length - 1); this.render(); window.scrollTo(0, 0); break;
       case 'lp': this.lessonPlay(v); break;
+      case 'lprint': printLessons(v === 'all' ? null : +v); break;
       case 'lgo':
         if (v.startsWith('tab:')) showTab(v.slice(4));
         else if (LESSONS.some(l => l.id === v)) { this.lesson = LESSONS.findIndex(l => l.id === v); this.render(); window.scrollTo(0, 0); }
