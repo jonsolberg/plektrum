@@ -361,6 +361,76 @@ const TUNINGS = [
   { id: 'bari',   en: 'Baritone (B)',              sv: 'Baryton (B)',               n: [35, 40, 45, 50, 54, 59] },
   { id: 'custom', en: 'Custom',                    sv: 'Egen',                      n: null },
 ];
+/* ---------- instruments (for the tuner) ----------
+ * n: notes as MIDI numbers in the order the strings cross the nut, bass side first.
+ * layout: pegs on the left side (l) and right side (r) of the headstock; side: the first
+ * string has its own peg on the side of the neck (5-string banjo).
+ */
+const INSTRUMENTS = [
+  { id: 'guitar', en: 'Guitar', sv: 'Gitarr', layout: { l: 3, r: 3 }, tunings: TUNINGS.filter(x => x.n) },
+  { id: 'guitar7', en: '7-string guitar', sv: '7-strängad gitarr', short: { en: '7-string', sv: '7-strängad' }, layout: { l: 4, r: 3 }, tunings: [
+    { id: 'g7std',  en: 'Standard', sv: 'Standard', n: [35, 40, 45, 50, 55, 59, 64] },
+    { id: 'g7dropa', en: 'Drop A', sv: 'Drop A', n: [33, 40, 45, 50, 55, 59, 64] },
+    { id: 'g7half', en: 'Half step down', sv: 'Ett halvt tonsteg ner', n: [34, 39, 44, 49, 54, 58, 63] },
+  ] },
+  { id: 'guitar12', en: '12-string guitar', sv: '12-strängad gitarr', short: { en: '12-string', sv: '12-strängad' }, layout: { l: 6, r: 6 }, tunings: [
+    { id: 'g12std', en: 'Standard', sv: 'Standard', n: [52, 40, 57, 45, 62, 50, 67, 55, 59, 59, 64, 64] },
+    { id: 'g12half', en: 'Half step down', sv: 'Ett halvt tonsteg ner', n: [51, 39, 56, 44, 61, 49, 66, 54, 58, 58, 63, 63] },
+    { id: 'g12dropd', en: 'Drop D', sv: 'Drop D', n: [50, 38, 57, 45, 62, 50, 67, 55, 59, 59, 64, 64] },
+  ] },
+  { id: 'bass4', en: 'Bass (4 strings)', sv: 'Elbas (4 strängar)', short: { en: 'Bass', sv: 'Bas' }, layout: { l: 2, r: 2 }, tunings: [
+    { id: 'b4std',   en: 'Standard', sv: 'Standard', n: [28, 33, 38, 43] },
+    { id: 'b4dropd', en: 'Drop D', sv: 'Drop D', n: [26, 33, 38, 43] },
+    { id: 'b4half',  en: 'Half step down', sv: 'Ett halvt tonsteg ner', n: [27, 32, 37, 42] },
+    { id: 'b4dstd',  en: 'D standard', sv: 'D-standard', n: [26, 31, 36, 41] },
+    { id: 'b4dropc', en: 'Drop C', sv: 'Drop C', n: [24, 31, 36, 41] },
+  ] },
+  { id: 'bass5', en: 'Bass (5 strings)', sv: 'Elbas (5 strängar)', short: { en: 'Bass', sv: 'Bas' }, layout: { l: 3, r: 2 }, tunings: [
+    { id: 'b5std',  en: 'Standard (low B)', sv: 'Standard (låg B)', n: [23, 28, 33, 38, 43] },
+    { id: 'b5highc', en: 'High C', sv: 'Hög C', n: [28, 33, 38, 43, 48] },
+    { id: 'b5half', en: 'Half step down', sv: 'Ett halvt tonsteg ner', n: [22, 27, 32, 37, 42] },
+  ] },
+  { id: 'bass6', en: 'Bass (6 strings)', sv: 'Elbas (6 strängar)', short: { en: 'Bass', sv: 'Bas' }, layout: { l: 3, r: 3 }, tunings: [
+    { id: 'b6std', en: 'Standard', sv: 'Standard', n: [23, 28, 33, 38, 43, 48] },
+  ] },
+  { id: 'uke', en: 'Ukulele', sv: 'Ukulele', layout: { l: 2, r: 2 }, tunings: [
+    { id: 'ukstd',  en: 'Standard (G C E A)', sv: 'Standard (G C E A)', n: [67, 60, 64, 69] },
+    { id: 'uklowg', en: 'Low G', sv: 'Låg G', n: [55, 60, 64, 69] },
+    { id: 'ukd',    en: 'D tuning (A D F♯ B)', sv: 'D-stämning (A D F♯ H)', n: [69, 62, 66, 71] },
+    { id: 'ukbari', en: 'Baritone (D G B E)', sv: 'Baryton (D G H E)', n: [50, 55, 59, 64] },
+  ] },
+  { id: 'mandolin', en: 'Mandolin', sv: 'Mandolin', layout: { l: 4, r: 4 }, tunings: [
+    { id: 'mdstd', en: 'Standard (G D A E)', sv: 'Standard (G D A E)', n: [55, 55, 62, 62, 69, 69, 76, 76] },
+  ] },
+  { id: 'mandola', en: 'Mandola', sv: 'Mandola', layout: { l: 4, r: 4 }, tunings: [
+    { id: 'mastd', en: 'Standard (C G D A)', sv: 'Standard (C G D A)', n: [48, 48, 55, 55, 62, 62, 69, 69] },
+  ] },
+  { id: 'banjo5', en: 'Banjo (5 strings)', sv: 'Banjo (5 strängar)', short: { en: 'Banjo', sv: 'Banjo' }, layout: { l: 2, r: 2, side: true }, tunings: [
+    { id: 'bjg',     en: 'Open G (g D G B D)', sv: 'Öppen G (g D G H D)', n: [67, 50, 55, 59, 62] },
+    { id: 'bjdblc',  en: 'Double C (g C G C D)', sv: 'Dubbel-C (g C G C D)', n: [67, 48, 55, 60, 62] },
+    { id: 'bjgmod',  en: 'G modal / sawmill (g D G C D)', sv: 'G modal (g D G C D)', n: [67, 50, 55, 60, 62] },
+    { id: 'bjopend', en: 'Open D (f♯ D F♯ A D)', sv: 'Öppen D (f♯ D F♯ A D)', n: [66, 50, 54, 57, 62] },
+  ] },
+  { id: 'banjo4', en: 'Tenor banjo', sv: 'Tenorbanjo', layout: { l: 2, r: 2 }, tunings: [
+    { id: 'tbstd',   en: 'Standard (C G D A)', sv: 'Standard (C G D A)', n: [48, 55, 62, 69] },
+    { id: 'tbirish', en: 'Irish (G D A E)', sv: 'Irländsk (G D A E)', n: [43, 50, 57, 64] },
+  ] },
+  { id: 'violin', en: 'Violin', sv: 'Fiol', layout: { l: 2, r: 2 }, tunings: [
+    { id: 'vnstd', en: 'Standard (G D A E)', sv: 'Standard (G D A E)', n: [55, 62, 69, 76] },
+    { id: 'vncross', en: 'Cross tuning (A E A E)', sv: 'Korsstämning (A E A E)', n: [57, 64, 69, 76] },
+  ] },
+  { id: 'viola', en: 'Viola', sv: 'Altfiol', layout: { l: 2, r: 2 }, tunings: [
+    { id: 'vastd', en: 'Standard (C G D A)', sv: 'Standard (C G D A)', n: [48, 55, 62, 69] },
+  ] },
+  { id: 'cello', en: 'Cello', sv: 'Cello', layout: { l: 2, r: 2 }, tunings: [
+    { id: 'vcstd', en: 'Standard (C G D A)', sv: 'Standard (C G D A)', n: [36, 43, 50, 57] },
+  ] },
+  { id: 'dbass', en: 'Double bass', sv: 'Kontrabas', layout: { l: 2, r: 2 }, tunings: [
+    { id: 'dbstd', en: 'Orchestra (E A D G)', sv: 'Orkester (E A D G)', n: [28, 33, 38, 43] },
+    { id: 'dbsolo', en: 'Solo (F♯ B E A)', sv: 'Solo (F♯ H E A)', n: [30, 35, 40, 45] },
+  ] },
+];
+
 // cents relative to equal temperament, with C as the temperament's root
 const TEMPERAMENTS = [
   { id: 'equal', en: 'Equal temperament', sv: 'Liksvävande', c: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] },
@@ -382,6 +452,6 @@ function targetFreq(m, a4, temp, root) {
 }
 
 if (typeof module !== 'undefined') module.exports = {
-  STD, TYPES, SCALES, TUNINGS, TEMPERAMENTS, PROGRESSIONS, CIRCLE, Theory, nn, voicings, parseChord, chordName,
+  STD, TYPES, SCALES, TUNINGS, INSTRUMENTS, TEMPERAMENTS, PROGRESSIONS, CIRCLE, Theory, nn, voicings, parseChord, chordName,
   scalePositions, romanChord, keySignature, targetFreq, typeIndex,
 };

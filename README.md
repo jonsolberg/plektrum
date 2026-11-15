@@ -37,11 +37,14 @@ and melodic minor, all the modes, phrygian dominant, Hungarian minor, whole tone
 hirajōshi and chromatic. The five pentatonic boxes (and three-notes-per-string positions for
 seven-note scales), notes or scale degrees, tap a note to hear it, play the scale.
 
-**Tuner** – needle display with a history trace and signal level, guitar or chromatic mode,
-17 tunings (standard, half/whole step down, drop D/C♯/C/B, DADGAD, open G/D/E/A/C/Dm, all fourths,
-new standard, baritone, and a custom tuning), tune a single string by tapping it, A4 calibration
-(415–466 Hz), seven temperaments (equal, just, Pythagorean, ¼-comma meantone, Werckmeister III,
-Kirnberger III, Vallotti) on any key, and a pitch pipe.
+**Tuner** – needle, strobe wheel or strobe bands, with a pitch history trace and signal level.
+Fifteen instruments, each with its own headstock and common tunings: guitar (17 tunings), 7-string
+and 12-string guitar, 4-, 5- and 6-string bass, ukulele, mandolin, mandola, 5-string and tenor banjo,
+violin, viola, cello and double bass – plus a custom tuning for each. Tap a peg to tune one string;
+paired strings (12-string, mandolin) are marked together. Chromatic mode, A4 calibration
+(415–466 Hz), sensitivity, seven temperaments (equal, just, Pythagorean, ¼-comma meantone,
+Werckmeister III, Kirnberger III, Vallotti) on any key, and a pitch pipe. Steady read-out that
+holds the last note for a moment after it fades.
 
 **Practice** – a metronome in 2/4, 3/4, 4/4, 5/4, 6/8, 9/8, 12/8, 5/8 and 7/8 (with groupings such as
 2 + 2 + 3), subdivisions, swing, tap tempo and accent patterns for syncopation (backbeat, offbeats,

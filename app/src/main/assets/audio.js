@@ -315,14 +315,23 @@ const Pitch = {
     });
     this.src = ctx.createMediaStreamSource(this.stream);
     const hp = ctx.createBiquadFilter();
-    hp.type = 'highpass'; hp.frequency.value = 45;
+    hp.type = 'highpass'; hp.frequency.value = 22;
     this.an = ctx.createAnalyser();
-    this.an.fftSize = 4096;
     this.src.connect(hp); hp.connect(this.an);
-    this.buf = new Float32Array(this.an.fftSize);
-    this.nsdf = new Float32Array(Math.ceil(ctx.sampleRate / 45) + 4);
+    this.configure(this.minFreq);
     const loop = () => { this.raf = requestAnimationFrame(loop); this.frame(); };
     loop();
+  },
+  minFreq: 45,
+  /** Lowest pitch to listen for. Low instruments (bass) get a longer window: it must hold a few periods. */
+  configure(minFreq) {
+    this.minFreq = Math.max(24, minFreq);
+    if (!this.an) return;
+    const sr = Snd.ctx.sampleRate;
+    const size = sr / this.minFreq > 1300 ? 16384 : sr / this.minFreq > 900 ? 8192 : 4096;
+    if (this.an.fftSize !== size) this.an.fftSize = size;
+    this.buf = new Float32Array(this.an.fftSize);
+    this.nsdf = new Float32Array(Math.ceil(sr / this.minFreq) + 4);
   },
   stop() {
     cancelAnimationFrame(this.raf);
@@ -334,9 +343,11 @@ const Pitch = {
 
   frame() {
     const an = this.an; if (!an) return;
+    this.frameN = (this.frameN || 0) + 1;
+    if (an.fftSize >= 16384 && this.frameN % 2) return;      // very low notes: every other frame is plenty
     an.getFloatTimeDomainData(this.buf);
     const sr = Snd.ctx.sampleRate;
-    const r = Pitch.detect(this.buf, sr, this.nsdf);
+    const r = Pitch.detect(this.buf, sr, this.nsdf, this.minFreq);
     this.onResult && this.onResult(r);
   },
 
@@ -347,7 +358,7 @@ const Pitch = {
    * with an FFT and the energy term with prefix sums, so a frame costs O(n log n) instead of O(n²).
    * Returns {freq, clarity, db} or just {db} when there is no clear pitch.
    */
-  detect(x, sr, nsdf) {
+  detect(x, sr, nsdf, minFreq = 45) {
     const n = x.length;
     let sum = 0;
     for (let i = 0; i < n; i++) sum += x[i] * x[i];
@@ -364,7 +375,7 @@ const Pitch = {
     const ps = FFT.ps;
     ps[0] = 0;
     for (let i = 0; i < n; i++) ps[i + 1] = ps[i] + x[i] * x[i];
-    const minLag = Math.floor(sr / 1500), maxLag = Math.min(Math.floor(sr / 45), n >> 1);
+    const minLag = Math.floor(sr / 1500), maxLag = Math.min(Math.floor(sr / minFreq), n >> 1);
     for (let tau = minLag; tau <= maxLag + 1; tau++) {
       const m = ps[n - tau] + (ps[n] - ps[tau]);
       nsdf[tau] = m > 0 ? 2 * (re[tau] / N) / m : 0;

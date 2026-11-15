@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.4';
+const VERSION = '1.5';
 const REPO = 'https://github.com/jonsolberg/guitarchords';
 
 const store = {
@@ -19,10 +19,11 @@ const store = {
 };
 const S = Object.assign({
   lang: 'auto', theme: 'auto', lefty: false, names: false, hNotation: false, style: 'strum', volume: 0.8, sound: true,
-  a4: 440, temp: 'equal', tempRoot: 0, tuning: 'std', custom: [40, 45, 50, 55, 59, 64], tunerMode: 'guitar', tunerView: 'needle', tunerSens: 0.52, dotLabel: 'finger',
+  a4: 440, temp: 'equal', tempRoot: 0, tuning: 'std', custom: [40, 45, 50, 55, 59, 64], tunerMode: 'guitar', tunerView: 'needle', tunerSens: 0.52, instrument: 'guitar', customs: {}, dotLabel: 'finger',
   tab: 'chords',
 }, store.get('settings', {}));
 const saveS = () => store.set('settings', S);
+if (S.custom && !S.customs.guitar) { S.customs.guitar = S.custom; }   // custom tuning from version 1.0–1.4
 
 /* ---------------- text ---------------- */
 const STR = {
@@ -52,7 +53,7 @@ const STR = {
     tempRoot: 'Temperament key', pipe: 'Pitch pipe', pipeDesc: 'Tap a string to hear its note', mode: 'Mode', guitar: 'Guitar', chromatic: 'Chromatic',
     listen: 'Play a string', micDenied: 'The tuner needs the microphone. Allow it in Android settings.',
     lockHint: 'Tap a string to tune only that one. Tap again for automatic.', customT: 'Custom tuning', inTune: 'In tune',
-    needle: 'Needle', strobe: 'Strobe', strobeWheel: 'Strobe wheel', strobeBands: 'Strobe bands', tapStart: 'Press Start and play a string', tuneUp: 'Tune up', tuneDown: 'Tune down',
+    instrument: 'Instrument', needle: 'Needle', strobe: 'Strobe', strobeWheel: 'Strobe wheel', strobeBands: 'Strobe bands', tapStart: 'Press Start and play a string', tuneUp: 'Tune up', tuneDown: 'Tune down',
     semisLow: '{n} semitone(s) low – tune up', semisHigh: '{n} semitone(s) high – tune down',
     sens: 'Sensitivity', sensD: 'Raise it for quiet acoustics, lower it in noisy rooms',
     grouping: 'Grouping', subdiv: 'Subdivision', swingD: 'Plays the off-beats late, like a shuffle', accentPat: 'Accent pattern',
@@ -92,7 +93,7 @@ const STR = {
     tempRoot: 'Temperaturens tonart', pipe: 'Stämpipa', pipeDesc: 'Tryck på en sträng för att höra tonen', mode: 'Läge', guitar: 'Gitarr', chromatic: 'Kromatisk',
     listen: 'Spela på en sträng', micDenied: 'Stämapparaten behöver mikrofonen. Tillåt den i Androids inställningar.',
     lockHint: 'Tryck på en sträng för att bara stämma den. Tryck igen för automatiskt.', customT: 'Egen stämning', inTune: 'Stämd',
-    needle: 'Visare', strobe: 'Stroboskop', strobeWheel: 'Strobohjul', strobeBands: 'Strobeband', tapStart: 'Tryck på Starta och spela en sträng', tuneUp: 'Stäm upp', tuneDown: 'Stäm ner',
+    instrument: 'Instrument', needle: 'Visare', strobe: 'Stroboskop', strobeWheel: 'Strobohjul', strobeBands: 'Strobeband', tapStart: 'Tryck på Starta och spela en sträng', tuneUp: 'Stäm upp', tuneDown: 'Stäm ner',
     semisLow: '{n} halvton(er) för lågt – stäm upp', semisHigh: '{n} halvton(er) för högt – stäm ner',
     sens: 'Känslighet', sensD: 'Höj för tysta akustiska gitarrer, sänk i stökiga rum',
     grouping: 'Gruppering', subdiv: 'Underdelning', swingD: 'Spelar offbeat-slagen sent, som shuffle', accentPat: 'Betoningsmönster',
@@ -1141,10 +1142,29 @@ const Tuner = {
   strobeOff: [0, 0, 0], tPrev: 0,
   pipeStop: null, pipeString: -1, pipeOn: false, raf: 0,
 
-  tuning() {
-    const tu = TUNINGS.find(x => x.id === S.tuning) || TUNINGS[0];
-    return tu.n || S.custom;
+  /** Forget readings and marks when the instrument, tuning or mode changes. */
+  resetReading() {
+    this.freqs = []; this.pending = []; this.hasSig = false; this.last = null; this.cents = null; this.okSince = 0; this.textAt = 0;
+    this.near = -1; this.lock = null; this.ok.clear();
   },
+  inst() { return INSTRUMENTS.find(x => x.id === S.instrument) || INSTRUMENTS[0]; },
+  tuningDef() {
+    const inst = this.inst();
+    return inst.tunings.find(x => x.id === S.tuning) || (S.tuning === 'custom' ? null : inst.tunings[0]);
+  },
+  tuning() {
+    const inst = this.inst(), tu = this.tuningDef();
+    if (tu) return tu.n;
+    if (!S.customs[inst.id] || S.customs[inst.id].length !== inst.tunings[0].n.length) S.customs[inst.id] = inst.tunings[0].n.slice();
+    return S.customs[inst.id];
+  },
+  /** Listen low enough for the lowest string (5-string bass: B0 ≈ 31 Hz). */
+  applyRange() {
+    const lo = Math.min(...this.tuning());
+    Pitch.configure(S.tunerMode === 'chromatic' ? 26 : Math.min(45, midiFreq(lo, S.a4) * 0.75));
+  },
+  /** strings that share the pitch of string i (12-string and mandolin courses) */
+  same(i) { const tun = this.tuning(), m = tun[i]; return tun.map((x, k) => x === m ? k : -1).filter(k => k >= 0); },
   temp() { return TEMPERAMENTS.find(x => x.id === S.temp) || TEMPERAMENTS[0]; },
   f(m) { return targetFreq(m, S.a4, this.temp(), S.tempRoot); },
   centsTo(f, m) { return 1200 * Math.log2(f / this.f(m)); },
@@ -1157,35 +1177,52 @@ const Tuner = {
   },
   applyGate() { Pitch.gate = 0.02 * Math.pow(0.1, S.tunerSens); },
 
-  /** Headstock with 3 + 3 tuning pegs; low E bottom left, high E bottom right. */
+  /**
+   * Headstock drawn for the chosen instrument: pegs on the left (bass side, nearest the nut first)
+   * and on the right (treble side, nearest the nut last); a 5-string banjo's short string has its
+   * peg on the side of the neck.
+   */
   headstock() {
-    const tun = this.tuning();
-    const post = i => i < 3 ? [118, 178 - i * 58] : [202, 62 + (i - 3) * 58];
-    const peg = i => i < 3 ? [52, 178 - i * 58] : [268, 62 + (i - 3) * 58];
-    let s = `<svg class="headstock" viewBox="0 0 320 262" xmlns="http://www.w3.org/2000/svg">
-      <path d="M104 256 L96 50 Q96 14 160 10 Q224 14 224 50 L216 256 Z" class="hs-body"/>
-      <rect x="104" y="248" width="112" height="8" rx="2" class="hs-nut"/>`;
-    for (let i = 0; i < 6; i++) {
-      const [px, py] = post(i), [gx, gy] = peg(i);
+    const inst = this.inst(), tun = this.tuning(), lay = inst.layout, n = tun.length;
+    const first = lay.side ? 1 : 0;
+    const rows = Math.max(lay.l, lay.r);
+    const sp = rows > 4 ? 48 : 56, pr = rows > 4 ? 21 : 25;
+    const top = 30, nutY = top + 34 + rows * sp, H = nutY + (lay.side ? 92 : 40);
+    const pos = [];                                    // [postX, postY, pegX, pegY]
+    for (let j = 0; j < lay.l; j++) { const y = nutY - 34 - j * sp; pos[first + j] = [118, y, 52, y]; }
+    for (let j = 0; j < lay.r; j++) { const y = nutY - 34 - (lay.r - 1 - j) * sp; pos[first + lay.l + j] = [202, y, 268, y]; }
+    if (lay.side) pos[0] = [124, nutY + 54, 52, nutY + 54];
+    const nutX = k => 132 + (n === 1 ? 0 : (56 * k) / (n - 1));
+    let s = `<svg class="headstock" viewBox="0 0 320 ${H}" xmlns="http://www.w3.org/2000/svg">
+      <rect x="114" y="${nutY}" width="92" height="${H - nutY}" class="hs-neck"/>
+      <path d="M104 ${nutY + 4} L96 ${top + 30} Q96 ${top - 4} 160 ${top - 8} Q224 ${top - 4} 224 ${top + 30} L216 ${nutY + 4} Z" class="hs-body"/>
+      <rect x="104" y="${nutY - 4}" width="112" height="8" rx="2" class="hs-nut"/>`;
+    for (let i = 0; i < n; i++) {
+      const [px, py, gx, gy] = pos[i];
       s += `<line x1="${px}" y1="${py}" x2="${gx}" y2="${gy}" class="hs-shaft"/>`;
-      s += `<line x1="${140 + i * 8}" y1="252" x2="${px}" y2="${py}" class="hs-string" style="stroke-width:${1.9 - i * 0.18}"/>`;
-      s += `<circle cx="${px}" cy="${py}" r="6" class="hs-post"/>`;
+      const w = Math.max(0.8, 1.9 - (tun[i] - 28) / 40);
+      if (lay.side && i === 0) s += `<line x1="${px}" y1="${py}" x2="${px + 6}" y2="${H}" class="hs-string" style="stroke-width:${w}"/>`;
+      else s += `<line x1="${nutX(i)}" y1="${H}" x2="${nutX(i)}" y2="${nutY}" class="hs-string" style="stroke-width:${w}"/>
+        <line x1="${nutX(i)}" y1="${nutY}" x2="${px}" y2="${py}" class="hs-string" style="stroke-width:${w}"/>`;
+      s += `<circle cx="${px}" cy="${py}" r="5.5" class="hs-post"/>`;
     }
-    for (let i = 0; i < 6; i++) {
-      const [gx, gy] = peg(i), m = tun[i];
-      const cls = [this.lock === i || this.pipeString === i ? 'lock' : '', this.near === i ? 'near' : '', this.ok.has(i) ? 'ok' : ''].join(' ');
+    for (let i = 0; i < n; i++) {
+      const [, , gx, gy] = pos[i], m = tun[i], left = gx < 160;
+      const cls = [this.lock != null && tun[this.lock] === m || this.pipeString === i ? 'lock' : '',
+        this.near >= 0 && tun[this.near] === m ? 'near' : '', this.ok.has(i) ? 'ok' : ''].join(' ');
       s += `<g class="peg ${cls}" data-a="tstr" data-v="${i}">
-        <circle cx="${gx}" cy="${gy}" r="25" class="peg-c"/>
-        <text x="${gx}" y="${gy + 3}" text-anchor="middle" class="peg-n">${nn(m)}<tspan class="peg-o" dy="-8">${Math.floor(m / 12) - 1}</tspan></text>
-        <text x="${gx}" y="${gy + 17}" text-anchor="middle" class="peg-h">${(Math.round(this.f(m) * 10) / 10)}</text>
-        <g class="peg-ok"><circle cx="${gx + (i < 3 ? -19 : 19)}" cy="${gy - 17}" r="8.5"/><path d="M${gx + (i < 3 ? -23.5 : 14.5)} ${gy - 17}l3 3 5.5-6"/></g>
+        <circle cx="${gx}" cy="${gy}" r="${pr}" class="peg-c"/>
+        <text x="${gx}" y="${gy + 3}" text-anchor="middle" class="peg-n" style="font-size:${pr > 22 ? 19 : 16}px">${nn(m)}<tspan class="peg-o" dy="-8">${Math.floor(m / 12) - 1}</tspan></text>
+        <text x="${gx}" y="${gy + pr * 0.66}" text-anchor="middle" class="peg-h">${(Math.round(this.f(m) * 10) / 10)}</text>
+        <g class="peg-ok"><circle cx="${gx + (left ? -1 : 1) * (pr - 6)}" cy="${gy - pr + 7}" r="8.5"/><path d="M${gx + (left ? -1 : 1) * (pr - 6) - 4.5} ${gy - pr + 7}l3 3 5.5-6"/></g>
       </g>`;
     }
     return s + '</svg>';
   },
 
   render() {
-    const running = Pitch.running, view = S.tunerView;
+    const running = Pitch.running, view = S.tunerView, inst = this.inst(), tun = this.tuning();
+    this.applyRange();
     $('#tab-tuner').innerHTML = `
       <div class="card tunerhero" id="thero" data-st="${running ? 'listen' : 'idle'}">
         <div class="tview">${seg('tview', [['needle', t('needle')], ['strobe', t('strobeWheel')], ['bands', t('strobeBands')]], view)}</div>
@@ -1203,10 +1240,13 @@ const Tuner = {
         <button class="btn ${running ? '' : 'primary'} tgo" data-a="tstart">${running ? I.stop + t('stopTuner') : I.mic + t('startTuner')}</button>
       </div>
       <div class="card">
-        ${seg('tmode', [['guitar', t('guitar')], ['chromatic', t('chromatic')]], S.tunerMode)}
+        <div class="lbl" style="margin-top:0">${t('instrument')}</div>
+        <select id="tinst">${INSTRUMENTS.map(x => `<option value="${x.id}" ${x.id === inst.id ? 'selected' : ''}>${L(x)}</option>`).join('')}</select>
         <div class="lbl">${t('tuning')}</div>
-        <select id="ttuning">${TUNINGS.map(x => `<option value="${x.id}" ${x.id === S.tuning ? 'selected' : ''}>${L(x)}${x.n ? ' – ' + x.n.map(m => nn(m)).join(' ') : ''}</option>`).join('')}</select>
-        ${S.tuning === 'custom' ? `<div class="custom">${S.custom.map((m, i) => `<div><button data-a="tcust" data-v="${i},1">▲</button><b>${midiName(m)}</b><button data-a="tcust" data-v="${i},-1">▼</button></div>`).join('')}</div>` : ''}
+        <select id="ttuning">${inst.tunings.map(x => `<option value="${x.id}" ${x === this.tuningDef() ? 'selected' : ''}>${L(x)}${inst.id === 'guitar' ? ' – ' + x.n.map(m => nn(m)).join(' ') : ''}</option>`).join('')}
+          <option value="custom" ${S.tuning === 'custom' ? 'selected' : ''}>${t('customT')}</option></select>
+        ${S.tuning === 'custom' ? `<div class="custom" style="grid-template-columns:repeat(${Math.min(6, tun.length)},1fr)">${tun.map((m, i) => `<div><button data-a="tcust" data-v="${i},1">▲</button><b>${midiName(m)}</b><button data-a="tcust" data-v="${i},-1">▼</button></div>`).join('')}</div>` : ''}
+        <div style="margin-top:12px">${seg('tmode', [['guitar', inst.short ? L(inst.short) : L(inst)], ['chromatic', t('chromatic')]], S.tunerMode)}</div>
         ${this.headstock()}
         <div class="small muted" style="text-align:center;margin-top:-4px">${this.pipeOn ? t('pipeDesc') : (S.tunerMode === 'guitar' ? t('lockHint') : t('pipeDesc'))}</div>
         <div class="setrow" style="margin-top:6px;padding-bottom:0;border:0"><div>${t('pipe')}<small>${t('pipeDesc')}</small></div>
@@ -1221,7 +1261,11 @@ const Tuner = {
           <select id="ttemp" style="margin-top:6px">${TEMPERAMENTS.map(x => `<option value="${x.id}" ${x.id === S.temp ? 'selected' : ''}>${L(x)}</option>`).join('')}</select></div></div>
         ${S.temp !== 'equal' ? `<div class="lbl">${t('tempRoot')}</div>${rootGrid('ttroot', S.tempRoot)}` : ''}
       </div>`;
-    $('#ttuning').addEventListener('change', e => { S.tuning = e.target.value; this.lock = null; this.ok.clear(); this.near = -1; saveS(); this.render(); });
+    $('#ttuning').addEventListener('change', e => { S.tuning = e.target.value; this.resetReading(); saveS(); this.render(); });
+    $('#tinst').addEventListener('change', e => {
+      S.instrument = e.target.value; S.tuning = this.inst().tunings[0].id;
+      this.resetReading(); this.stopPipe(); saveS(); this.render();
+    });
     $('#ttemp').addEventListener('change', e => { S.temp = e.target.value; saveS(); this.render(); });
     $('#tpipe').addEventListener('change', e => { this.pipeOn = e.target.checked; if (!this.pipeOn) this.stopPipe(); this.render(); });
     $('#tsens').addEventListener('input', e => { S.tunerSens = +e.target.value; this.applyGate(); saveS(); });
@@ -1273,6 +1317,7 @@ const Tuner = {
     this.applyGate();
     try {
       await Pitch.start(r => this.onPitch(r));
+      this.applyRange();
     } catch (e) {
       toast(t('micDenied'));
     }
@@ -1286,25 +1331,44 @@ const Tuner = {
     if (S.tab === 'tuner') this.render();
   },
 
+  HOLD_MS: 2500,          // keep the last reading this long after the note fades
   onPitch(r) {
     const lv = $('#tlevel');
     if (lv) lv.style.width = clamp((r.db + 60) / 50 * 100, 0, 100) + '%';
     const now = performance.now();
-    if (!r.freq) {
-      // hold the last reading briefly while a note rings out, then show "no signal"
-      if (this.hasSig && now - this.lastAt > 700) { this.hasSig = false; this.freqs = []; this.show(null); }
-      this.hist.push(null);
-      if (this.hist.length > 240) this.hist.shift();
+    if (!r.freq || r.clarity < 0.8) {
+      // the note is fading: hold the last reading, then show "no signal"
+      if (this.hasSig && now - this.lastAt > this.HOLD_MS) { this.hasSig = false; this.freqs = []; this.pending = []; this.show(null); }
       return;
     }
-    // median of the last few readings; start over when the pitch jumps (a new string)
-    const prev = this.freqs.length ? this.freqs[this.freqs.length - 1] : 0;
-    if (prev && Math.abs(1200 * Math.log2(r.freq / prev)) > 60) this.freqs = [];
-    this.freqs.push(r.freq);
-    if (this.freqs.length > 7) this.freqs.shift();
-    const f = this.freqs.slice().sort((a, b) => a - b)[this.freqs.length >> 1];
-    this.last = f; this.lastAt = now; this.hasSig = true;
-    this.show(f);
+    let f = r.freq;
+    const med = this.freqs.length ? this.median(this.freqs) : 0;
+    if (med) {
+      // a reading far from the current note (an octave slip, a stray value or a new string)
+      // only takes over once four readings in a row agree
+      const c2 = 1200 * Math.log2(f / med);
+      if (Math.abs(c2) > 60) {
+        // a different note: only switch once a few readings agree (a new string, not a glitch)
+        this.pending = (this.pending || []).filter(p => Math.abs(1200 * Math.log2(f / p)) < 40);
+        this.pending.push(f);
+        if (this.pending.length < 4) return;
+        this.freqs = this.pending.slice();
+        this.pending = [];
+        this.smooth = this.centsFor(this.median(this.freqs));
+      } else this.pending = [];
+    }
+    this.freqs.push(f);
+    if (this.freqs.length > 11) this.freqs.shift();
+    const fm = this.median(this.freqs);
+    if (!this.hasSig) this.smooth = this.centsFor(fm);     // first reading: no swing in from the old position
+    this.last = fm; this.lastAt = now; this.hasSig = true;
+    this.show(fm);
+  },
+  median(a) { const b = a.slice().sort((x, y) => x - y); return b[b.length >> 1]; },
+  /** cents from the string or note the tuner would aim for */
+  centsFor(f) {
+    const m = S.tunerMode === 'guitar' ? this.tuning()[this.pickString(f)] : this.nearestNote(f);
+    return this.centsTo(f, m);
   },
 
   /** Which string to tune: the locked one, or the nearest – sticking with the current one unless another is clearly closer. */
@@ -1338,8 +1402,12 @@ const Tuner = {
     let m, string = -1;
     if (S.tunerMode === 'guitar') { string = this.pickString(f); m = this.tuning()[string]; }
     else m = this.nearestNote(f);
-    const tf = this.f(m), cents = this.centsTo(f, m);
-    this.cents = cents;
+    const tf = this.f(m), raw = this.centsTo(f, m);
+    this.cents = raw;
+    const now = performance.now();
+    if (this.textAt && now - this.textAt < 140 && this.textNote === m) return;
+    this.textAt = now; this.textNote = m;
+    const cents = Math.abs(this.smooth - raw) < 30 ? this.smooth : raw;
     this.target = clamp(cents, -55, 55);
     const played = this.nearestNote(f);
     nameEl.textContent = nn(m);
@@ -1359,20 +1427,21 @@ const Tuner = {
     } else msg = cents < 0 ? '↑ ' + t('tuneUp') : '↓ ' + t('tuneDown');
     status.textContent = msg;
     status.className = 'tstatus ' + (inTune ? 'good' : a < 10 ? 'close' : '');
-    this.hist.push(clamp(cents, -50, 50));
-    if (this.hist.length > 240) this.hist.shift();
 
     if (S.tunerMode === 'guitar') {
       if (string !== this.near) {
         this.near = string;
-        document.querySelectorAll('.peg').forEach((b, i) => b.classList.toggle('near', i === string));
+        const grp = this.same(string);
+        document.querySelectorAll('.peg').forEach((b, i) => b.classList.toggle('near', grp.includes(i)));
       }
       if (inTune) {
         if (!this.okSince) this.okSince = performance.now();
         if (performance.now() - this.okSince > 600 && !this.ok.has(string)) {
-          this.ok.add(string);
-          const b = document.querySelectorAll('.peg')[string];
-          if (b) b.classList.add('ok');
+          this.same(string).forEach(k => {
+            this.ok.add(k);
+            const b = document.querySelectorAll('.peg')[k];
+            if (b) b.classList.add('ok');
+          });
           if (navigator.vibrate) try { navigator.vibrate(35); } catch (e) { /* not allowed */ }
         }
       } else this.okSince = 0;
@@ -1388,13 +1457,21 @@ const Tuner = {
       if (S.tab !== 'tuner') { this.tPrev = 0; return; }
       this.raf = requestAnimationFrame(step);
       const live = this.hasSig && this.cents != null;
-      if (live) this.smooth += (this.cents - this.smooth) * Math.min(1, dt * 10);
+      if (live) {
+        // smoothed pitch (time constant ≈ 0.2 s) – steady, yet quick enough to tune with
+        this.smooth += (this.cents - this.smooth) * (1 - Math.exp(-dt / 0.2));
+        this.hist.push(clamp(this.smooth, -50, 50));
+      } else this.hist.push(null);
+      if (this.hist.length > 240) this.hist.shift();
       const n = $('#needle');
       if (n) {
-        if (live) this.disp += (this.target - this.disp) * Math.min(1, dt * 14);
-        n.style.transform = `rotate(${(this.disp / 50) * 0.42 * 180}deg)`;
+        // damped meter movement towards the smoothed value
+        if (live) this.disp += (clamp(this.smooth, -55, 55) - this.disp) * (1 - Math.exp(-dt / 0.09));
+        n.style.transform = `rotate(${(this.disp / 50) * 0.36 * 180}deg)`;
         n.style.opacity = live ? 1 : 0.3;
       }
+      // refresh the read-out while a held note is shown
+      if (live && performance.now() - (this.textAt || 0) > 150 && this.last) this.show(this.last);
       this.drawStrobe(dt, live);
       this.drawHist();
     };
@@ -1418,8 +1495,9 @@ const Tuner = {
     g.clearRect(0, 0, w, h);
     const cs = getComputedStyle(document.documentElement);
     const col = v => cs.getPropertyValue(v).trim();
-    const cents = live ? clamp(this.smooth, -60, 60) : 0;
-    const inTune = live && Math.abs(cents) < 1;
+    const fresh = live && performance.now() - this.lastAt < 300;
+    const cents = fresh ? clamp(this.smooth, -60, 60) : 0;
+    const inTune = live && Math.abs(this.smooth) < 1;
     const cx = w / 2, cy = h / 2, R = Math.min(w, h) / 2 - 10;
     const rings = [{ n: 18, k: 1, r0: 0.40, r1: 0.58 }, { n: 36, k: 2, r0: 0.62, r1: 0.79 }, { n: 72, k: 4, r0: 0.83, r1: 1 }];
     // face
@@ -1429,7 +1507,7 @@ const Tuner = {
     if (inTune) { g.shadowColor = col('--good'); g.shadowBlur = 18; }
     rings.forEach((rg, i) => {
       // periods per second: 0.05 per cent on the inner ring
-      if (live) this.strobeOff[i] = (this.strobeOff[i] + cents * 0.05 * rg.k * dt) % 1;
+      if (fresh) this.strobeOff[i] = (this.strobeOff[i] + cents * 0.05 * rg.k * dt) % 1;
       const seg = Math.PI * 2 / rg.n, rot = this.strobeOff[i] * seg;
       g.fillStyle = on;
       g.globalAlpha = live ? 1 : 0.55;
@@ -1469,8 +1547,9 @@ const Tuner = {
     g.clearRect(0, 0, w, h);
     const cs = getComputedStyle(document.documentElement);
     const col = v => cs.getPropertyValue(v).trim();
-    const cents = live ? clamp(this.smooth, -60, 60) : 0;
-    const inTune = live && Math.abs(cents) < 1;
+    const fresh = live && performance.now() - this.lastAt < 300;
+    const cents = fresh ? clamp(this.smooth, -60, 60) : 0;
+    const inTune = live && Math.abs(this.smooth) < 1;
     const bands = [{ p: 56, k: 1 }, { p: 28, k: 2 }, { p: 14, k: 4 }];
     const top = 12, gap = 7, bh = (h - top * 2 - gap * 2) / 3;
     const rr = (x, y, ww, hh, r) => { g.beginPath(); g.roundRect ? g.roundRect(x, y, ww, hh, r) : g.rect(x, y, ww, hh); };
@@ -1478,7 +1557,7 @@ const Tuner = {
     const on = !live ? col('--fret') : inTune ? col('--good') : col('--accent');
     bands.forEach((b, i) => {
       // pixels per second: about 2.4 px/s per cent on the coarse band
-      if (live) this.strobeOff[i] = (this.strobeOff[i] + cents * 2.4 * b.k * dt) % b.p;
+      if (fresh) this.strobeOff[i] = (this.strobeOff[i] + cents * 2.4 * b.k * dt) % b.p;
       const y = top + i * (bh + gap);
       g.save();
       rr(10, y, w - 20, bh, 9); g.fillStyle = col('--card'); g.fill(); g.clip();
@@ -1548,7 +1627,8 @@ const Tuner = {
       case 'ttroot': S.tempRoot = +v; saveS(); this.render(); break;
       case 'tcust': {
         const [i, d] = v.split(',').map(Number);
-        S.custom[i] = clamp(S.custom[i] + d, 28, 76);
+        const cu = this.tuning();
+        cu[i] = clamp(cu[i] + d, 21, 88);
         this.ok.delete(i);
         saveS(); this.render();
         break;
@@ -1558,7 +1638,7 @@ const Tuner = {
     return true;
   },
   seg(k, v) {
-    if (k === 'tmode') { S.tunerMode = v; this.lock = null; this.near = -1; }
+    if (k === 'tmode') { S.tunerMode = v; this.resetReading(); this.applyRange(); }
     else if (k === 'tview') S.tunerView = v;
     else return false;
     saveS(); this.render();
