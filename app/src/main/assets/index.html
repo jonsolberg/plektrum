@@ -302,8 +302,12 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .qboard{display:block;width:100%;margin:4px 0}
 .qhead{font-size:40px;font-weight:750;text-align:center}
 .qfeed{text-align:center;margin-top:10px;font-weight:650}.qfeed.good{color:var(--good)}.qfeed.bad{color:var(--warn)}
+.qvisual{display:flex;justify-content:center;margin:2px 0 8px}
+.qkeys{width:100%;max-width:420px;height:auto;display:block}
+.qvisual .diagwrap svg{max-height:210px}
 .qexplain{background:var(--card2);border-radius:14px;padding:12px 14px;margin-top:10px;font-size:14.5px;line-height:1.55}
 .qexplain .exchips{justify-content:flex-start;margin:8px 0 6px}
+.qexplain .exchips + *{margin-top:4px}
 .qexplain .exchips .note{min-width:36px;padding:3px 7px}
 .quizopts.small .btn{font-size:15px;font-weight:600}
 .quizopts.g12{grid-template-columns:repeat(4,1fr)}

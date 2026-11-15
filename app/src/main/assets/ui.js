@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.12';
+const VERSION = '1.13';
 const REPO = 'https://github.com/jonsolberg/guitarchords';
 
 const store = {
@@ -2069,11 +2069,14 @@ function quizBoard(tu, o = {}) {
     }
   }
   (o.dots || []).forEach(d => {
-    g += `<circle cx="${X(fx(d.f))}" cy="${Y(d.s)}" r="14" style="fill:${d.color || 'var(--accent)'};pointer-events:none"/>`;
-    if (d.label) g += `<text x="${X(fx(d.f))}" y="${Y(d.s) + 5}" font-size="14" font-weight="700" text-anchor="middle" style="fill:#fff;pointer-events:none">${d.label}</text>`;
+    const r = d.small ? 11 : 14, fs = d.small ? (String(d.label).length > 1 ? 9.5 : 11) : 14;
+    g += `<circle cx="${X(fx(d.f))}" cy="${Y(d.s)}" r="${r}" style="fill:${d.color || 'var(--accent)'};pointer-events:none"/>`;
+    if (d.label) g += `<text x="${X(fx(d.f))}" y="${Y(d.s) + fs * 0.36}" font-size="${fs}" font-weight="700" text-anchor="middle" style="fill:${d.ink || '#fff'};pointer-events:none">${d.label}</text>`;
   });
   return g + '</svg>';
 }
+/** the notes from the open string up to the answer, as small dots on the board */
+const walkDots = (tu, s, f) => { const o = []; for (let k = tu.start[s]; k < f; k++) o.push({ s, f: k, label: nn(tu.n[s] + k), small: true, color: 'var(--accent-soft)', ink: 'var(--accent)' }); return o; };
 function quizTuning() {
   const insts = scaleInstruments().filter(x => !x.fretless);
   const si = insts.find(x => x.id === S.quizInst) || insts[0];
@@ -2128,6 +2131,43 @@ function chordChips(r, ti) {
   const sp = chordSpell(r, ti);
   return exChips(TYPES[ti].req.concat(TYPES[ti].opt).sort((a, b) => a - b).map(s => [nn(r + s, sp), intervalLabel(ti, s), s === 0]));
 }
+/** a small piano keyboard: marks [{m: midi, t: label, k: 'r' root | 'a' highlight | 'n' plain mark}] */
+function keysSvg(marks, lo, hi) {
+  const isB = m => [1, 3, 6, 8, 10].includes(mod12(m));
+  const ms = marks.map(x => x.m);
+  lo = Math.min(lo != null ? lo : Math.min(...ms), ...ms); hi = Math.max(hi != null ? hi : Math.max(...ms), ...ms);
+  if (hi - lo < 12) hi = lo + 12;                       // at least an octave, so the keys keep their size
+  while (isB(lo)) lo--; while (isB(hi)) hi++;
+  const ww = 26, wh = 92, bw = 16, bh = 56;
+  const whites = []; for (let m = lo; m <= hi; m++) if (!isB(m)) whites.push(m);
+  const W = whites.length * ww + 2, xw = m => 1 + whites.indexOf(m) * ww;
+  const mk = new Map(marks.map(x => [x.m, x]));
+  const fill = x => x.k === 'r' ? 'var(--root)' : x.k === 'a' ? 'var(--accent)' : 'var(--accent-soft)';
+  const ink = x => x.k === 'n' ? 'var(--accent)' : '#fff';
+  let g = `<svg class="qkeys" viewBox="0 0 ${W} ${wh + 2}" xmlns="http://www.w3.org/2000/svg">`;
+  whites.forEach(m => {
+    g += `<rect x="${xw(m)}" y="1" width="${ww - 2}" height="${wh}" rx="4" style="fill:#fbfaf7;stroke:var(--line)"/>`;
+    const x = mk.get(m);
+    if (x) g += `<circle cx="${xw(m) + ww / 2 - 1}" cy="${wh - 15}" r="10.5" style="fill:${fill(x)}"/><text x="${xw(m) + ww / 2 - 1}" y="${wh - 11}" font-size="${String(x.t).length > 2 ? 8 : 10.5}" font-weight="700" text-anchor="middle" style="fill:${ink(x)}">${x.t}</text>`;
+  });
+  for (let m = lo; m <= hi; m++) if (isB(m)) {
+    const x0 = xw(m - 1) + ww - 1 - bw / 2;
+    g += `<rect x="${x0}" y="1" width="${bw}" height="${bh}" rx="3" style="fill:#2b2a28"/>`;
+    const x = mk.get(m);
+    if (x) g += `<circle cx="${x0 + bw / 2}" cy="${bh - 12}" r="8.5" style="fill:${fill(x)}"/><text x="${x0 + bw / 2}" y="${bh - 8.5}" font-size="${String(x.t).length > 2 ? 7 : 9}" font-weight="700" text-anchor="middle" style="fill:${ink(x)}">${x.t}</text>`;
+  }
+  return g + '</svg>';
+}
+/** keyboard marks for the notes of a major key (labels = degree numbers or names) */
+const scaleKeys = (r, iv, label, hiIdx) => iv.map((x, k) => ({ m: 60 + r + x, t: label(k, x), k: k === 0 ? 'r' : k === hiIdx ? 'a' : 'n' }));
+/** pitch class → 1, 3, 5 … for a chord */
+const ivLabels = (r, ti) => new Map(TYPES[ti].req.concat(TYPES[ti].opt).map(x => [mod12(r + x), intervalLabel(ti, x)]));
+/** guitar chart of a chord with 1·3·5 on the dots */
+function chordChart(r, ti, inst) {
+  inst = inst || CHORD_INSTS[0];
+  const v = voicings(r, ti, null, inst)[0];
+  return v ? `<div class="diagwrap qvis">${diagram(v, r, { cls: 'big', tuning: inst.n, dot: 'interval', labels: ivLabels(r, ti), spell: chordSpell(r, ti) })}</div>` : '';
+}
 /** notes from the open string up to fret f, one semitone per fret */
 function stringWalk(open, from, f) {
   const out = [];
@@ -2149,9 +2189,9 @@ const QUIZZES = {
       const ch = choices(cname(c.r, c.t), pool);
       return Object.assign(ch, {
         prompt: `<div class="qtext">${t('which')}</div><div class="diagwrap">${diagram(v, -1, { cls: 'big', tuning: ci.n })}</div>`,
-        reveal: () => `<div class="diagwrap">${diagram(v, c.r, { cls: 'big', tuning: ci.n })}</div>`,
+        reveal: () => `<div class="diagwrap">${diagram(v, c.r, { cls: 'big', tuning: ci.n, dot: 'interval', labels: ivLabels(c.r, c.t), spell: chordSpell(c.r, c.t) })}</div>`,
         play: () => Snd.chord(v.frets, ci.n, 0), autoplay: false,
-        explain: `<b>${cname(c.r, c.t)}</b> – ${X('the red dots are the root,', 'de röda prickarna är grundtonen,')} <b>${nn(c.r)}</b>. ${typeInfo(c.t)}${chordChips(c.r, c.t)}`,
+        explain: `<b>${cname(c.r, c.t)}</b> – ${X('the chart now shows what each dot is: the red 1 is the root,', 'diagrammet visar nu vad varje prick är: röda 1 är grundtonen,')} <b>${nn(c.r)}</b>. ${typeInfo(c.t)}${chordChips(c.r, c.t)}`,
       });
     },
   },
@@ -2166,11 +2206,11 @@ const QUIZZES = {
       return {
         prompt: `<div class="qtext">${t('qWhichNote')}</div>${quizBoard(tu, { dots: [{ s, f, label: '?' }] })}`,
         options: [...Array(12).keys()].map(k => nn(k)), correct: pc, grid12: true,
-        reveal: () => quizBoard(tu, { dots: [{ s, f, label: nn(pc), color: 'var(--good)' }] }),
+        reveal: () => quizBoard(tu, { string: s, dots: walkDots(tu, s, f).concat([{ s, f, label: nn(pc), color: 'var(--good)' }]) }),
         play: () => Snd.pluck(m, 0, -1),
         explain: (f === tu.start[s] ? X(`It is the open string itself: <b>${nn(pc)}</b>.`, `Det är den lösa strängen själv: <b>${nn(pc)}</b>.`)
-          : X(`The open string is <b>${nn(tu.n[s] + tu.start[s])}</b>. Every fret is one semitone higher – count up to fret ${f}:`,
-              `Lösa strängen är <b>${nn(tu.n[s] + tu.start[s])}</b>. Varje band är en halvton högre – räkna upp till band ${f}:`) + stringWalk(tu.n[s], tu.start[s], f))
+          : X(`The open string is <b>${nn(tu.n[s] + tu.start[s])}</b>. Every fret is one semitone higher – the board shows every note on the way up to fret ${f}:`,
+              `Lösa strängen är <b>${nn(tu.n[s] + tu.start[s])}</b>. Varje band är en halvton högre – greppbrädan visar varje ton på vägen upp till band ${f}:`) + stringWalk(tu.n[s], tu.start[s], f))
           + (f === 12 ? X('Fret 12 is always the open note again, an octave higher.', 'Band 12 är alltid den lösa tonen igen, en oktav högre.') : ''),
       };
     },
@@ -2189,12 +2229,12 @@ const QUIZZES = {
         prompt: `<div class="qtext">${t('qFindNote', { n: `<b>${nn(pc)}</b>`, k: `<b>${tu.n.length - s}</b>`, s: strName })}</div>${quizBoard(tu, { tap: true, string: s })}`,
         tap: true,
         check: v => { const [ss, f] = v.split(',').map(Number); this.tapped = { s: ss, f }; return ss === s && mod12(tu.n[s] + f) === pc; },
-        reveal: () => quizBoard(tu, { string: s, dots: spots.map(f => ({ s, f, label: nn(pc), color: 'var(--good)' }))
+        reveal: () => quizBoard(tu, { string: s, dots: walkDots(tu, s, spots[0]).concat(spots.map(f => ({ s, f, label: nn(pc), color: 'var(--good)' })))
           .concat(QUIZZES.findNote.tapped && !spots.includes(QUIZZES.findNote.tapped.f) ? [{ s, f: QUIZZES.findNote.tapped.f, label: '✕', color: 'var(--warn)' }] : []) }),
         answerText: `${nn(pc)}: ${t('fretWord')} ${spots.join(', ')}`,
         play: () => Snd.pluck(tu.n[s] + spots[0], 0, -1),
-        explain: X(`Start from the open string (<b>${strName}</b>) and count one semitone per fret until you reach <b>${nn(pc)}</b>:`,
-                   `Börja på lösa strängen (<b>${strName}</b>) och räkna en halvton per band tills du når <b>${nn(pc)}</b>:`) + stringWalk(tu.n[s], tu.start[s], spots[0])
+        explain: X(`Start from the open string (<b>${strName}</b>) and count one semitone per fret until you reach <b>${nn(pc)}</b> – every note on the way is marked on the board:`,
+                   `Börja på lösa strängen (<b>${strName}</b>) och räkna en halvton per band tills du når <b>${nn(pc)}</b> – varje ton på vägen är markerad på greppbrädan:`) + stringWalk(tu.n[s], tu.start[s], spots[0])
           + X('Remember: there is no note between E and F, or between B and C.', 'Kom ihåg: det finns ingen ton mellan E och F, eller mellan H och C.'),
       };
     },
@@ -2214,7 +2254,8 @@ const QUIZZES = {
         return Object.assign(choices(deg(i), all.concat([nn(r + 1), nn(r + 6), nn(r + 10)])),
           { prompt: `<div class="qtext big">${t('qDegree', { d: ord, k: `<b>${K}</b>` })}</div>`,
             explain: X(`Count along the ${K} major scale – the note numbered ${i + 1} is <b>${deg(i)}</b>:`, `Räkna längs ${K}-durskalan – ton nummer ${i + 1} är <b>${deg(i)}</b>:`)
-              + exChips(all.map((n, k) => [n, String(k + 1), k === i])) });
+              + exChips(all.map((n, k) => [n, String(k + 1), k === i])),
+            visual: keysSvg(scaleKeys(r, [0, 2, 4, 5, 7, 9, 11], k => k + 1, i)) });
       }
       if (kind === 'sig') {
         const sg = keySignature(r, false), lab = n => n === 0 ? '0' : n + ' ' + sg.acc;
@@ -2227,7 +2268,8 @@ const QUIZZES = {
           explain: sg.n === 0 ? X('C major uses only the natural notes – no sharps or flats.', 'C-dur använder bara stamtoner – inga förtecken.')
             : X(`Walk ${cw ? 'clockwise' : 'anticlockwise'} round the circle of fifths from C. Each step adds one ${cw ? 'sharp' : 'flat'}:`,
                 `Gå ${cw ? 'medurs' : 'moturs'} runt kvintcirkeln från C. Varje steg lägger till ${cw ? 'ett kors' : 'ett b'}:`) + exChips(steps)
-              + X(`So ${K} major has ${sg.n}: <b>${accs.join(' ')}</b>.`, `${K}-dur har alltså ${sg.n}: <b>${accs.join(' ')}</b>.`) });
+              + X(`So ${K} major has ${sg.n}: <b>${accs.join(' ')}</b> – the black keys on the keyboard.`, `${K}-dur har alltså ${sg.n}: <b>${accs.join(' ')}</b> – de svarta tangenterna på klaviaturen.`),
+          visual: keysSvg([0, 2, 4, 5, 7, 9, 11].map((x, k) => { const m = 60 + r + x, nm = all[k]; return { m, t: nm, k: k === 0 ? 'r' : /[♯♭]/.test(nm) ? 'a' : 'n' }; }).concat([{ m: 72 + r, t: all[0], k: 'r' }])) });
       }
       if (kind === 'rel') {
         const ans = deg(5) + 'm';
@@ -2235,7 +2277,8 @@ const QUIZZES = {
           { prompt: `<div class="qtext big">${t('qRel', { k: `<b>${K}</b>` })}</div>`,
             explain: X(`The relative minor starts on the 6th note of the major scale. Count to 6 in ${K} major:`, `Parallelltonarten i moll börjar på durskalans sjätte ton. Räkna till 6 i ${K}-dur:`)
               + exChips(all.slice(0, 6).map((n, k) => [n, String(k + 1), k === 5]))
-              + X(`<b>${ans}</b> uses exactly the same notes as ${K} major – it just has another home note.`, `<b>${ans}</b> har exakt samma toner som ${K}-dur – bara ett annat hem.`) });
+              + X(`<b>${ans}</b> uses exactly the same notes as ${K} major – it just has another home note.`, `<b>${ans}</b> har exakt samma toner som ${K}-dur – bara ett annat hem.`),
+            visual: keysSvg(scaleKeys(r, [0, 2, 4, 5, 7, 9, 11], k => k + 1, 5)) });
       }
       if (kind === 'dia') {
         const romans = DIATONIC_MAJOR, i = Math.floor(Math.random() * 7);
@@ -2244,7 +2287,10 @@ const QUIZZES = {
         return Object.assign(choices(ans, pool), { prompt: `<div class="qtext big">${t('qDia', { n: `<b>${romans[i]}</b>`, k: `<b>${K}</b>` })}</div>`,
           explain: X(`Build a chord on every note of ${K} major using only the scale's notes (1-3-5, 2-4-6, 3-5-7 …). Capital numerals are major, small ones minor, ° diminished:`,
                      `Bygg ett ackord på varje ton i ${K}-dur med bara skalans toner (1-3-5, 2-4-6, 3-5-7 …). Versaler är dur, gemener moll, ° förminskat:`)
-            + exChips(romans.map((rm, j) => [name(j), rm, j === i])) });
+            + exChips(romans.map((rm, j) => [name(j), rm, j === i]))
+            + X(`On the keyboard: <b>${ans}</b> is notes ${i + 1}, ${(i + 2) % 7 + 1} and ${(i + 4) % 7 + 1} of the scale.`, `På klaviaturen: <b>${ans}</b> är skalans ton ${i + 1}, ${(i + 2) % 7 + 1} och ${(i + 4) % 7 + 1}.`),
+          visual: (() => { const iv = [0, 2, 4, 5, 7, 9, 11], st = [i, i + 2, i + 4]; return keysSvg(st.map((d, k) => ({ m: 60 + r + iv[d % 7] + (d >= 7 ? 12 : 0), t: (d % 7) + 1, k: k === 0 ? 'r' : 'a' }))
+              .concat(iv.map((x, d) => ({ m: 60 + r + x, t: d + 1, k: 'n' })).filter(x => ![i, i + 2, i + 4].map(d => d % 7).includes(x.t - 1))), 60 + r, 60 + r + 11); })() });
       }
       if (kind === 'tones') {
         const tt = pick(['', 'm', '7', 'maj7', 'm7', 'dim']), ti = typeIndex(tt), root = Math.floor(Math.random() * 12);
@@ -2270,7 +2316,8 @@ const QUIZZES = {
         for (let k = 1; k < base.length; k++) for (const d of [-1, 1]) { const w = base.slice(); w[k] += d; if (w[k] > 0 && w[k] < 12 && !base.includes(w[k])) wrong.push(tones(w.sort((a, b) => a - b))); }
         return Object.assign(choices(ans, wrong), { prompt: `<div class="qtext big">${t('qTones', { c: `<b>${fix(best.rn) + pretty(tt)}</b>` })}</div>`, small: true,
           explain: typeInfo(ti) + exChips(spell(best.rn, base).map((n, k) => [fix(n), intervalLabel(ti, base[k]) + ' · ' + base[k], k === 0]))
-            + X('The small numbers show the step in the chord and how many semitones above the root.', 'De små siffrorna visar steget i ackordet och hur många halvtoner över grundtonen.') });
+            + X('The small numbers show the step in the chord and how many semitones above the root.', 'De små siffrorna visar steget i ackordet och hur många halvtoner över grundtonen.'),
+          visual: keysSvg(base.map((x, k) => ({ m: 60 + root + x, t: intervalLabel(ti, x), k: k === 0 ? 'r' : 'a' })), 60 + root, 60 + root + 12) });
       }
       if (kind === 'mode') {
         const MODES = ['major', 'dor', 'phr', 'lyd', 'mix', 'minor', 'loc'], i = Math.floor(Math.random() * 7);
@@ -2285,20 +2332,23 @@ const QUIZZES = {
             explain: X(`Each mode is the major scale started on another note. Start ${K} major on note ${i + 1}, <b>${deg(i)}</b>, and you get <b>${deg(i)} ${ans.toLowerCase()}</b>:`,
                        `Varje modus är durskalan startad på en annan ton. Starta ${K}-dur på ton ${i + 1}, <b>${deg(i)}</b>, så får du <b>${deg(i)} ${ans.toLowerCase()}</b>:`)
               + exChips([...Array(7).keys()].map(k => [deg((i + k) % 7), k === 0 ? X('home', 'hem') : '', k === 0]))
-              + pair(MODE_FEEL[MODES[i]]) });
+              + pair(MODE_FEEL[MODES[i]]),
+            visual: (() => { const iv = [0, 2, 4, 5, 7, 9, 11], st = iv[i]; return keysSvg([...Array(8).keys()].map(k => { const d = (i + k) % 7, m = 60 + r + iv[d] + (i + k >= 7 ? 12 : 0); return { m, t: k === 7 ? deg(i) : deg(d), k: k === 0 || k === 7 ? 'r' : 'n' }; })); })() });
       }
       if (kind === 'steps') {
         const ids = ['major', 'minor', 'dor', 'mix', 'harm', 'mel', 'phr', 'lyd'], id = pick(ids), sc = SCALES.find(x => x.id === id);
         return Object.assign(choices(L(sc), ids.map(x => L(SCALES.find(y => y.id === x)))),
           { prompt: `<div class="qtext big">${t('qSteps')}<div class="qsteps">${stepPattern(sc)}</div></div>`, small: true,
             explain: t('qStepsEx') + ' ' + X(`Following the pattern from C gives <b>C ${L(sc).toLowerCase()}</b>:`, `Följer du mönstret från C får du <b>C ${L(sc).toLowerCase()}</b>:`)
-              + exChips(sc.iv.map(x => [spellScale(0, sc).get(x), scaleDegreeLabel(sc, x), x === 0])) });
+              + exChips(sc.iv.map(x => [spellScale(0, sc).get(x), scaleDegreeLabel(sc, x), x === 0])),
+            visual: keysSvg(sc.iv.concat([12]).map(x => ({ m: 60 + x, t: x === 12 ? 1 : scaleDegreeLabel(sc, x), k: x % 12 === 0 ? 'r' : 'a' })), 60, 72) });
       }
       const n = 1 + Math.floor(Math.random() * 12), a = pick(QUIZ_KEYS), sp = keySpell(a, false);
       return Object.assign(choices(ivName(n), [...Array(12).keys()].map(k => ivName(k + 1))),
         { prompt: `<div class="qtext big">${t('qInterval', { a: `<b>${nn(a, sp)}</b>`, b: `<b>${nn(a + n, sp)}</b>` })}</div>`, small: true,
           explain: X(`Count semitones (frets) from ${nn(a, sp)}: ${semis(n)} = <b>${ivName(n)}</b>.`, `Räkna halvtoner (band) från ${nn(a, sp)}: ${semis(n)} = <b>${ivName(n)}</b>.`)
-            + exChips([...Array(n + 1).keys()].map(k => [nn(a + k, sp), String(k), k === n])) });
+            + X(' Each key on the keyboard above is one semitone – count them.', ' Varje tangent på klaviaturen ovan är en halvton – räkna dem.'),
+          visual: keysSvg([...Array(n + 1).keys()].map(k => ({ m: 60 + a + k, t: k === 0 ? nn(a, sp) : k === n ? nn(a + n, sp) : k, k: k === 0 ? 'r' : k === n ? 'a' : 'n' }))) });
     },
   },
   intervals: {
@@ -2313,6 +2363,7 @@ const QUIZZES = {
         replayBoth: () => { const t0 = Snd.now() + 0.05; Snd.pluck(lo, t0, -1, 0.9); Snd.pluck(lo + n, t0, -1, 0.9); },
         autoplay: true, small: true,
         explain: `<b>${ivName(n)}</b> = ${semis(n)}. ` + X('Remember it by ', 'Kom ihåg det med ') + `<b>${pair(IV_SONG[n])}</b>.`,
+        visual: keysSvg([...Array(n + 1).keys()].map(k => ({ m: lo + k, t: k === 0 || k === n ? nn(lo + k) : k, k: k === 0 ? 'r' : k === n ? 'a' : 'n' }))),
       });
     },
   },
@@ -2334,6 +2385,7 @@ const QUIZZES = {
         explain: k => `<b>${lab(ti)}</b> ${X('sounds', 'låter')} ${pair(SOUND[TYPES[ti].sfx])} (${cname(r, ti)}).`
           + (k >= 0 && k !== ch.correct ? `<br>${X('You chose', 'Du valde')} <b>${ch.options[k]}</b>, ${X('which sounds', 'som låter')} ${pair(SOUND[TYPES[tOf(ch.options[k])].sfx])}.` : '')
           + chordChips(r, ti),
+        visual: chordChart(r, ti),
       });
     },
   },
@@ -2371,7 +2423,7 @@ const QuizRun = {
         ${c.replayBoth ? `<button class="btn small" data-a="qplay2">${t(this.id === 'intervals' ? 'together' : 'strummed')}</button>` : ''}</div>` : ''}
       ${opts}
       ${done ? `<div class="qfeed ${this.ok ? 'good' : 'bad'}">${this.ok ? t('right') : t('wrongIs', { c: correctText })}</div>
-        ${c.explain ? `<div class="qexplain">${typeof c.explain === 'function' ? c.explain(this.answered) : c.explain}</div>` : ''}
+        ${c.explain ? `<div class="qexplain">${c.visual ? `<div class="qvisual">${c.visual}</div>` : ''}${typeof c.explain === 'function' ? c.explain(this.answered) : c.explain}</div>` : ''}
         <div class="row" style="margin-top:10px"><button class="btn primary grow" data-a="qnext">${t('next')}</button></div>` : ''}
     </div>`;
   },
