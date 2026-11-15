@@ -21,6 +21,13 @@ const Snd = {
       body.type = 'peaking'; body.frequency.value = 220; body.Q.value = 1.1; body.gain.value = 4;
       this.out = this.ctx.createGain();
       this.out.connect(body); body.connect(tone); tone.connect(comp); comp.connect(this.ctx.destination);
+      this.comp = comp;
+      this.drums = this.ctx.createGain();            // drums skip the guitar body/tone filters
+      this.drums.gain.value = 0.7;
+      this.drums.connect(comp);
+      const nb = this.ctx.createBuffer(1, this.ctx.sampleRate, this.ctx.sampleRate), nd = nb.getChannelData(0);
+      for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+      this.noiseBuf = nb;
     }
     this.out.gain.value = this.volume;
     if (this.ctx.state === 'suspended') this.ctx.resume();
@@ -81,10 +88,96 @@ const Snd = {
     this.init();
     when = Math.max(when || 0, this.ctx.currentTime + 0.01);
     let idx = [0, 1, 2, 3, 4, 5].filter(i => frets[i] >= 0);
-    if (style === 'up') idx.reverse();
-    const gap = style === 'arp' ? 0.16 : 0.022;
+    for (let i = 0; i < 6; i++) if (frets[i] < 0) this.dampString(i, when);
+    if (style === 'up') idx = idx.slice(-4).reverse();
+    const gap = style === 'arp' ? 0.16 : style === 'fast' ? 0.012 : 0.022;
     idx.forEach((s, k) => this.pluck(tuning[s] + frets[s], when + k * gap, s, vel * (style === 'up' ? 0.8 : 1)));
   },
+  dampString(i, when) {
+    const v = this.voices[i];
+    if (v) { v.g.gain.cancelScheduledValues(when); v.g.gain.setTargetAtTime(0, when, 0.015); }
+  },
+  /** short burst of filtered noise – the scratch of a muted strum */
+  scratch(when, vel, freq = 1800, dur = 0.05) {
+    const ctx = this.ctx;
+    const src = ctx.createBufferSource(); src.buffer = this.noiseBuf;
+    const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = freq; bp.Q.value = 1.2;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, when);
+    g.gain.exponentialRampToValueAtTime(0.5 * vel, when + 0.003);
+    g.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+    src.connect(bp); bp.connect(g); g.connect(this.out);
+    src.start(when, Math.random() * 0.5); src.stop(when + dur + 0.02);
+  },
+
+  /**
+   * One step of a strumming pattern (see rhythm.js for the symbols).
+   * st carries state between steps (which treble string to pick next).
+   */
+  stroke(sym, frets, tuning, when, st, fast) {
+    if (!this.enabled || sym === '-') return;
+    const ss = [0, 1, 2, 3, 4, 5].filter(i => frets[i] >= 0);
+    if (!ss.length) return;
+    const one = (k, vel) => { const s = ss[Math.min(k, ss.length - 1)]; this.pluck(tuning[s] + frets[s], when, s, vel); };
+    const strum = fast ? 'fast' : 'strum';
+    switch (sym) {
+      case 'D': this.chord(frets, tuning, when, strum, 1); break;
+      case 'd': this.chord(frets, tuning, when, strum, 0.72); break;
+      case 'U': this.chord(frets, tuning, when, 'up', 0.95); break;
+      case 'u': this.chord(frets, tuning, when, 'up', 0.62); break;
+      case 'S': this.chord(frets, tuning, when, 'fast', 1); this.damp(when + 0.11); break;
+      case 'x':
+        this.chord(frets, tuning, when, 'fast', 0.18); this.damp(when + 0.03);
+        this.scratch(when, 0.9); break;
+      case 'M': case 'm': {
+        const low = ss.slice(0, 3), vel = sym === 'M' ? 0.95 : 0.7;
+        low.forEach((s, k) => this.pluck(tuning[s] + frets[s], when + k * 0.006, s, vel));
+        low.forEach(s => this.dampString(s, when + 0.1));
+        this.scratch(when, 0.25, 700, 0.04);
+        break;
+      }
+      case 'B': one(0, 0.95); break;
+      case 'A': one(1, 0.85); break;
+      case 'P': one(0, 0.95); one(ss.length - 1, 0.8); break;
+      case 'p': st.t = (st.t || 0) ^ 1; one(ss.length - 1 - st.t, 0.7); break;
+      default:
+        if (sym >= '1' && sym <= '6') one(+sym - 1, 0.8);
+    }
+  },
+
+  /** Synthesised drum kit: k kick, s snare, r rim, h closed hat, o open hat. */
+  drum(lane, when, vel) {
+    if (!this.enabled) return;
+    const ctx = this.init();
+    const env = (g, peak, decay) => {
+      g.gain.setValueAtTime(0.0001, when);
+      g.gain.exponentialRampToValueAtTime(peak, when + 0.002);
+      g.gain.exponentialRampToValueAtTime(0.0001, when + decay);
+    };
+    const noise = (type, freq, q, peak, decay) => {
+      const src = ctx.createBufferSource(); src.buffer = this.noiseBuf;
+      const f = ctx.createBiquadFilter(); f.type = type; f.frequency.value = freq; if (q) f.Q.value = q;
+      const g = ctx.createGain(); env(g, peak, decay);
+      src.connect(f); f.connect(g); g.connect(this.drums);
+      src.start(when, Math.random() * 0.5); src.stop(when + decay + 0.02);
+    };
+    const osc = (type, f0, f1, peak, decay) => {
+      const o = ctx.createOscillator(); o.type = type;
+      o.frequency.setValueAtTime(f0, when);
+      if (f1) o.frequency.exponentialRampToValueAtTime(f1, when + decay * 0.4);
+      const g = ctx.createGain(); env(g, peak, decay);
+      o.connect(g); g.connect(this.drums);
+      o.start(when); o.stop(when + decay + 0.02);
+    };
+    switch (lane) {
+      case 'k': osc('sine', 150, 42, 1.0 * vel, 0.38); osc('triangle', 600, 120, 0.25 * vel, 0.03); break;
+      case 's': noise('highpass', 1100, 0, 0.55 * vel, 0.17); osc('triangle', 210, 160, 0.35 * vel, 0.09); break;
+      case 'r': osc('square', 1650, 0, 0.12 * vel, 0.035); noise('bandpass', 2600, 4, 0.35 * vel, 0.04); break;
+      case 'h': noise('highpass', 7500, 0, 0.22 * vel, 0.045); break;
+      case 'o': noise('highpass', 6500, 0, 0.2 * vel, 0.3); break;
+    }
+  },
+
   damp(when) {
     this.voices.forEach(v => { if (v) { v.g.gain.cancelScheduledValues(when); v.g.gain.setTargetAtTime(0, when, 0.02); } });
   },

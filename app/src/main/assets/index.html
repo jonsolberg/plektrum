@@ -100,6 +100,18 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .slot svg{width:56px;display:block;margin:0 auto}
 .slot.play{border-color:var(--accent);background:var(--accent-soft)}
 .slot.add{border-style:dashed;color:var(--muted);display:grid;place-items:center;font-size:28px}
+.sgrid{display:grid;gap:3px;cursor:pointer}
+.sg{background:var(--card2);border-radius:7px;text-align:center;padding:5px 0 3px;min-width:0;transition:background .05s}
+.sg b{display:block;font-size:17px;line-height:22px;height:22px;white-space:nowrap;overflow:hidden}
+.sg i{display:block;font-size:10px;color:var(--muted);font-style:normal}
+.sg.bt{box-shadow:inset 2px 0 0 var(--line)}
+.sg.soft b{opacity:.45;font-size:15px}
+.sg.stab b::after{content:"·";font-size:13px}
+.sg.on{background:var(--accent);color:var(--on-accent)}
+.sg.on i{color:var(--on-accent)}
+.sleg{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;margin-top:6px;color:var(--muted)}
+.sleg b{color:var(--ink)}
+.countin{text-align:center;font-size:44px;font-weight:750;color:var(--accent);height:0;overflow:visible;position:relative;top:-120px;pointer-events:none}
 .list{display:flex;flex-direction:column;gap:6px}
 .item{display:flex;align-items:center;gap:8px;background:var(--card2);border-radius:13px;padding:8px 8px 8px 12px}
 .item .t{flex:1;min-width:0}
@@ -212,6 +224,7 @@ a{color:var(--accent)}
 <div class="toast" id="toast"></div>
 <script src="theory.js"></script>
 <script src="audio.js"></script>
+<script src="rhythm.js"></script>
 <script src="ui.js"></script>
 </body>
 </html>

@@ -20,9 +20,13 @@ Fully offline – no internet permission, no ads, no accounts. Everything lives 
 - Strum or arpeggio playback with a synthesised plucked-string sound
 - Unlimited favourites
 
-**Studio** – build progressions of up to 16 chords, pick any fingering, reorder, transpose, loop them
-at a set tempo with different strum patterns and a metronome click, and save them. Suggested
-progressions for any major or minor key.
+**Studio** – build progressions of up to 16 chords, pick any fingering, reorder, transpose and save
+them. Play them back in 4/4, 3/4, 2/4, 5/4, 6/8, 12/8 or 7/8 with 39 strumming patterns (accents,
+muted chucks, stabs, palm muting, syncopated pushes, reggae and ska offbeats, funk sixteenths,
+shuffle, Travis picking, boom-chick, arpeggios …) and 21 drum beats (rock and pop backbeats,
+half-time, four on the floor, funk, shuffle, train beat, one-drop, bossa nova, Motown, waltz, slow
+blues …). Swing, count-in, metronome click, and a step grid that shows the pattern as it plays.
+Suggested progressions for any major or minor key.
 
 **Circle of fifths** – interactive: tap a key and the chords that belong to it light up with their
 roman numerals. Key signature, relative key, the seven diatonic chords (tap to hear), and good

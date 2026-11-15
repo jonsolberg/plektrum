@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.1';
+const VERSION = '1.2';
 const REPO = 'https://github.com/jonsolberg/guitarchords';
 
 const store = {
@@ -34,6 +34,10 @@ const STR = {
     favAdded: 'Saved to favourites', favRemoved: 'Removed from favourites', swipe: 'swipe or tap the arrows for more', otherFing: 'Other fingerings', fingers: 'Fingers', bassShort: 'bass',
     key: 'Key', major: 'Major', minor: 'Minor', tempo: 'Tempo', play: 'Play', stop: 'Stop', transpose: 'Transpose',
     clear: 'Clear', perChord: 'Beats per chord', pattern: 'Pattern', pOnce: 'Once', pBeats: 'Every beat', pDU: 'Down-up', pArp: 'Picking',
+    timeSig: 'Time signature', chordLen: 'Each chord lasts', halfBar: '½ bar', bar: 'bar', bars: 'bars', strumming: 'Strumming pattern',
+    drumsL: 'Drum beat', drumVol: 'Drum volume', feel: 'Feel', swing: 'Swing', straight: 'Straight', countIn: 'Count-in (one bar)',
+    lgDown: 'down', lgUp: 'up', lgMute: 'muted', lgStab: 'stab', lgPalm: 'palm mute', lgBass: 'bass', lgBass2: 'alt. bass',
+    lgPinch: 'pinch / treble', lgString: 'string', lgSoft: 'faint = softer · tap to hear',
     click: 'Metronome click', suggestions: 'Progressions in {key}', saved: 'Saved progressions', save: 'Save', name: 'Name',
     noSaved: 'Nothing saved yet.', addChord: 'Add chord', chooseChord: 'Choose chord', remove: 'Remove', done: 'Done',
     moveL: 'Move left', moveR: 'Move right', full: 'A progression holds up to {n} chords', progName: 'My progression',
@@ -68,6 +72,10 @@ const STR = {
     favAdded: 'Sparat bland favoriter', favRemoved: 'Borttaget från favoriter', swipe: 'svep eller tryck på pilarna för fler', otherFing: 'Fler grepp', fingers: 'Fingrar', bassShort: 'bas',
     key: 'Tonart', major: 'Dur', minor: 'Moll', tempo: 'Tempo', play: 'Spela', stop: 'Stopp', transpose: 'Transponera',
     clear: 'Rensa', perChord: 'Slag per ackord', pattern: 'Komp', pOnce: 'Ett slag', pBeats: 'Varje slag', pDU: 'Ner-upp', pArp: 'Plock',
+    timeSig: 'Taktart', chordLen: 'Varje ackord varar', halfBar: '½ takt', bar: 'takt', bars: 'takter', strumming: 'Kompmönster',
+    drumsL: 'Trumkomp', drumVol: 'Trumvolym', feel: 'Känsla', swing: 'Swing', straight: 'Rakt', countIn: 'Inräkning (en takt)',
+    lgDown: 'ner', lgUp: 'upp', lgMute: 'dämpat', lgStab: 'stöt', lgPalm: 'handdämpat', lgBass: 'bas', lgBass2: 'växelbas',
+    lgPinch: 'nyp / diskant', lgString: 'sträng', lgSoft: 'blek = svagare · tryck för att lyssna',
     click: 'Metronomklick', suggestions: 'Progressioner i {key}', saved: 'Sparade progressioner', save: 'Spara', name: 'Namn',
     noSaved: 'Inget sparat än.', addChord: 'Lägg till ackord', chooseChord: 'Välj ackord', remove: 'Ta bort', done: 'Klar',
     moveL: 'Flytta vänster', moveR: 'Flytta höger', full: 'En progression rymmer högst {n} ackord', progName: 'Min progression',
@@ -455,20 +463,55 @@ function pickerHtml(c, idx, total) {
    ======================================================================= */
 const MAX_SLOTS = 16;
 const Studio = {
-  p: Object.assign({ key: 0, minor: false, bpm: 90, beats: 4, pattern: 'once', click: true, slots: null }, store.get('prog', {})),
+  p: Object.assign({ key: 0, minor: false, bpm: 90, meter: '4/4', bars: 1, strum: 'faithful', drums: 'pop', swing: 0,
+                     countIn: true, click: false, drumVol: 0.7, slots: null }, store.get('prog', {})),
   saved: store.get('progs', []),
   playing: -1,
   clock: new BeatClock((n, time) => Studio.beat(n, time)),
 
   init() {
+    delete this.p.beats; delete this.p.pattern;            // settings from version 1.0
     if (!this.p.slots) this.p.slots = PROGRESSIONS.major[0].seq.map(r => Object.assign(romanChord(r, 0, false), { v: 0 }));
   },
   save() { store.set('prog', this.p); },
   keyName() { return nn(this.p.key, keySpell(this.p.key, this.p.minor)) + ' ' + (this.p.minor ? t('minor') : t('major')).toLowerCase(); },
 
+  meter() { return METERS.find(m => m.id === this.p.meter) || METERS[0]; },
+  strum() { return STRUMS.find(x => x.id === this.p.strum && x.m === this.p.meter) || STRUMS.find(x => x.m === this.p.meter); },
+  drumPat() { return DRUMS.find(x => x.id === this.p.drums && (x.m === this.p.meter || x.m === '*')) || DRUMS[0]; },
+  barChoices() {
+    const m = this.meter();
+    return (m.beats % 2 === 0 ? [0.5] : []).concat([1, 2, 4]);
+  },
+  eighthFactor(unit) { return unit === '♪' ? 1 : unit === '♩.' ? 3 : 2; },
+  bpmRange() { return this.meter().unit === '♪' ? [60, 400] : [30, 240]; },
+  canSwing() { const m = this.meter(), sp = this.strum(); return !m.compound && (sp.sub === 2 || sp.sub === 4); },
+
+  /** The strumming pattern as a row of steps with arrows and counts. */
+  gridHtml() {
+    const m = this.meter(), sp = this.strum(), labs = countLabels(m, sp.sub);
+    const SYM = { D: '↓', d: '↓', U: '↑', u: '↑', x: '✕', S: '↓', M: 'PM', m: 'pm', B: 'B', A: 'B²', P: 'P', p: 'p' };
+    const soft = 'dum';
+    const cells = sp.p.split('').map((c, i) => {
+      const sym = SYM[c] || (c >= '1' && c <= '6' ? c : '');
+      const beat = i % sp.sub === 0 && (!m.groups || m.groups.includes(i));
+      return `<div class="sg ${beat ? 'bt' : ''} ${soft.includes(c) ? 'soft' : ''} ${c === 'S' ? 'stab' : ''}"><b>${sym}</b><i>${labs[i]}</i></div>`;
+    }).join('');
+    const used = new Set(sp.p.replace(/[1-6]/g, '1').toUpperCase().split(''));
+    const leg = [['D', '↓', t('lgDown')], ['U', '↑', t('lgUp')], ['X', '✕', t('lgMute')], ['S', '↓·', t('lgStab')],
+      ['M', 'PM', t('lgPalm')], ['B', 'B', t('lgBass')], ['A', 'B²', t('lgBass2')], ['P', 'P', t('lgPinch')], ['1', '1–6', t('lgString')]]
+      .filter(([k]) => used.has(k) || (k === 'P' && sp.p.includes('p')));
+    return `<div class="sgrid" style="grid-template-columns:repeat(${sp.p.length},minmax(0,1fr))">${cells}</div>
+      <div class="sleg">${leg.map(([, s, l]) => `<span><b>${s}</b> ${l}</span>`).join('')}<span class="muted">${t('lgSoft')}</span></div>`;
+  },
+
   render() {
-    const p = this.p;
+    const p = this.p, m = this.meter(), sp = this.strum(), dp = this.drumPat();
+    p.strum = sp.id; p.drums = dp.id;
+    if (!this.barChoices().includes(p.bars)) p.bars = 1;
     const progs = PROGRESSIONS[p.minor ? 'minor' : 'major'];
+    const [lo, hi] = this.bpmRange();
+    const barLabel = b => b === 0.5 ? t('halfBar') : b + ' ' + (b === 1 ? t('bar') : t('bars'));
     $('#tab-studio').innerHTML = `
       <div class="card">
         <div class="slots">${p.slots.map((c, i) => `
@@ -482,13 +525,26 @@ const Studio = {
           <span class="small muted">${t('transpose')}</span>
           <button class="btn" data-a="sTrans" data-v="1">+1</button>
         </div>
-        <div class="lbl">${t('tempo')} · <b style="color:var(--ink)" id="sbpm">${p.bpm}</b> BPM</div>
-        <input type="range" min="40" max="220" value="${p.bpm}" id="sbpmr">
-        <div class="lbl">${t('perChord')}</div>
-        ${seg('beats', [[2, '2'], [4, '4'], [8, '8']], p.beats)}
-        <div class="lbl">${t('pattern')}</div>
-        ${seg('pattern', [['once', t('pOnce')], ['beats', t('pBeats')], ['du', t('pDU')], ['arp', t('pArp')]], p.pattern)}
-        <div class="setrow" style="border:0;padding-bottom:0"><div>${t('click')}</div>
+        <div class="countin" id="scount"></div>
+        <div class="lbl">${t('tempo')} · <b style="color:var(--ink)"><span class="unit">${m.unit}</span> = <span id="sbpm">${p.bpm}</span></b></div>
+        <input type="range" min="${lo}" max="${hi}" value="${p.bpm}" id="sbpmr">
+      </div>
+      <div class="card">
+        <div class="lbl">${t('timeSig')}</div>
+        <div class="chips">${METERS.map(x => `<button class="chip ${x.id === p.meter ? 'on' : ''}" data-a="sMeter" data-v="${x.id}">${x.id}</button>`).join('')}</div>
+        <div class="lbl">${t('chordLen')}</div>
+        ${seg('bars', this.barChoices().map(b => [b, barLabel(b)]), p.bars)}
+        <div class="lbl">${t('strumming')}</div>
+        <select id="sstrum">${STRUMS.filter(x => x.m === p.meter).map(x => `<option value="${x.id}" ${x.id === sp.id ? 'selected' : ''}>${L(x)}</option>`).join('')}</select>
+        <div id="sgridWrap" style="margin-top:10px" data-a="sPreview">${this.gridHtml()}</div>
+        ${this.canSwing() ? `<div class="lbl">${t('feel')} · <b style="color:var(--ink)" id="sswingv">${p.swing ? t('swing') + ' ' + Math.round(p.swing * 100) + ' %' : t('straight')}</b></div>
+        <input type="range" min="0" max="1" step="0.05" value="${p.swing}" id="sswing">` : ''}
+        <div class="lbl">${t('drumsL')}</div>
+        <select id="sdrums">${DRUMS.filter(x => x.m === p.meter || x.m === '*').map(x => `<option value="${x.id}" ${x.id === dp.id ? 'selected' : ''}>${L(x)}</option>`).join('')}</select>
+        ${dp.id !== 'none' ? `<div class="setrow" style="border:0;padding-bottom:0"><div style="flex:none">${t('drumVol')}</div><input type="range" min="0" max="1" step="0.05" value="${p.drumVol}" id="sdvol" style="flex:1"></div>` : ''}
+        <div class="setrow"><div>${t('countIn')}</div>
+          <label class="switch"><input type="checkbox" id="scountin" ${p.countIn ? 'checked' : ''}><span></span></label></div>
+        <div class="setrow" style="padding-bottom:0"><div>${t('click')}</div>
           <label class="switch"><input type="checkbox" id="sclick" ${p.click ? 'checked' : ''}><span></span></label></div>
       </div>
       <div class="card">
@@ -506,20 +562,35 @@ const Studio = {
           <button class="btn small" data-a="sClear">${t('clear')}</button></div>
         <div class="list" style="margin-top:10px">${this.saved.length ? this.saved.map((g, i) => `
           <div class="item"><div class="t" data-a="sLoad" data-v="${i}"><b>${esc(g.name)}</b>
-          <span>${g.slots.map(c => cname(c.r, c.t, c.b)).join(' – ')}</span></div>
+          <span>${g.meter ? g.meter + ' · ' : ''}${g.slots.map(c => cname(c.r, c.t, c.b)).join(' – ')}</span></div>
           <button class="iconbtn" data-a="sDel" data-v="${i}">${I.trash}</button></div>`).join('') : `<div class="empty">${t('noSaved')}</div>`}</div>
       </div>`;
-    const r = $('#sbpmr');
-    r.addEventListener('input', () => { p.bpm = +r.value; $('#sbpm').textContent = p.bpm; this.clock.setBpm(p.bpm); this.save(); });
-    $('#sclick').addEventListener('change', e => { p.click = e.target.checked; this.save(); });
+    const on = (id, ev, fn) => { const el = $('#' + id); if (el) el.addEventListener(ev, fn); };
+    on('sbpmr', 'input', e => { p.bpm = +e.target.value; $('#sbpm').textContent = p.bpm; this.clock.setBpm(p.bpm); this.save(); });
+    on('sclick', 'change', e => { p.click = e.target.checked; this.save(); });
+    on('scountin', 'change', e => { p.countIn = e.target.checked; this.save(); });
+    on('sstrum', 'change', e => { p.strum = e.target.value; this.save(); this.render(); });
+    on('sdrums', 'change', e => { p.drums = e.target.value; this.save(); this.render(); });
+    on('sdvol', 'input', e => { p.drumVol = +e.target.value; if (Snd.drums) Snd.drums.gain.value = p.drumVol; this.save(); });
+    on('sswing', 'input', e => {
+      p.swing = +e.target.value; this.save();
+      $('#sswingv').textContent = p.swing ? t('swing') + ' ' + Math.round(p.swing * 100) + ' %' : t('straight');
+    });
   },
   highlight(i) {
     this.playing = i;
     document.querySelectorAll('#tab-studio .slot').forEach((el, k) => el.classList.toggle('play', k === i));
   },
+  hlStep(i) {
+    const cells = document.querySelectorAll('#tab-studio .sg');
+    cells.forEach((el, k) => el.classList.toggle('on', k === i));
+  },
   toggle() {
     if (this.clock.running) { this.stop(); return; }
     if (!this.p.slots.length) return;
+    Snd.init();
+    Snd.drums.gain.value = this.p.drumVol;
+    this.st = {};
     this.clock.start(this.p.bpm);
     keepAwake();
     this.render();
@@ -528,30 +599,65 @@ const Studio = {
     this.clock.stop();
     if (Snd.ctx) Snd.damp(Snd.ctx.currentTime);
     this.highlight(-1);
+    this.hlStep(-1);
     keepAwake();
     this.render();
   },
+  /** time offset of step j inside a beat, with swing on the off-beats */
+  offset(j, sub, spb) {
+    let o = j * spb / sub;
+    if (this.p.swing > 0 && !this.meter().compound) {
+      if (sub === 2 && j === 1) o += this.p.swing * spb / 6;
+      if (sub === 4 && j % 2 === 1) o += this.p.swing * spb / 12;
+    }
+    return o;
+  },
   beat(n, time) {
-    const p = this.p, slots = p.slots;
+    const p = this.p, slots = p.slots, m = this.meter();
     if (!slots.length) { this.stop(); return; }
-    const bpc = p.beats, i = Math.floor(n / bpc) % slots.length, b = n % bpc;
-    const v = vfor(slots[i]);
     const spb = 60 / this.clock.bpm;
-    if (p.click) Snd.click(time, b === 0);
-    if (v) {
-      if (p.pattern === 'once') { if (b === 0) Snd.chord(v.frets, STD, time, 'strum'); }
-      else if (p.pattern === 'beats') Snd.chord(v.frets, STD, time, 'strum', b === 0 ? 1 : 0.75);
-      else if (p.pattern === 'du') { Snd.chord(v.frets, STD, time, 'strum', b === 0 ? 1 : 0.8); Snd.chord(v.frets, STD, time + spb / 2, 'up', 0.7); }
-      else if (p.pattern === 'arp') {
-        const ss = [0, 1, 2, 3, 4, 5].filter(s => v.frets[s] >= 0);
-        const order = ss.concat(ss.slice(1, -1).reverse());
-        for (let e = 0; e < 2; e++) {
-          const k = (b * 2 + e) % order.length, s = order[k];
-          Snd.pluck(STD[s] + v.frets[s], time + e * spb / 2, s, k === 0 ? 1 : 0.8);
-        }
+    const lead = p.countIn ? m.beats : 0;
+    const clicks = bi => !m.groups || m.groups.includes(bi);
+    if (n < lead) {                                        // count-in bar: clicks only
+      if (clicks(n)) Snd.click(time, n === 0);
+      const shown = m.groups ? m.groups.indexOf(n) + 1 : n + 1;
+      if (clicks(n)) atTime(time, () => { const el = $('#scount'); if (el) el.textContent = shown; });
+      return;
+    }
+    if (n === lead) atTime(time, () => { const el = $('#scount'); if (el) el.textContent = ''; });
+    const k = n - lead, bib = k % m.beats;
+    const beatsPerChord = p.bars * m.beats;
+    const i = Math.floor(k / beatsPerChord) % slots.length;
+    const v = vfor(slots[i]);
+    if (p.click && clicks(bib)) Snd.click(time, bib === 0);
+    const sp = this.strum();
+    for (let j = 0; j < sp.sub; j++) {
+      const step = bib * sp.sub + j, tt = time + this.offset(j, sp.sub, spb);
+      if (v) Snd.stroke(sp.p[step], v.frets, STD, tt, this.st, sp.sub >= 4 || spb < 0.4);
+      atTime(tt, () => { if (this.clock.running) this.hlStep(step); });
+    }
+    const dp = this.drumPat();
+    if (dp.sub) for (let j = 0; j < dp.sub; j++) {
+      const step = bib * dp.sub + j, tt = time + this.offset(j, dp.sub, spb);
+      for (const lane of 'ksrho') {
+        const ch = dp[lane] && dp[lane][step];
+        if (ch && ch !== '-') Snd.drum(lane, tt, ch === 'X' ? 1 : ch === 'g' ? 0.35 : 0.75);
       }
     }
-    if (b === 0) atTime(time, () => { if (this.clock.running) this.highlight(i); });
+    if (k % beatsPerChord === 0) atTime(time, () => { if (this.clock.running) this.highlight(i); });
+  },
+  /** Play one bar of the strumming pattern on the first chord, so you can hear it. */
+  preview() {
+    if (this.clock.running || !this.p.slots.length) return;
+    const v = vfor(this.p.slots[0]), sp = this.strum(), m = this.meter();
+    if (!v) return;
+    const spb = 60 / this.p.bpm, t0 = Snd.now() + 0.05, st = {};
+    for (let b = 0; b < m.beats; b++) for (let j = 0; j < sp.sub; j++) {
+      const step = b * sp.sub + j, tt = t0 + b * spb + this.offset(j, sp.sub, spb);
+      Snd.stroke(sp.p[step], v.frets, STD, tt, st, sp.sub >= 4 || spb < 0.4);
+      atTime(tt, () => this.hlStep(step));
+    }
+    atTime(t0 + m.beats * spb, () => { if (!this.clock.running) this.hlStep(-1); });
   },
   transpose(d) {
     this.p.key = mod12(this.p.key + d);
@@ -584,6 +690,20 @@ const Studio = {
       case 'slot': if (!this.clock.running) this.openPicker(+v); else { const x = vfor(p.slots[+v]); if (x) Snd.chord(x.frets, STD, 0); } break;
       case 'slotAdd': if (p.slots.length >= MAX_SLOTS) toast(t('full', { n: MAX_SLOTS })); else this.openPicker(null); break;
       case 'sPlay': this.toggle(); break;
+      case 'sPreview': this.preview(); break;
+      case 'sMeter': {
+        if (v === p.meter) break;
+        const was = this.meter(), wasRunning = this.clock.running;
+        if (wasRunning) this.clock.stop();
+        const eighths = p.bpm * this.eighthFactor(was.unit);
+        p.meter = v;
+        const [lo, hi] = this.bpmRange();
+        p.bpm = clamp(Math.round(eighths / this.eighthFactor(this.meter().unit)), lo, hi);
+        p.strum = ''; p.drums = DRUMS.find(x => x.m === v) ? DRUMS.find(x => x.m === v).id : 'none';
+        this.save(); this.render();
+        if (wasRunning) this.toggle();
+        break;
+      }
       case 'sTrans': this.transpose(+v); break;
       case 'sKey': {
         const d = mod12(+v - p.key);
@@ -595,7 +715,10 @@ const Studio = {
       case 'sClear': this.stop(); p.slots = []; this.save(); this.render(); break;
       case 'sLoad': {
         const g = this.saved[+v];
-        Object.assign(p, JSON.parse(JSON.stringify({ key: g.key, minor: g.minor, bpm: g.bpm || p.bpm, slots: g.slots })));
+        const keep = { key: g.key, minor: g.minor, bpm: g.bpm || p.bpm, slots: g.slots };
+        for (const f of ['meter', 'bars', 'strum', 'drums', 'swing']) if (g[f] != null) keep[f] = g[f];
+        if (this.clock.running) this.stop();
+        Object.assign(p, JSON.parse(JSON.stringify(keep)));
         this.save(); this.render(); toast(t('loaded')); window.scrollTo({ top: 0, behavior: 'smooth' });
         break;
       }
@@ -615,7 +738,8 @@ const Studio = {
       case 'pkdone': Sheet.close(); break;
       case 'saveDo': {
         const name = ($('#pname').value || '').trim() || t('progName');
-        this.saved.unshift({ name, key: p.key, minor: p.minor, bpm: p.bpm, slots: JSON.parse(JSON.stringify(p.slots)) });
+        this.saved.unshift({ name, key: p.key, minor: p.minor, bpm: p.bpm, meter: p.meter, bars: p.bars, strum: p.strum,
+                             drums: p.drums, swing: p.swing, slots: JSON.parse(JSON.stringify(p.slots)) });
         store.set('progs', this.saved);
         Sheet.close(); toast(t('savedT'));
         break;
@@ -625,8 +749,7 @@ const Studio = {
     return true;
   },
   seg(k, v) {
-    if (k === 'beats') this.p.beats = +v;
-    else if (k === 'pattern') this.p.pattern = v;
+    if (k === 'bars') this.p.bars = +v;
     else if (k === 'mode') this.p.minor = v === '1';
     else return false;
     this.save(); this.render();
