@@ -153,6 +153,49 @@ function atTime(when, fn) {
 }
 
 /* ---------- tuner ---------- */
+/** Small in-place radix-2 FFT with cached tables and work buffers. */
+const FFT = {
+  n: 0,
+  size(n) {
+    let N = 1;
+    while (N < n) N <<= 1;
+    if (N !== this.n) {
+      this.n = N;
+      this.re = new Float64Array(N); this.im = new Float64Array(N);
+      this.ps = new Float64Array(N + 1);
+      this.rev = new Uint32Array(N);
+      const bits = Math.log2(N);
+      for (let i = 0; i < N; i++) {
+        let r = 0;
+        for (let b = 0; b < bits; b++) r |= ((i >> b) & 1) << (bits - 1 - b);
+        this.rev[i] = r;
+      }
+      this.cos = new Float64Array(N / 2); this.sin = new Float64Array(N / 2);
+      for (let i = 0; i < N / 2; i++) { this.cos[i] = Math.cos(2 * Math.PI * i / N); this.sin[i] = -Math.sin(2 * Math.PI * i / N); }
+    }
+    return N;
+  },
+  run(re, im) {
+    const N = this.n, rev = this.rev;
+    for (let i = 0; i < N; i++) {
+      const j = rev[i];
+      if (j > i) { let t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; }
+    }
+    for (let len = 2; len <= N; len <<= 1) {
+      const half = len >> 1, step = N / len;
+      for (let i = 0; i < N; i += len) {
+        for (let j = 0, k = 0; j < half; j++, k += step) {
+          const wr = this.cos[k], wi = this.sin[k];
+          const a = i + j, b = a + half;
+          const xr = re[b] * wr - im[b] * wi, xi = re[b] * wi + im[b] * wr;
+          re[b] = re[a] - xr; im[b] = im[a] - xi;
+          re[a] += xr; im[a] += xi;
+        }
+      }
+    }
+  },
+};
+
 const Pitch = {
   stream: null, src: null, an: null, buf: null, raf: 0, onResult: null,
 
@@ -169,7 +212,7 @@ const Pitch = {
     this.an.fftSize = 4096;
     this.src.connect(hp); hp.connect(this.an);
     this.buf = new Float32Array(this.an.fftSize);
-    this.nsdf = new Float32Array(Math.ceil(ctx.sampleRate / 50) + 2);
+    this.nsdf = new Float32Array(Math.ceil(ctx.sampleRate / 45) + 4);
     const loop = () => { this.raf = requestAnimationFrame(loop); this.frame(); };
     loop();
   },
@@ -189,24 +232,39 @@ const Pitch = {
     this.onResult && this.onResult(r);
   },
 
-  /** McLeod pitch method (normalised square difference). Returns {freq, clarity, db} or {db}. */
+  gate: 0.006,              // RMS level below which we treat the input as silence
+
+  /**
+   * McLeod pitch method (normalised square difference function). The autocorrelation is computed
+   * with an FFT and the energy term with prefix sums, so a frame costs O(n log n) instead of O(n²).
+   * Returns {freq, clarity, db} or just {db} when there is no clear pitch.
+   */
   detect(x, sr, nsdf) {
     const n = x.length;
     let sum = 0;
     for (let i = 0; i < n; i++) sum += x[i] * x[i];
     const rms = Math.sqrt(sum / n);
     const db = 20 * Math.log10(rms + 1e-9);
-    if (rms < 0.006) return { db };
-    const minLag = Math.floor(sr / 1500), maxLag = Math.min(Math.floor(sr / 50), n >> 1);
-    for (let tau = minLag; tau <= maxLag; tau++) {
-      let acf = 0, m = 0;
-      const lim = n - tau;
-      for (let i = 0; i < lim; i++) { const a = x[i], b = x[i + tau]; acf += a * b; m += a * a + b * b; }
-      nsdf[tau] = m > 0 ? 2 * acf / m : 0;
+    if (rms < Pitch.gate) return { db };
+    const N = FFT.size(2 * n);
+    const re = FFT.re, im = FFT.im;
+    re.fill(0); im.fill(0);
+    for (let i = 0; i < n; i++) re[i] = x[i];
+    FFT.run(re, im);
+    for (let i = 0; i < N; i++) { re[i] = re[i] * re[i] + im[i] * im[i]; im[i] = 0; }
+    FFT.run(re, im);                                   // power spectrum is real & even → forward FFT = N·autocorrelation
+    const ps = FFT.ps;
+    ps[0] = 0;
+    for (let i = 0; i < n; i++) ps[i + 1] = ps[i] + x[i] * x[i];
+    const minLag = Math.floor(sr / 1500), maxLag = Math.min(Math.floor(sr / 45), n >> 1);
+    for (let tau = minLag; tau <= maxLag + 1; tau++) {
+      const m = ps[n - tau] + (ps[n] - ps[tau]);
+      nsdf[tau] = m > 0 ? 2 * (re[tau] / N) / m : 0;
     }
-    // collect the highest peak between each positive-going and negative-going zero crossing
-    let peaks = [], tau = minLag;
-    while (tau < maxLag && nsdf[tau] > 0) tau++;          // skip the zero-lag lobe
+    // highest peak between each positive-going and negative-going zero crossing
+    const peaks = [];
+    let tau = minLag;
+    while (tau < maxLag && nsdf[tau] > 0) tau++;        // skip the zero-lag lobe
     let best = -1, bestV = -1;
     for (; tau < maxLag; tau++) {
       if (nsdf[tau] > 0) {
@@ -215,9 +273,10 @@ const Pitch = {
     }
     if (best >= 0) peaks.push(best);
     if (!peaks.length) return { db };
-    const top = Math.max(...peaks.map(p => nsdf[p]));
+    let top = 0;
+    for (const p of peaks) if (nsdf[p] > top) top = nsdf[p];
     const k = peaks.find(p => nsdf[p] >= 0.9 * top);
-    if (nsdf[k] < 0.6) return { db };
+    if (nsdf[k] < 0.65) return { db };
     const a = nsdf[k - 1], b = nsdf[k], c = nsdf[k + 1];
     const den = a - 2 * b + c;
     const shift = den ? 0.5 * (a - c) / den : 0;

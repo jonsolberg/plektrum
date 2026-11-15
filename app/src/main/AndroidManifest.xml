@@ -4,6 +4,7 @@
     <!-- No INTERNET permission: the app is fully offline. The microphone is only used by the tuner. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-feature android:name="android.hardware.microphone" android:required="false" />
 
     <application

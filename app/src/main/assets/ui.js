@@ -19,7 +19,7 @@ const store = {
 };
 const S = Object.assign({
   lang: 'auto', theme: 'auto', lefty: false, names: false, hNotation: false, style: 'strum', volume: 0.8, sound: true,
-  a4: 440, temp: 'equal', tempRoot: 0, tuning: 'std', custom: [40, 45, 50, 55, 59, 64], tunerMode: 'guitar',
+  a4: 440, temp: 'equal', tempRoot: 0, tuning: 'std', custom: [40, 45, 50, 55, 59, 64], tunerMode: 'guitar', tunerView: 'needle', tunerSens: 0.52, dotLabel: 'finger',
   tab: 'chords',
 }, store.get('settings', {}));
 const saveS = () => store.set('settings', S);
@@ -31,7 +31,7 @@ const STR = {
     search: 'Find a chord – Am7, C/G, F♯m7♭5 …', favourites: 'Favourites', noFavs: 'Tap ☆ on a chord to keep it here.',
     root: 'Root', type: 'Type', bass: 'Bass note', none: 'none', strum: 'Strum', arp: 'Arpeggio',
     fingering: 'Fingering {i} of {n}', atFret: 'from fret {n}', openPos: 'open position', noVoicing: 'No playable fingering for this one.',
-    favAdded: 'Saved to favourites', favRemoved: 'Removed from favourites', swipe: 'swipe or tap the arrows for more',
+    favAdded: 'Saved to favourites', favRemoved: 'Removed from favourites', swipe: 'swipe or tap the arrows for more', otherFing: 'Other fingerings', fingers: 'Fingers', bassShort: 'bass',
     key: 'Key', major: 'Major', minor: 'Minor', tempo: 'Tempo', play: 'Play', stop: 'Stop', transpose: 'Transpose',
     clear: 'Clear', perChord: 'Beats per chord', pattern: 'Pattern', pOnce: 'Once', pBeats: 'Every beat', pDU: 'Down-up', pArp: 'Picking',
     click: 'Metronome click', suggestions: 'Progressions in {key}', saved: 'Saved progressions', save: 'Save', name: 'Name',
@@ -48,6 +48,9 @@ const STR = {
     tempRoot: 'Temperament key', pipe: 'Pitch pipe', pipeDesc: 'Tap a string to hear its note', mode: 'Mode', guitar: 'Guitar', chromatic: 'Chromatic',
     listen: 'Play a string', micDenied: 'The tuner needs the microphone. Allow it in Android settings.',
     lockHint: 'Tap a string to tune only that one. Tap again for automatic.', customT: 'Custom tuning', inTune: 'In tune',
+    needle: 'Needle', strobe: 'Strobe', tapStart: 'Press Start and play a string', tuneUp: 'Tune up', tuneDown: 'Tune down',
+    semisLow: '{n} semitone(s) low – tune up', semisHigh: '{n} semitone(s) high – tune down',
+    sens: 'Sensitivity', sensD: 'Raise it for quiet acoustics, lower it in noisy rooms',
     metronome: 'Metronome', perBar: 'Beats per bar', tap: 'Tap', start: 'Start', challenge: 'Chord challenge',
     challengeDesc: 'Ten chord diagrams – name each one.', go: 'Start', which: 'Which chord is this?', next: 'Next',
     right: 'Right!', wrongIs: 'That was {c}', result: '{s} of 10', best: 'Best: {b} of 10', again: 'Play again', hear: 'Hear it',
@@ -62,7 +65,7 @@ const STR = {
     search: 'Sök ackord – Am7, C/G, F♯m7♭5 …', favourites: 'Favoriter', noFavs: 'Tryck på ☆ vid ett ackord för att spara det här.',
     root: 'Grundton', type: 'Typ', bass: 'Bastone', none: 'ingen', strum: 'Slag', arp: 'Arpeggio',
     fingering: 'Grepp {i} av {n}', atFret: 'från band {n}', openPos: 'öppet läge', noVoicing: 'Inget spelbart grepp för det här ackordet.',
-    favAdded: 'Sparat bland favoriter', favRemoved: 'Borttaget från favoriter', swipe: 'svep eller tryck på pilarna för fler',
+    favAdded: 'Sparat bland favoriter', favRemoved: 'Borttaget från favoriter', swipe: 'svep eller tryck på pilarna för fler', otherFing: 'Fler grepp', fingers: 'Fingrar', bassShort: 'bas',
     key: 'Tonart', major: 'Dur', minor: 'Moll', tempo: 'Tempo', play: 'Spela', stop: 'Stopp', transpose: 'Transponera',
     clear: 'Rensa', perChord: 'Slag per ackord', pattern: 'Komp', pOnce: 'Ett slag', pBeats: 'Varje slag', pDU: 'Ner-upp', pArp: 'Plock',
     click: 'Metronomklick', suggestions: 'Progressioner i {key}', saved: 'Sparade progressioner', save: 'Spara', name: 'Namn',
@@ -79,6 +82,9 @@ const STR = {
     tempRoot: 'Temperaturens tonart', pipe: 'Stämpipa', pipeDesc: 'Tryck på en sträng för att höra tonen', mode: 'Läge', guitar: 'Gitarr', chromatic: 'Kromatisk',
     listen: 'Spela på en sträng', micDenied: 'Stämapparaten behöver mikrofonen. Tillåt den i Androids inställningar.',
     lockHint: 'Tryck på en sträng för att bara stämma den. Tryck igen för automatiskt.', customT: 'Egen stämning', inTune: 'Stämd',
+    needle: 'Visare', strobe: 'Stroboskop', tapStart: 'Tryck på Starta och spela en sträng', tuneUp: 'Stäm upp', tuneDown: 'Stäm ner',
+    semisLow: '{n} halvton(er) för lågt – stäm upp', semisHigh: '{n} halvton(er) för högt – stäm ner',
+    sens: 'Känslighet', sensD: 'Höj för tysta akustiska gitarrer, sänk i stökiga rum',
     metronome: 'Metronom', perBar: 'Slag per takt', tap: 'Knacka', start: 'Starta', challenge: 'Ackordutmaning',
     challengeDesc: 'Tio ackorddiagram – namnge vart och ett.', go: 'Börja', which: 'Vilket ackord är det här?', next: 'Nästa',
     right: 'Rätt!', wrongIs: 'Det var {c}', result: '{s} av 10', best: 'Bäst: {b} av 10', again: 'Spela igen', hear: 'Lyssna',
@@ -151,9 +157,18 @@ function vfor(c) {
  * SVG chord box. Strings run vertically, low E on the left (on the right when left-handed).
  */
 function diagram(v, root, opt = {}) {
-  const mini = !!opt.mini, names = !mini && S.names;
+  const mini = !!opt.mini, labels = !mini && opt.labels ? opt.labels : null;
+  const names = !mini && !labels && S.names;
+  const mode = labels ? (opt.dot || 'finger') : 'finger';
   const W = 120, padL = 20, sx = 16, top = 26, sy = 22, rows = 5;
-  const H = top + sy * rows + (names ? 22 : 10);
+  const H = top + sy * rows + (labels ? 34 : names ? 22 : 10);
+  const dotText = (i, f) => {
+    const pc = mod12(STD[i] + f);
+    if (mode === 'note') return nn(pc);
+    if (mode === 'interval') return labels.get(pc) || '';
+    return v.fing[i] ? String(v.fing[i]) : '';
+  };
+  const fs = txt => txt.length > 1 ? 8 : 10;
   if (!v) return `<svg viewBox="0 0 ${W} ${H}" class="${opt.cls || ''}"></svg>`;
   const x = i => padL + (S.lefty ? 5 - i : i) * sx;
   const fretted = v.frets.filter(f => f > 0);
@@ -174,7 +189,7 @@ function diagram(v, root, opt = {}) {
   if (v.barre) {
     const xa = Math.min(x(v.barre.from), x(v.barre.to)), xb = Math.max(x(v.barre.from), x(v.barre.to));
     s += `<rect x="${xa - 7}" y="${y(v.barre.fret) - 7}" width="${xb - xa + 14}" height="14" rx="7" style="fill:var(--accent)"/>`;
-    if (!mini) s += `<text x="${(xa + xb) / 2}" y="${y(v.barre.fret) + 3.6}" font-size="10" font-weight="700" text-anchor="middle" style="fill:var(--on-accent)">1</text>`;
+    if (!mini && mode === 'finger') s += `<text x="${(xa + xb) / 2}" y="${y(v.barre.fret) + 3.6}" font-size="10" font-weight="700" text-anchor="middle" style="fill:var(--on-accent)">1</text>`;
   }
   for (let i = 0; i < 6; i++) {
     const f = v.frets[i];
@@ -182,11 +197,23 @@ function diagram(v, root, opt = {}) {
     const inBarre = v.barre && f === v.barre.fret && i >= v.barre.from && i <= v.barre.to;
     const isRoot = mod12(STD[i] + f) === root;
     if (inBarre) {
-      if (isRoot) s += `<circle cx="${x(i)}" cy="${y(f)}" r="3" style="fill:var(--root)"/>`;
+      if (mode !== 'finger') {
+        s += `<circle cx="${x(i)}" cy="${y(f)}" r="7" style="fill:${isRoot ? 'var(--root)' : 'var(--accent)'}"/>`;
+        const txt = dotText(i, f);
+        s += `<text x="${x(i)}" y="${y(f) + 3.3}" font-size="${fs(txt)}" font-weight="700" text-anchor="middle" style="fill:${isRoot ? '#fff' : 'var(--on-accent)'}">${txt}</text>`;
+      } else if (isRoot) s += `<circle cx="${x(i)}" cy="${y(f)}" r="3" style="fill:var(--root)"/>`;
       continue;
     }
     s += `<circle cx="${x(i)}" cy="${y(f)}" r="7" style="fill:${isRoot ? 'var(--root)' : 'var(--accent)'}"/>`;
-    if (!mini && v.fing[i]) s += `<text x="${x(i)}" y="${y(f) + 3.6}" font-size="10" font-weight="700" text-anchor="middle" style="fill:${isRoot ? '#fff' : 'var(--on-accent)'}">${v.fing[i]}</text>`;
+    if (!mini) { const txt = dotText(i, f); if (txt) s += `<text x="${x(i)}" y="${y(f) + 3.4}" font-size="${fs(txt)}" font-weight="700" text-anchor="middle" style="fill:${isRoot ? '#fff' : 'var(--on-accent)'}">${txt}</text>`; }
+  }
+  if (labels) for (let i = 0; i < 6; i++) {
+    const f = v.frets[i];
+    if (f < 0) continue;
+    const pc = mod12(STD[i] + f), isRoot = pc === root;
+    const yb = top + rows * sy;
+    s += `<text x="${x(i)}" y="${yb + 15}" font-size="10" font-weight="700" text-anchor="middle" style="fill:${isRoot ? 'var(--root)' : 'var(--ink)'}">${nn(pc)}</text>`;
+    s += `<text x="${x(i)}" y="${yb + 28}" font-size="9" text-anchor="middle" style="fill:${isRoot ? 'var(--root)' : 'var(--muted)'}">${labels.get(pc) || ''}</text>`;
   }
   if (names) for (let i = 0; i < 6; i++) {
     const f = v.frets[i];
@@ -235,7 +262,8 @@ const Chords = {
     const T = TYPES[c.t];
     const pcs = [];
     T.req.concat(T.opt).sort((a, b) => a - b).forEach(s => pcs.push({ pc: mod12(c.r + s), lab: intervalLabel(c.t, s) }));
-    if (c.b != null && !pcs.some(p => p.pc === c.b)) pcs.unshift({ pc: c.b, lab: t('bass').split(' ')[0].toLowerCase() });
+    if (c.b != null && !pcs.some(p => p.pc === c.b)) pcs.unshift({ pc: c.b, lab: t('bassShort') });
+    const labels = new Map(pcs.map(p => [p.pc, p.lab]));
     const posTxt = v ? (v.pos <= 1 && v.frets.some(f => f === 0) ? t('openPos') : t('atFret', { n: v.pos })) : '';
     $('#tab-chords').innerHTML = `
       <div class="card">
@@ -257,15 +285,16 @@ const Chords = {
         ${v ? `
         <div class="diagwrap">
           <button class="iconbtn" data-a="vprev" ${c.v === 0 ? 'disabled style="opacity:.25"' : ''}>${I.left}</button>
-          <div id="bigdiag" data-a="playCur">${diagram(v, c.r, { cls: 'big' })}</div>
+          <div id="bigdiag" data-a="playCur">${diagram(v, c.r, { cls: 'big', labels, dot: S.dotLabel })}</div>
           <button class="iconbtn" data-a="vnext" ${c.v >= vs.length - 1 ? 'disabled style="opacity:.25"' : ''}>${I.right}</button>
         </div>
         <div class="voicenav">${t('fingering', { i: c.v + 1, n: vs.length })} · ${posTxt}</div>
+        <div style="max-width:320px;margin:0 auto 12px">${seg('dotl', [['finger', t('fingers')], ['note', t('notesL')], ['interval', t('degrees')]], S.dotLabel)}</div>
         <div class="row" style="justify-content:center;margin-bottom:12px">
           <button class="btn primary" data-a="strum">${I.play}${t('strum')}</button>
           <button class="btn" data-a="arp">${I.arp}${t('arp')}</button>
         </div>
-        <div class="notes">${pcs.map(p => `<div class="note ${p.pc === c.r ? 'r' : ''}"><b>${nn(p.pc)}</b><span>${p.lab}</span></div>`).join('')}</div>
+        ${vs.length > 1 ? `<div class="lbl">${t('otherFing')}</div>` : ''}
         <div class="thumbs" id="thumbs">${vs.map((x, i) => `<div class="thumb ${i === c.v ? 'on' : ''}" data-a="vsel" data-v="${i}">${diagram(x, c.r, { mini: true })}</div>`).join('')}</div>
         ` : `<div class="empty" style="padding:30px 0;text-align:center">${t('noVoicing')}</div>`}
       </div>
@@ -364,6 +393,7 @@ const Chords = {
       case 'vnext': this.set({ v: this.c.v + 1 }, true); break;
       case 'vsel': this.set({ v: +v }, true); break;
       case 'playCur': if (!Chords.swiped || Date.now() - Chords.swiped > 400) this.play(); break;
+      case 'cnote': Snd.pluck(48 + mod12(+v - 48 + 12), 0, -1); break;
       case 'strum': this.play('strum'); break;
       case 'arp': this.play('arp'); break;
       case 'fav': this.toggleFav(); break;
@@ -909,25 +939,40 @@ const Scales = {
 };
 
 /* =======================================================================
-   TUNER
+   TUNER – needle and strobe
    ======================================================================= */
 const Tuner = {
-  lock: null, near: -1, ok: new Set(), okSince: 0, hist: [], freqs: [], disp: 0, target: 0, last: null, lastAt: 0,
-  pipeStop: null, pipeString: -1, raf: 0,
+  lock: null, near: -1, ok: new Set(), okSince: 0, hist: [], freqs: [],
+  disp: 0, target: 0, cents: null, smooth: 0, hasSig: false, last: null, lastAt: 0,
+  strobeOff: [0, 0, 0], tPrev: 0,
+  pipeStop: null, pipeString: -1, pipeOn: false, raf: 0,
+
   tuning() {
     const tu = TUNINGS.find(x => x.id === S.tuning) || TUNINGS[0];
     return tu.n || S.custom;
   },
   temp() { return TEMPERAMENTS.find(x => x.id === S.temp) || TEMPERAMENTS[0]; },
   f(m) { return targetFreq(m, S.a4, this.temp(), S.tempRoot); },
+  centsTo(f, m) { return 1200 * Math.log2(f / this.f(m)); },
+  /** Nearest note under the current temperament and calibration. */
+  nearestNote(f) {
+    const m0 = Math.round(69 + 12 * Math.log2(f / S.a4));
+    let m = m0, best = 1e9;
+    for (const mm of [m0 - 1, m0, m0 + 1]) { const c = Math.abs(this.centsTo(f, mm)); if (c < best) { best = c; m = mm; } }
+    return m;
+  },
+  applyGate() { Pitch.gate = 0.02 * Math.pow(0.1, S.tunerSens); },
 
   render() {
-    const tun = this.tuning(), running = Pitch.running;
+    const tun = this.tuning(), running = Pitch.running, strobe = S.tunerView === 'strobe';
     $('#tab-tuner').innerHTML = `
       <div class="card">
-        ${this.dial()}
+        ${seg('tview', [['needle', t('needle')], ['strobe', t('strobe')]], S.tunerView)}
+        <div style="height:10px"></div>
+        ${strobe ? `<canvas class="strobe" id="strobe"></canvas>` : this.dial()}
         <div class="tnote"><b id="tnName">–</b><sub id="tnOct"></sub></div>
-        <div class="tread"><span id="tnHz">— Hz</span><span id="tnCents">${running ? t('listen') : ''}</span><span id="tnTarget"></span></div>
+        <div class="tstatus" id="tnStatus">${running ? t('listen') : t('tapStart')}</div>
+        <div class="tread"><span id="tnHz">— Hz</span><span id="tnCents">— cent</span><span id="tnTarget"></span></div>
         <canvas class="history" id="thist"></canvas>
         <div class="level"><i id="tlevel"></i></div>
         <div class="row" style="margin-top:12px">
@@ -940,48 +985,56 @@ const Tuner = {
         <select id="ttuning">${TUNINGS.map(x => `<option value="${x.id}" ${x.id === S.tuning ? 'selected' : ''}>${L(x)}${x.n ? ' – ' + x.n.map(m => nn(m)).join(' ') : ''}</option>`).join('')}</select>
         ${S.tuning === 'custom' ? `<div class="custom">${S.custom.map((m, i) => `<div><button data-a="tcust" data-v="${i},1">▲</button><b>${midiName(m)}</b><button data-a="tcust" data-v="${i},-1">▼</button></div>`).join('')}</div>` : ''}
         <div class="lbl">${this.pipeOn ? t('pipeDesc') : (S.tunerMode === 'guitar' ? t('lockHint') : t('pipeDesc'))}</div>
-        <div class="strings">${tun.map((m, i) => `<button class="strbtn ${this.lock === i ? 'lock' : ''} ${this.near === i ? 'near' : ''} ${this.ok.has(i) ? 'ok' : ''} ${this.pipeString === i ? 'lock' : ''}" data-a="tstr" data-v="${i}"><b>${nn(m)}</b><small>${6 - i} · ${Math.round(this.f(m) * 10) / 10}</small></button>`).join('')}</div>
+        <div class="strings">${tun.map((m, i) => `<button class="strbtn ${this.lock === i || this.pipeString === i ? 'lock' : ''} ${this.near === i ? 'near' : ''} ${this.ok.has(i) ? 'ok' : ''}" data-a="tstr" data-v="${i}"><b>${nn(m)}<span class="oct">${Math.floor(m / 12) - 1}</span></b><small>${Math.round(this.f(m) * 10) / 10} Hz</small></button>`).join('')}</div>
         <div class="setrow" style="margin-top:6px"><div>${t('pipe')}<small>${t('pipeDesc')}</small></div>
           <label class="switch"><input type="checkbox" id="tpipe" ${this.pipeOn ? 'checked' : ''}><span></span></label></div>
       </div>
       <div class="card">
         <div class="setrow"><div>${t('calib')}</div>
-          <div class="stepper"><button data-a="ta4" data-v="-1">−</button><span>${S.a4} Hz</span><button data-a="ta4" data-v="1">+</button></div></div>
+          <div class="stepper"><button data-a="ta4" data-v="-0.5">−</button><span>${S.a4.toFixed(1)} Hz</span><button data-a="ta4" data-v="0.5">+</button></div></div>
+        <div class="setrow"><div>${t('sens')}<small>${t('sensD')}</small></div>
+          <input type="range" id="tsens" min="0" max="1" step="0.05" value="${S.tunerSens}" style="width:45%"></div>
         <div class="setrow"><div style="flex:1">${t('temperament')}
           <select id="ttemp" style="margin-top:6px">${TEMPERAMENTS.map(x => `<option value="${x.id}" ${x.id === S.temp ? 'selected' : ''}>${L(x)}</option>`).join('')}</select></div></div>
         ${S.temp !== 'equal' ? `<div class="lbl">${t('tempRoot')}</div>${rootGrid('ttroot', S.tempRoot)}` : ''}
       </div>`;
-    $('#ttuning').addEventListener('change', e => { S.tuning = e.target.value; this.lock = null; this.ok.clear(); saveS(); this.render(); });
+    $('#ttuning').addEventListener('change', e => { S.tuning = e.target.value; this.lock = null; this.ok.clear(); this.near = -1; saveS(); this.render(); });
     $('#ttemp').addEventListener('change', e => { S.temp = e.target.value; saveS(); this.render(); });
     $('#tpipe').addEventListener('change', e => { this.pipeOn = e.target.checked; if (!this.pipeOn) this.stopPipe(); this.render(); });
+    $('#tsens').addEventListener('input', e => { S.tunerSens = +e.target.value; this.applyGate(); saveS(); });
     this.canvas = $('#thist');
-    this.drawHist();
+    if (this.hasSig && this.last) this.show(this.last);
+    this.paint(0);
   },
+
   dial() {
     // semicircular gauge from −50 to +50 cents
     const cx = 160, cy = 150, r = 128;
     const P = (c, rr) => { const a = (c / 50) * (Math.PI * 0.42); return [cx + rr * Math.sin(a), cy - rr * Math.cos(a)]; };
     let s = `<svg viewBox="0 0 320 170" style="display:block;width:100%;max-width:380px;margin:0 auto">`;
-    const [a1, b1] = P(-5, r), [a2, b2] = P(5, r);
-    const [c1, d1] = P(-5, r - 22), [c2, d2] = P(5, r - 22);
-    s += `<path d="M${a1} ${b1}A${r} ${r} 0 0 1 ${a2} ${b2}L${c2} ${d2}A${r - 22} ${r - 22} 0 0 0 ${c1} ${d1}Z" style="fill:var(--good)" opacity=".25"/>`;
+    const zone = (c0, c1, op) => {
+      const [a1, b1] = P(c0, r), [a2, b2] = P(c1, r), [c1x, d1] = P(c0, r - 22), [c2x, d2] = P(c1, r - 22);
+      return `<path d="M${a1} ${b1}A${r} ${r} 0 0 1 ${a2} ${b2}L${c2x} ${d2}A${r - 22} ${r - 22} 0 0 0 ${c1x} ${d1}Z" style="fill:var(--good)" opacity="${op}"/>`;
+    };
+    s += zone(-10, 10, 0.12) + zone(-3, 3, 0.35);
     for (let c = -50; c <= 50; c += 5) {
       const big = c % 25 === 0;
       const [x1, y1] = P(c, r), [x2, y2] = P(c, r - (big ? 18 : 10));
       s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" style="stroke:${c === 0 ? 'var(--good)' : 'var(--muted)'}" stroke-width="${big ? 2.4 : 1.3}" stroke-linecap="round"/>`;
       if (big) { const [tx, ty] = P(c, r + 14); s += `<text x="${tx}" y="${ty + 4}" font-size="11" text-anchor="middle" style="fill:var(--muted)">${c > 0 ? '+' + c : c}</text>`; }
     }
-    s += `<g id="needle" style="transform-origin:${cx}px ${cy}px;transition:none"><line x1="${cx}" y1="${cy}" x2="${cx}" y2="${cy - r + 4}" style="stroke:var(--ink)" stroke-width="3" stroke-linecap="round"/></g>`;
+    const [fx, fy] = P(-40, r - 44), [sx2, sy2] = P(40, r - 44);
+    s += `<text x="${fx}" y="${fy}" font-size="22" text-anchor="middle" style="fill:var(--muted)">♭</text><text x="${sx2}" y="${sy2}" font-size="22" text-anchor="middle" style="fill:var(--muted)">♯</text>`;
+    s += `<g id="needle" style="transform-origin:${cx}px ${cy}px"><line x1="${cx}" y1="${cy}" x2="${cx}" y2="${cy - r + 4}" style="stroke:var(--ink)" stroke-width="3" stroke-linecap="round"/></g>`;
     s += `<circle cx="${cx}" cy="${cy}" r="7" style="fill:var(--ink)"/>`;
-    s += `<text id="flatSharp" x="${cx}" y="${cy - 40}" font-size="13" text-anchor="middle" style="fill:var(--muted)"></text>`;
     return s + '</svg>';
   },
 
   async toggle() {
     if (Pitch.running) { this.stop(); return; }
+    this.applyGate();
     try {
       await Pitch.start(r => this.onPitch(r));
-      this.anim();
     } catch (e) {
       toast(t('micDenied'));
     }
@@ -990,68 +1043,81 @@ const Tuner = {
   },
   stop() {
     Pitch.stop();
-    cancelAnimationFrame(this.raf);
-    this.freqs = []; this.last = null;
+    this.freqs = []; this.last = null; this.hasSig = false; this.cents = null;
     keepAwake();
     if (S.tab === 'tuner') this.render();
   },
+
   onPitch(r) {
     const lv = $('#tlevel');
     if (lv) lv.style.width = clamp((r.db + 60) / 50 * 100, 0, 100) + '%';
     const now = performance.now();
     if (!r.freq) {
-      if (this.last && now - this.lastAt > 900) { this.last = null; this.freqs = []; this.show(null); }
+      // hold the last reading briefly while a note rings out, then show "no signal"
+      if (this.hasSig && now - this.lastAt > 700) { this.hasSig = false; this.freqs = []; this.show(null); }
       this.hist.push(null);
       if (this.hist.length > 240) this.hist.shift();
       return;
     }
-    // median filter, reset on jumps
+    // median of the last few readings; start over when the pitch jumps (a new string)
     const prev = this.freqs.length ? this.freqs[this.freqs.length - 1] : 0;
     if (prev && Math.abs(1200 * Math.log2(r.freq / prev)) > 60) this.freqs = [];
     this.freqs.push(r.freq);
     if (this.freqs.length > 7) this.freqs.shift();
     const f = this.freqs.slice().sort((a, b) => a - b)[this.freqs.length >> 1];
-    this.last = f; this.lastAt = now;
+    this.last = f; this.lastAt = now; this.hasSig = true;
     this.show(f);
   },
+
+  /** Which string to tune: the locked one, or the nearest – sticking with the current one unless another is clearly closer. */
+  pickString(f) {
+    const tun = this.tuning();
+    if (this.lock != null) return this.lock;
+    let best = -1, bc = 1e9;
+    tun.forEach((m, i) => { const c = Math.abs(this.centsTo(f, m)); if (c < bc) { bc = c; best = i; } });
+    if (this.near >= 0 && this.near < tun.length && this.near !== best) {
+      const cur = Math.abs(this.centsTo(f, tun[this.near]));
+      if (cur < 250 && cur - bc < 60) return this.near;
+    }
+    return best;
+  },
+
   show(f) {
     const nameEl = $('#tnName');
     if (!nameEl) return;
+    const status = $('#tnStatus');
     if (!f) {
       nameEl.style.opacity = .35;
-      $('#flatSharp').textContent = '';
-      this.target = 0;
+      status.textContent = t('listen');
+      status.className = 'tstatus';
+      this.cents = null;
       return;
     }
     nameEl.style.opacity = 1;
     let m, string = -1;
-    if (S.tunerMode === 'guitar') {
-      const tun = this.tuning();
-      if (this.lock != null) string = this.lock;
-      else {
-        let best = 1e9;
-        tun.forEach((mm, i) => { const c = Math.abs(1200 * Math.log2(f / this.f(mm))); if (c < best) { best = c; string = i; } });
-      }
-      m = tun[string];
-    } else {
-      const m0 = Math.round(69 + 12 * Math.log2(f / S.a4));
-      let best = 1e9;
-      for (const mm of [m0 - 1, m0, m0 + 1]) { const c = Math.abs(1200 * Math.log2(f / this.f(mm))); if (c < best) { best = c; m = mm; } }
-    }
-    const tf = this.f(m);
-    const cents = 1200 * Math.log2(f / tf);
+    if (S.tunerMode === 'guitar') { string = this.pickString(f); m = this.tuning()[string]; }
+    else m = this.nearestNote(f);
+    const tf = this.f(m), cents = this.centsTo(f, m);
+    this.cents = cents;
     this.target = clamp(cents, -55, 55);
+    const played = this.nearestNote(f);
     nameEl.textContent = nn(m);
     $('#tnOct').textContent = Math.floor(m / 12) - 1;
-    $('#tnHz').textContent = f.toFixed(1) + ' Hz';
-    $('#tnCents').textContent = (cents > 0 ? '+' : '') + cents.toFixed(1) + ' cent';
-    const played = Math.round(69 + 12 * Math.log2(f / S.a4));
-    $('#tnTarget').textContent = (played !== m ? midiName(played) + ' ' : '') + '→ ' + tf.toFixed(1) + ' Hz';
-    const inTune = Math.abs(cents) < 3;
-    $('#flatSharp').textContent = inTune ? '✓ ' + t('inTune') : cents < 0 ? '♭' : '♯';
-    $('#flatSharp').style.fill = inTune ? 'var(--good)' : 'var(--muted)';
-    this.hist.push(cents);
+    $('#tnHz').textContent = f.toFixed(2) + ' Hz';
+    $('#tnCents').textContent = (cents > 0 ? '+' : '') + (Math.abs(cents) < 100 ? cents.toFixed(1) : Math.round(cents)) + ' cent';
+    $('#tnTarget').textContent = (played !== m ? midiName(played) + ' ' : '') + '→ ' + tf.toFixed(2) + ' Hz';
+    const a = Math.abs(cents), inTune = a < 3;
+    let msg;
+    if (inTune) msg = '✓ ' + t('inTune');
+    else if (a >= 100) {
+      const st = Math.round(a / 100);
+      msg = (cents < 0 ? '↑ ' : '↓ ') + t(cents < 0 ? 'semisLow' : 'semisHigh', { n: st });
+    } else msg = cents < 0 ? '↑ ' + t('tuneUp') : '↓ ' + t('tuneDown');
+    status.textContent = msg;
+    status.className = 'tstatus ' + (inTune ? 'good' : a < 10 ? 'close' : '');
+    this.hist.push(clamp(cents, -50, 50));
     if (this.hist.length > 240) this.hist.shift();
+
     if (S.tunerMode === 'guitar') {
       if (string !== this.near) {
         this.near = string;
@@ -1063,23 +1129,80 @@ const Tuner = {
           this.ok.add(string);
           const b = document.querySelectorAll('.strbtn')[string];
           if (b) b.classList.add('ok');
+          if (navigator.vibrate) try { navigator.vibrate(35); } catch (e) { /* not allowed */ }
         }
       } else this.okSince = 0;
     }
   },
-  anim() {
-    const step = () => {
+
+  /** Animation: needle easing, strobe bands and the history trace. */
+  paint(ts) {
+    cancelAnimationFrame(this.raf);
+    const step = now => {
+      const dt = this.tPrev ? Math.min(0.05, (now - this.tPrev) / 1000) : 0;
+      this.tPrev = now;
+      if (S.tab !== 'tuner') { this.tPrev = 0; return; }
       this.raf = requestAnimationFrame(step);
-      this.disp += (this.target - this.disp) * 0.25;
+      const live = this.hasSig && this.cents != null;
+      if (live) this.smooth += (this.cents - this.smooth) * Math.min(1, dt * 10);
       const n = $('#needle');
       if (n) {
+        if (live) this.disp += (this.target - this.disp) * Math.min(1, dt * 14);
         n.style.transform = `rotate(${(this.disp / 50) * 0.42 * 180}deg)`;
-        n.querySelector('line').style.stroke = this.last && Math.abs(this.target) < 3 ? 'var(--good)' : 'var(--ink)';
+        n.style.opacity = live ? 1 : 0.3;
+        n.querySelector('line').style.stroke = live && Math.abs(this.target) < 3 ? 'var(--good)' : 'var(--ink)';
       }
+      this.drawStrobe(dt, live);
       this.drawHist();
     };
-    step();
+    this.raf = requestAnimationFrame(step);
   },
+
+  /**
+   * Strobe: three bands of stripes, like the octave rings of a mechanical strobe tuner. The
+   * stripes drift right when sharp and left when flat; the finer bands move faster, so they show
+   * even a fraction of a cent. They stand still when the string is in tune.
+   */
+  drawStrobe(dt, live) {
+    const c = $('#strobe');
+    if (!c) return;
+    const dpr = window.devicePixelRatio || 1;
+    const w = c.clientWidth, h = c.clientHeight;
+    if (c.width !== Math.round(w * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
+    const g = c.getContext('2d');
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const cs = getComputedStyle(document.documentElement);
+    const col = v => cs.getPropertyValue(v).trim();
+    const cents = live ? clamp(this.smooth, -60, 60) : 0;
+    const inTune = live && Math.abs(cents) < 1;
+    g.fillStyle = col('--card2');
+    g.fillRect(0, 0, w, h);
+    const bands = [{ p: 64, k: 1 }, { p: 32, k: 2 }, { p: 16, k: 4 }];
+    const bh = (h - 16) / 3;
+    bands.forEach((b, i) => {
+      // pixels per second: about 2.4 px/s per cent on the coarse band
+      if (live) this.strobeOff[i] = (this.strobeOff[i] + cents * 2.4 * b.k * dt) % b.p;
+      const y = 4 + i * (bh + 4);
+      g.save();
+      g.beginPath();
+      g.roundRect ? g.roundRect(4, y, w - 8, bh, 8) : g.rect(4, y, w - 8, bh);
+      g.clip();
+      g.fillStyle = col('--card');
+      g.fillRect(0, y, w, bh);
+      g.fillStyle = !live ? col('--fret') : inTune ? col('--good') : col('--accent');
+      g.globalAlpha = live ? 1 : 0.5;
+      let off = this.strobeOff[i];
+      if (off < 0) off += b.p;
+      for (let x = off - b.p; x < w; x += b.p) g.fillRect(x, y, b.p / 2, bh);
+      g.restore();
+    });
+    // centre mark
+    g.globalAlpha = 1;
+    g.fillStyle = col('--ink');
+    g.beginPath(); g.moveTo(w / 2 - 6, 0); g.lineTo(w / 2 + 6, 0); g.lineTo(w / 2, 7); g.fill();
+    g.beginPath(); g.moveTo(w / 2 - 6, h); g.lineTo(w / 2 + 6, h); g.lineTo(w / 2, h - 7); g.fill();
+  },
+
   drawHist() {
     const c = this.canvas;
     if (!c || !c.isConnected) return;
@@ -1092,9 +1215,10 @@ const Tuner = {
     const cs = getComputedStyle(document.documentElement);
     g.fillStyle = cs.getPropertyValue('--good').trim();
     g.globalAlpha = .18;
-    g.fillRect(0, h / 2 - (5 / 50) * (h / 2), w, (10 / 50) * (h / 2));
+    g.fillRect(0, h / 2 - (3 / 50) * (h / 2), w, (6 / 50) * (h / 2));
     g.globalAlpha = 1;
     g.strokeStyle = cs.getPropertyValue('--line').trim();
+    g.lineWidth = 1;
     g.beginPath(); g.moveTo(0, h / 2); g.lineTo(w, h / 2); g.stroke();
     g.strokeStyle = cs.getPropertyValue('--accent').trim();
     g.lineWidth = 2;
@@ -1104,12 +1228,13 @@ const Tuner = {
     this.hist.forEach((v, i) => {
       const x = w - (this.hist.length - 1 - i) * (w / N);
       if (v == null) { pen = false; return; }
-      const y = h / 2 - clamp(v, -50, 50) / 50 * (h / 2 - 3);
+      const y = h / 2 - v / 50 * (h / 2 - 3);
       if (pen) g.lineTo(x, y); else g.moveTo(x, y);
       pen = true;
     });
     g.stroke();
   },
+
   stopPipe() {
     if (this.pipeStop) this.pipeStop();
     this.pipeStop = null;
@@ -1126,12 +1251,13 @@ const Tuner = {
           if (!same) { this.pipeString = i; this.pipeStop = Snd.tone(this.f(this.tuning()[i])); }
         } else if (S.tunerMode === 'guitar') {
           this.lock = this.lock === i ? null : i;
+          if (this.lock != null) this.near = i;
           if (!Pitch.running) Snd.pluck(this.tuning()[i], 0, i);
         } else Snd.pluck(this.tuning()[i], 0, i);
         this.render();
         break;
       }
-      case 'ta4': S.a4 = clamp(S.a4 + +v, 415, 466); saveS(); this.render(); break;
+      case 'ta4': S.a4 = clamp(Math.round((S.a4 + +v) * 2) / 2, 415, 466); saveS(); this.render(); break;
       case 'ttroot': S.tempRoot = +v; saveS(); this.render(); break;
       case 'tcust': {
         const [i, d] = v.split(',').map(Number);
@@ -1144,7 +1270,13 @@ const Tuner = {
     }
     return true;
   },
-  seg(k, v) { if (k !== 'tmode') return false; S.tunerMode = v; this.lock = null; saveS(); this.render(); return true; },
+  seg(k, v) {
+    if (k === 'tmode') { S.tunerMode = v; this.lock = null; this.near = -1; }
+    else if (k === 'tview') S.tunerView = v;
+    else return false;
+    saveS(); this.render();
+    return true;
+  },
 };
 
 /* =======================================================================
@@ -1323,7 +1455,6 @@ function settingsHtml() {
     <div class="setrow"><div>${t('language')}</div><div style="width:58%">${seg('slang', [['auto', t('auto')], ['en', 'English'], ['sv', 'Svenska']], S.lang)}</div></div>
     <div class="setrow"><div>${t('theme')}</div><div style="width:58%">${seg('stheme', [['auto', t('auto')], ['light', t('light')], ['dark', t('dark')]], S.theme)}</div></div>
     <div class="setrow"><div>${t('lefty')}<small>${t('leftyD')}</small></div>${sw('lefty', S.lefty)}</div>
-    <div class="setrow"><div>${t('namesS')}</div>${sw('names', S.names)}</div>
     <div class="setrow"><div>${t('hNot')}<small>${t('hNotD')}</small></div>${sw('hNotation', S.hNotation)}</div>
     <div class="setrow"><div>${t('playStyle')}</div><div style="width:50%">${seg('sstyle', [['strum', t('strum')], ['arp', t('arp')]], S.style)}</div></div>
     <div class="setrow"><div>${t('sound')}</div>${sw('sound', S.sound)}</div>
@@ -1346,6 +1477,7 @@ function settingsSeg(k, v) {
   if (k === 'slang') S.lang = v;
   else if (k === 'stheme') S.theme = v;
   else if (k === 'sstyle') S.style = v;
+  else if (k === 'dotl') { S.dotLabel = v; saveS(); Chords.render(); return true; }
   else return false;
   saveS();
   applySettings();
