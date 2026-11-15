@@ -112,6 +112,7 @@ const Snd = {
     if (tb.bow) { this.bowNote(midi, when, string, vel); return; }
     const src = ctx.createBufferSource();
     src.buffer = this.buffer(midi);
+    const srcs = [src];
     const g = ctx.createGain();
     g.gain.value = tb.gain * vel;
     src.connect(g); g.connect(this.out);
@@ -122,13 +123,46 @@ const Snd = {
       s2.buffer = src.buffer;
       s2.detune.value = tb.pair;
       s2.connect(g);
+      srcs.push(s2);
       s2.start(when + 0.004 + Math.random() * 0.004);
       src.onended = () => { try { s2.stop(); } catch (e) { /* already stopped */ } };
       const stop = src.stop.bind(src);
       src.stop = t => { stop(t); s2.stop(t); };
     }
-    const voice = { src, g };
+    const voice = { src, g, srcs, midi, base: srcs.map(x => x.detune.value) };
     if (string >= 0) { this.voices[string] = voice; src.onended = () => { if (this.voices[string] === voice) this.voices[string] = null; }; }
+    return voice;
+  },
+
+  /**
+   * A phrase on one string with guitar techniques: [{m, t, how}] where how is
+   * 'pick' (a new picked note), 'h' / 'p' (hammer-on / pull-off: the same string sounding on
+   * without a new pick), 'slide' (glide to the new fret) or 'bend' (push the pitch up smoothly).
+   * Times are relative to `when`.
+   */
+  phrase(events, when, string = 3) {
+    this.init();
+    when = Math.max(when || 0, this.ctx.currentTime + 0.02);
+    let v = null, cur = 0;
+    const setTo = (cents, t, glide) => v.srcs.forEach((x, i) => {
+      const d = x.detune, b = v.base[i];
+      d.setValueAtTime(b + cur, t);
+      if (glide) d.linearRampToValueAtTime(b + cents, t + glide); else d.setValueAtTime(b + cents, t + 0.003);
+    });
+    events.forEach(e => {
+      const t = when + e.t;
+      if (!v || e.how === 'pick') { v = this.pluck(e.m, t, string, e.vel || 0.95); cur = 0; return; }
+      if (!v.srcs) return;                        // bowed instruments: no legato
+      const cents = (e.m - v.midi) * 100;
+      if (e.how === 'slide') setTo(cents, t, 0.09);
+      else if (e.how === 'bend' || e.how === 'release') setTo(cents, t, 0.26);
+      else {                                      // hammer-on / pull-off: a small tap of the finger
+        setTo(cents, t, 0);
+        v.g.gain.setValueAtTime(v.g.gain.value, t);
+        if (e.how === 'p') { v.g.gain.setValueAtTime(v.g.gain.value * 0.95, t); }
+      }
+      cur = cents;
+    });
   },
 
   /** Bowed note (violin family): two slightly detuned saws, bow attack, gentle delayed vibrato. */

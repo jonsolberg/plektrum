@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.16';
+const VERSION = '1.17';
 const REPO = 'https://github.com/jonsolberg/guitarchords';
 
 const store = {
@@ -2661,7 +2661,12 @@ const Practice = {
       up.concat(up.slice(0, -1).reverse()).forEach((m, i) => { Snd.pluck(m, now + i * 0.24, -1, 0.9); mark(btn && btn.querySelector(`.ln[data-i="${allI[i]}"]`), now + i * 0.24); });
       markRow(up.length * 2 * 0.24);
     } else if (b.chart) chord(b.chart);
-    else if (b.notes) {
+    else if (b.notes && b.how) {
+      // techniques: a legato note follows its picked note closely, a new pick waits a little longer
+      let tt = 0; const ev = b.notes.map((m, i) => { if (i) tt += b.how[i] === 'pick' ? 0.75 : b.how[i] === 'bend' ? 0.45 : 0.32; return { m, t: tt, how: b.how[i] }; });
+      Snd.phrase(ev, now, 3);
+      ev.forEach((e, i) => (box ? box.querySelectorAll(`.tn[data-i="${i}"]`) : []).forEach(el => mark(el, now + e.t)));
+    } else if (b.notes) {
       const gap = b.tab ? 0.34 : b.notes.length > 2 ? 0.26 : 0.8;
       b.notes.forEach((m, i) => {
         Snd.pluck(m, now + i * gap, -1, 0.9);
