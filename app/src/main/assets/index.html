@@ -184,6 +184,54 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .custom button{width:100%;border:0;background:var(--card2);border-radius:9px;height:30px;cursor:pointer}
 .custom b{font-size:15px}
 
+/* tuner */
+.tunerhero{transition:background .25s,border-color .25s;padding-top:10px}
+.tunerhero[data-st=good]{background:color-mix(in srgb,var(--good) 12%,var(--card));border-color:color-mix(in srgb,var(--good) 45%,var(--line))}
+.tview{max-width:240px;margin:0 auto 6px}
+.tview .seg{padding:2px}.tview .seg button{padding:5px 4px;font-size:13px}
+.gauge{display:block;width:100%;max-width:400px;margin:0 auto -6px}
+.gauge .tk{stroke:var(--muted);stroke-linecap:round;opacity:.7}
+.gauge .tk0{stroke:var(--good);stroke-linecap:round;stroke-width:3}
+.gauge .tkl{font-size:11px;fill:var(--muted)}
+.gauge .ndl{fill:var(--ink);transition:fill .2s}
+.gauge .hub{fill:var(--ink);transition:fill .2s}.gauge .hub2{fill:var(--card)}
+.tunerhero[data-st=good] .gauge .ndl,.tunerhero[data-st=good] .gauge .hub{fill:var(--good)}
+.tunerhero[data-st=good] #needle{filter:drop-shadow(0 0 6px color-mix(in srgb,var(--good) 70%,transparent))}
+.tnoterow{display:flex;align-items:center;justify-content:center;gap:22px;margin-top:2px}
+.tside{font-size:34px;font-weight:700;color:var(--line);width:34px;text-align:center;transition:color .15s,transform .15s}
+.tside.lit{color:var(--warn);transform:scale(1.15)}
+.tunerhero[data-st=close] .tside.lit{color:var(--accent)}
+.tunerhero .tnote{margin:0;min-width:110px}
+.tunerhero .tnote b{font-size:76px;letter-spacing:-1px;transition:color .2s}
+.tunerhero[data-st=good] .tnote b{color:var(--good)}
+.tcents{text-align:center;font-size:20px;font-weight:650;font-variant-numeric:tabular-nums;margin-top:-4px;min-height:26px}
+.tunerhero .tstatus{font-size:15px;margin-top:2px}
+.tchips{display:flex;justify-content:center;gap:8px;margin:10px 0 12px;flex-wrap:wrap}
+.tchips span{background:var(--card2);border-radius:999px;padding:4px 12px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tunerhero .history{height:64px}
+.tunerhero .level{height:4px;margin-top:6px}
+.tgo{width:100%;margin-top:12px}
+.strobe{background:transparent}
+.headstock{display:block;width:100%;max-width:340px;margin:10px auto 4px}
+.hs-body{fill:var(--wood);stroke:var(--line);stroke-width:2}
+.hs-nut{fill:var(--ink);opacity:.75}
+.hs-string{stroke:var(--str)}
+.hs-shaft{stroke:var(--fret);stroke-width:5;stroke-linecap:round}
+.hs-post{fill:var(--card);stroke:var(--fret);stroke-width:2}
+.peg{cursor:pointer}
+.peg-c{fill:var(--card);stroke:var(--line);stroke-width:2;transition:fill .15s,stroke .15s}
+.peg-n{font-size:19px;font-weight:750;fill:var(--ink)}
+.peg-o{font-size:10px;font-weight:500;fill:var(--muted)}
+.peg-h{font-size:9.5px;fill:var(--muted)}
+.peg.near .peg-c{stroke:var(--accent);stroke-width:3.5}
+.peg.lock .peg-c{fill:var(--accent);stroke:var(--accent)}
+.peg.lock .peg-n,.peg.lock .peg-o,.peg.lock .peg-h{fill:var(--on-accent)}
+.peg-ok{display:none}
+.peg-ok circle{fill:var(--good)}
+.peg-ok path{fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.peg.ok .peg-ok{display:inline}
+.peg.ok:not(.lock):not(.near) .peg-c{stroke:var(--good)}
+
 /* practice */
 .bpm{font-size:64px;font-weight:750;text-align:center;font-variant-numeric:tabular-nums;line-height:1}
 .bpm small{font-size:16px;color:var(--muted);font-weight:500}

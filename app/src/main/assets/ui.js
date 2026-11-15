@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.3';
+const VERSION = '1.4';
 const REPO = 'https://github.com/jonsolberg/guitarchords';
 
 const store = {
@@ -1157,30 +1157,59 @@ const Tuner = {
   },
   applyGate() { Pitch.gate = 0.02 * Math.pow(0.1, S.tunerSens); },
 
+  /** Headstock with 3 + 3 tuning pegs; low E bottom left, high E bottom right. */
+  headstock() {
+    const tun = this.tuning();
+    const post = i => i < 3 ? [118, 178 - i * 58] : [202, 62 + (i - 3) * 58];
+    const peg = i => i < 3 ? [52, 178 - i * 58] : [268, 62 + (i - 3) * 58];
+    let s = `<svg class="headstock" viewBox="0 0 320 262" xmlns="http://www.w3.org/2000/svg">
+      <path d="M104 256 L96 50 Q96 14 160 10 Q224 14 224 50 L216 256 Z" class="hs-body"/>
+      <rect x="104" y="248" width="112" height="8" rx="2" class="hs-nut"/>`;
+    for (let i = 0; i < 6; i++) {
+      const [px, py] = post(i), [gx, gy] = peg(i);
+      s += `<line x1="${px}" y1="${py}" x2="${gx}" y2="${gy}" class="hs-shaft"/>`;
+      s += `<line x1="${140 + i * 8}" y1="252" x2="${px}" y2="${py}" class="hs-string" style="stroke-width:${1.9 - i * 0.18}"/>`;
+      s += `<circle cx="${px}" cy="${py}" r="6" class="hs-post"/>`;
+    }
+    for (let i = 0; i < 6; i++) {
+      const [gx, gy] = peg(i), m = tun[i];
+      const cls = [this.lock === i || this.pipeString === i ? 'lock' : '', this.near === i ? 'near' : '', this.ok.has(i) ? 'ok' : ''].join(' ');
+      s += `<g class="peg ${cls}" data-a="tstr" data-v="${i}">
+        <circle cx="${gx}" cy="${gy}" r="25" class="peg-c"/>
+        <text x="${gx}" y="${gy + 3}" text-anchor="middle" class="peg-n">${nn(m)}<tspan class="peg-o" dy="-8">${Math.floor(m / 12) - 1}</tspan></text>
+        <text x="${gx}" y="${gy + 17}" text-anchor="middle" class="peg-h">${(Math.round(this.f(m) * 10) / 10)}</text>
+        <g class="peg-ok"><circle cx="${gx + (i < 3 ? -19 : 19)}" cy="${gy - 17}" r="8.5"/><path d="M${gx + (i < 3 ? -23.5 : 14.5)} ${gy - 17}l3 3 5.5-6"/></g>
+      </g>`;
+    }
+    return s + '</svg>';
+  },
+
   render() {
-    const tun = this.tuning(), running = Pitch.running, strobe = S.tunerView === 'strobe';
+    const running = Pitch.running, strobe = S.tunerView === 'strobe';
     $('#tab-tuner').innerHTML = `
-      <div class="card">
-        ${seg('tview', [['needle', t('needle')], ['strobe', t('strobe')]], S.tunerView)}
-        <div style="height:10px"></div>
+      <div class="card tunerhero" id="thero" data-st="${running ? 'listen' : 'idle'}">
+        <div class="tview">${seg('tview', [['needle', t('needle')], ['strobe', t('strobe')]], S.tunerView)}</div>
         ${strobe ? `<canvas class="strobe" id="strobe"></canvas>` : this.dial()}
-        <div class="tnote"><b id="tnName">–</b><sub id="tnOct"></sub></div>
+        <div class="tnoterow">
+          <span class="tside" id="tnFlat">♭</span>
+          <div class="tnote"><b id="tnName">–</b><sub id="tnOct"></sub></div>
+          <span class="tside" id="tnSharp">♯</span>
+        </div>
+        <div class="tcents" id="tnCents">${running ? '' : '&nbsp;'}</div>
         <div class="tstatus" id="tnStatus">${running ? t('listen') : t('tapStart')}</div>
-        <div class="tread"><span id="tnHz">— Hz</span><span id="tnCents">— cent</span><span id="tnTarget"></span></div>
+        <div class="tchips"><span id="tnHz">— Hz</span><span id="tnTarget">${S.a4.toFixed(1)} Hz A4</span></div>
         <canvas class="history" id="thist"></canvas>
         <div class="level"><i id="tlevel"></i></div>
-        <div class="row" style="margin-top:12px">
-          <button class="btn ${running ? '' : 'primary'} grow" data-a="tstart">${running ? I.stop + t('stopTuner') : I.mic + t('startTuner')}</button>
-        </div>
+        <button class="btn ${running ? '' : 'primary'} tgo" data-a="tstart">${running ? I.stop + t('stopTuner') : I.mic + t('startTuner')}</button>
       </div>
       <div class="card">
         ${seg('tmode', [['guitar', t('guitar')], ['chromatic', t('chromatic')]], S.tunerMode)}
         <div class="lbl">${t('tuning')}</div>
         <select id="ttuning">${TUNINGS.map(x => `<option value="${x.id}" ${x.id === S.tuning ? 'selected' : ''}>${L(x)}${x.n ? ' – ' + x.n.map(m => nn(m)).join(' ') : ''}</option>`).join('')}</select>
         ${S.tuning === 'custom' ? `<div class="custom">${S.custom.map((m, i) => `<div><button data-a="tcust" data-v="${i},1">▲</button><b>${midiName(m)}</b><button data-a="tcust" data-v="${i},-1">▼</button></div>`).join('')}</div>` : ''}
-        <div class="lbl">${this.pipeOn ? t('pipeDesc') : (S.tunerMode === 'guitar' ? t('lockHint') : t('pipeDesc'))}</div>
-        <div class="strings">${tun.map((m, i) => `<button class="strbtn ${this.lock === i || this.pipeString === i ? 'lock' : ''} ${this.near === i ? 'near' : ''} ${this.ok.has(i) ? 'ok' : ''}" data-a="tstr" data-v="${i}"><b>${nn(m)}<span class="oct">${Math.floor(m / 12) - 1}</span></b><small>${Math.round(this.f(m) * 10) / 10} Hz</small></button>`).join('')}</div>
-        <div class="setrow" style="margin-top:6px"><div>${t('pipe')}<small>${t('pipeDesc')}</small></div>
+        ${this.headstock()}
+        <div class="small muted" style="text-align:center;margin-top:-4px">${this.pipeOn ? t('pipeDesc') : (S.tunerMode === 'guitar' ? t('lockHint') : t('pipeDesc'))}</div>
+        <div class="setrow" style="margin-top:6px;padding-bottom:0;border:0"><div>${t('pipe')}<small>${t('pipeDesc')}</small></div>
           <label class="switch"><input type="checkbox" id="tpipe" ${this.pipeOn ? 'checked' : ''}><span></span></label></div>
       </div>
       <div class="card">
@@ -1202,25 +1231,27 @@ const Tuner = {
   },
 
   dial() {
-    // semicircular gauge from −50 to +50 cents
-    const cx = 160, cy = 150, r = 128;
-    const P = (c, rr) => { const a = (c / 50) * (Math.PI * 0.42); return [cx + rr * Math.sin(a), cy - rr * Math.cos(a)]; };
-    let s = `<svg viewBox="0 0 320 170" style="display:block;width:100%;max-width:380px;margin:0 auto">`;
-    const zone = (c0, c1, op) => {
-      const [a1, b1] = P(c0, r), [a2, b2] = P(c1, r), [c1x, d1] = P(c0, r - 22), [c2x, d2] = P(c1, r - 22);
-      return `<path d="M${a1} ${b1}A${r} ${r} 0 0 1 ${a2} ${b2}L${c2x} ${d2}A${r - 22} ${r - 22} 0 0 0 ${c1x} ${d1}Z" style="fill:var(--good)" opacity="${op}"/>`;
-    };
-    s += zone(-10, 10, 0.12) + zone(-3, 3, 0.35);
+    // arc gauge from −50 to +50 cents: red at the ends, green in the middle
+    const cx = 160, cy = 172, r = 138;
+    const A = c => (c / 50) * (Math.PI * 0.36);
+    const P = (c, rr) => [cx + rr * Math.sin(A(c)), cy - rr * Math.cos(A(c))];
+    const arc = (c0, c1, rr) => { const [x0, y0] = P(c0, rr), [x1, y1] = P(c1, rr); return `M${x0} ${y0}A${rr} ${rr} 0 0 1 ${x1} ${y1}`; };
+    let s = `<svg class="gauge" viewBox="0 0 320 186" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="tgrad" x1="0" x2="1" y1="0" y2="0">
+        <stop offset="0" stop-color="var(--warn)"/><stop offset=".33" stop-color="#d9a33a"/>
+        <stop offset=".5" stop-color="var(--good)"/><stop offset=".67" stop-color="#d9a33a"/><stop offset="1" stop-color="var(--warn)"/>
+      </linearGradient></defs>
+      <path d="${arc(-50, 50, r)}" fill="none" stroke="url(#tgrad)" stroke-width="10" stroke-linecap="round" opacity=".9"/>`;
     for (let c = -50; c <= 50; c += 5) {
-      const big = c % 25 === 0;
-      const [x1, y1] = P(c, r), [x2, y2] = P(c, r - (big ? 18 : 10));
-      s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" style="stroke:${c === 0 ? 'var(--good)' : 'var(--muted)'}" stroke-width="${big ? 2.4 : 1.3}" stroke-linecap="round"/>`;
-      if (big) { const [tx, ty] = P(c, r + 14); s += `<text x="${tx}" y="${ty + 4}" font-size="11" text-anchor="middle" style="fill:var(--muted)">${c > 0 ? '+' + c : c}</text>`; }
+      const big = c % 25 === 0, mid = c % 10 === 0;
+      const [x1, y1] = P(c, r - 12), [x2, y2] = P(c, r - (big ? 28 : mid ? 22 : 18));
+      s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="${c === 0 ? 'tk0' : 'tk'}" stroke-width="${big ? 2.4 : 1.3}"/>`;
+      if (big) { const [tx, ty] = P(c, r - 42); s += `<text x="${tx}" y="${ty + 4}" class="tkl" text-anchor="middle">${c > 0 ? '+' + c : c}</text>`; }
     }
-    const [fx, fy] = P(-40, r - 44), [sx2, sy2] = P(40, r - 44);
-    s += `<text x="${fx}" y="${fy}" font-size="22" text-anchor="middle" style="fill:var(--muted)">♭</text><text x="${sx2}" y="${sy2}" font-size="22" text-anchor="middle" style="fill:var(--muted)">♯</text>`;
-    s += `<g id="needle" style="transform-origin:${cx}px ${cy}px"><line x1="${cx}" y1="${cy}" x2="${cx}" y2="${cy - r + 4}" style="stroke:var(--ink)" stroke-width="3" stroke-linecap="round"/></g>`;
-    s += `<circle cx="${cx}" cy="${cy}" r="7" style="fill:var(--ink)"/>`;
+    s += `<g id="needle" style="transform-origin:${cx}px ${cy}px">
+        <path d="M${cx - 4} ${cy} L${cx - 1.2} ${cy - r + 6} L${cx + 1.2} ${cy - r + 6} L${cx + 4} ${cy} Z" class="ndl"/>
+      </g>
+      <circle cx="${cx}" cy="${cy}" r="10" class="hub"/><circle cx="${cx}" cy="${cy}" r="4" class="hub2"/>`;
     return s + '</svg>';
   },
 
@@ -1280,10 +1311,13 @@ const Tuner = {
     const nameEl = $('#tnName');
     if (!nameEl) return;
     const status = $('#tnStatus');
+    const hero = $('#thero');
     if (!f) {
       nameEl.style.opacity = .35;
       status.textContent = t('listen');
       status.className = 'tstatus';
+      if (hero) hero.dataset.st = 'listen';
+      $('#tnFlat').className = 'tside'; $('#tnSharp').className = 'tside';
       this.cents = null;
       return;
     }
@@ -1298,9 +1332,12 @@ const Tuner = {
     nameEl.textContent = nn(m);
     $('#tnOct').textContent = Math.floor(m / 12) - 1;
     $('#tnHz').textContent = f.toFixed(2) + ' Hz';
-    $('#tnCents').textContent = (cents > 0 ? '+' : '') + (Math.abs(cents) < 100 ? cents.toFixed(1) : Math.round(cents)) + ' cent';
-    $('#tnTarget').textContent = (played !== m ? midiName(played) + ' ' : '') + '→ ' + tf.toFixed(2) + ' Hz';
+    $('#tnCents').textContent = (cents > 0 ? '+' : cents < 0 ? '−' : '±') + (Math.abs(cents) < 100 ? Math.abs(cents).toFixed(1) : Math.round(Math.abs(cents))) + ' cent';
+    $('#tnTarget').textContent = (played !== m ? midiName(played) + ' → ' : '→ ') + tf.toFixed(2) + ' Hz';
     const a = Math.abs(cents), inTune = a < 3;
+    if (hero) hero.dataset.st = inTune ? 'good' : a < 10 ? 'close' : 'off';
+    $('#tnFlat').className = 'tside' + (!inTune && cents < 0 ? ' lit' : '');
+    $('#tnSharp').className = 'tside' + (!inTune && cents > 0 ? ' lit' : '');
     let msg;
     if (inTune) msg = '✓ ' + t('inTune');
     else if (a >= 100) {
@@ -1315,13 +1352,13 @@ const Tuner = {
     if (S.tunerMode === 'guitar') {
       if (string !== this.near) {
         this.near = string;
-        document.querySelectorAll('.strbtn').forEach((b, i) => b.classList.toggle('near', i === string));
+        document.querySelectorAll('.peg').forEach((b, i) => b.classList.toggle('near', i === string));
       }
       if (inTune) {
         if (!this.okSince) this.okSince = performance.now();
         if (performance.now() - this.okSince > 600 && !this.ok.has(string)) {
           this.ok.add(string);
-          const b = document.querySelectorAll('.strbtn')[string];
+          const b = document.querySelectorAll('.peg')[string];
           if (b) b.classList.add('ok');
           if (navigator.vibrate) try { navigator.vibrate(35); } catch (e) { /* not allowed */ }
         }
@@ -1344,7 +1381,6 @@ const Tuner = {
         if (live) this.disp += (this.target - this.disp) * Math.min(1, dt * 14);
         n.style.transform = `rotate(${(this.disp / 50) * 0.42 * 180}deg)`;
         n.style.opacity = live ? 1 : 0.3;
-        n.querySelector('line').style.stroke = live && Math.abs(this.target) < 3 ? 'var(--good)' : 'var(--ink)';
       }
       this.drawStrobe(dt, live);
       this.drawHist();
@@ -1407,26 +1443,22 @@ const Tuner = {
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
     g.clearRect(0, 0, w, h);
     const cs = getComputedStyle(document.documentElement);
-    g.fillStyle = cs.getPropertyValue('--good').trim();
-    g.globalAlpha = .18;
-    g.fillRect(0, h / 2 - (3 / 50) * (h / 2), w, (6 / 50) * (h / 2));
+    const good = cs.getPropertyValue('--good').trim(), acc = cs.getPropertyValue('--accent').trim(), warn = cs.getPropertyValue('--warn').trim();
+    const Y = v => h / 2 - v / 50 * (h / 2 - 4);
+    g.fillStyle = good; g.globalAlpha = .14;
+    g.fillRect(0, Y(3), w, Y(-3) - Y(3));
+    g.globalAlpha = .35; g.fillRect(0, h / 2 - 0.5, w, 1);
     g.globalAlpha = 1;
-    g.strokeStyle = cs.getPropertyValue('--line').trim();
-    g.lineWidth = 1;
-    g.beginPath(); g.moveTo(0, h / 2); g.lineTo(w, h / 2); g.stroke();
-    g.strokeStyle = cs.getPropertyValue('--accent').trim();
-    g.lineWidth = 2;
-    g.beginPath();
-    let pen = false;
-    const N = 240;
-    this.hist.forEach((v, i) => {
-      const x = w - (this.hist.length - 1 - i) * (w / N);
-      if (v == null) { pen = false; return; }
-      const y = h / 2 - v / 50 * (h / 2 - 3);
-      if (pen) g.lineTo(x, y); else g.moveTo(x, y);
-      pen = true;
-    });
-    g.stroke();
+    g.lineWidth = 2.4; g.lineCap = 'round'; g.lineJoin = 'round';
+    const N = 240, step = w / N;
+    for (let i = 1; i < this.hist.length; i++) {
+      const v0 = this.hist[i - 1], v1 = this.hist[i];
+      if (v0 == null || v1 == null) continue;
+      const x1 = w - (this.hist.length - 1 - i) * step;
+      const a = Math.abs(v1);
+      g.strokeStyle = a < 3 ? good : a < 10 ? acc : warn;
+      g.beginPath(); g.moveTo(x1 - step, Y(v0)); g.lineTo(x1, Y(v1)); g.stroke();
+    }
   },
 
   stopPipe() {
