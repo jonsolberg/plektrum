@@ -52,7 +52,7 @@ const STR = {
     tempRoot: 'Temperament key', pipe: 'Pitch pipe', pipeDesc: 'Tap a string to hear its note', mode: 'Mode', guitar: 'Guitar', chromatic: 'Chromatic',
     listen: 'Play a string', micDenied: 'The tuner needs the microphone. Allow it in Android settings.',
     lockHint: 'Tap a string to tune only that one. Tap again for automatic.', customT: 'Custom tuning', inTune: 'In tune',
-    needle: 'Needle', strobe: 'Strobe', tapStart: 'Press Start and play a string', tuneUp: 'Tune up', tuneDown: 'Tune down',
+    needle: 'Needle', strobe: 'Strobe', strobeWheel: 'Strobe wheel', strobeBands: 'Strobe bands', tapStart: 'Press Start and play a string', tuneUp: 'Tune up', tuneDown: 'Tune down',
     semisLow: '{n} semitone(s) low – tune up', semisHigh: '{n} semitone(s) high – tune down',
     sens: 'Sensitivity', sensD: 'Raise it for quiet acoustics, lower it in noisy rooms',
     grouping: 'Grouping', subdiv: 'Subdivision', swingD: 'Plays the off-beats late, like a shuffle', accentPat: 'Accent pattern',
@@ -92,7 +92,7 @@ const STR = {
     tempRoot: 'Temperaturens tonart', pipe: 'Stämpipa', pipeDesc: 'Tryck på en sträng för att höra tonen', mode: 'Läge', guitar: 'Gitarr', chromatic: 'Kromatisk',
     listen: 'Spela på en sträng', micDenied: 'Stämapparaten behöver mikrofonen. Tillåt den i Androids inställningar.',
     lockHint: 'Tryck på en sträng för att bara stämma den. Tryck igen för automatiskt.', customT: 'Egen stämning', inTune: 'Stämd',
-    needle: 'Visare', strobe: 'Stroboskop', tapStart: 'Tryck på Starta och spela en sträng', tuneUp: 'Stäm upp', tuneDown: 'Stäm ner',
+    needle: 'Visare', strobe: 'Stroboskop', strobeWheel: 'Strobohjul', strobeBands: 'Strobeband', tapStart: 'Tryck på Starta och spela en sträng', tuneUp: 'Stäm upp', tuneDown: 'Stäm ner',
     semisLow: '{n} halvton(er) för lågt – stäm upp', semisHigh: '{n} halvton(er) för högt – stäm ner',
     sens: 'Känslighet', sensD: 'Höj för tysta akustiska gitarrer, sänk i stökiga rum',
     grouping: 'Gruppering', subdiv: 'Underdelning', swingD: 'Spelar offbeat-slagen sent, som shuffle', accentPat: 'Betoningsmönster',
@@ -1185,11 +1185,11 @@ const Tuner = {
   },
 
   render() {
-    const running = Pitch.running, strobe = S.tunerView === 'strobe';
+    const running = Pitch.running, view = S.tunerView;
     $('#tab-tuner').innerHTML = `
       <div class="card tunerhero" id="thero" data-st="${running ? 'listen' : 'idle'}">
-        <div class="tview">${seg('tview', [['needle', t('needle')], ['strobe', t('strobe')]], S.tunerView)}</div>
-        ${strobe ? `<canvas class="strobe" id="strobe"></canvas>` : this.dial()}
+        <div class="tview">${seg('tview', [['needle', t('needle')], ['strobe', t('strobeWheel')], ['bands', t('strobeBands')]], view)}</div>
+        ${view === 'strobe' ? `<canvas class="strobe" id="strobe"></canvas>` : view === 'bands' ? `<canvas class="strobe bands" id="strobe"></canvas>` : this.dial()}
         <div class="tnoterow">
           <span class="tside" id="tnFlat">♭</span>
           <div class="tnote"><b id="tnName">–</b><sub id="tnOct"></sub></div>
@@ -1409,6 +1409,7 @@ const Tuner = {
   drawStrobe(dt, live) {
     const c = $('#strobe');
     if (!c) return;
+    if (S.tunerView === 'bands') { this.drawBands(c, dt, live); return; }
     const dpr = window.devicePixelRatio || 1;
     const w = c.clientWidth, h = c.clientHeight;
     if (c.width !== Math.round(w * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
@@ -1453,6 +1454,44 @@ const Tuner = {
     // reference mark at the top
     g.fillStyle = col('--ink');
     g.beginPath(); g.moveTo(cx - 7, cy - R - 10); g.lineTo(cx + 7, cy - R - 10); g.lineTo(cx, cy - R - 1); g.fill();
+  },
+
+  /**
+   * Band strobe: three horizontal bands of stripes that drift right when sharp and left when
+   * flat; the finer bands move faster. They stand still and turn green when in tune.
+   */
+  drawBands(c, dt, live) {
+    const dpr = window.devicePixelRatio || 1;
+    const w = c.clientWidth, h = c.clientHeight;
+    if (c.width !== Math.round(w * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
+    const g = c.getContext('2d');
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, w, h);
+    const cs = getComputedStyle(document.documentElement);
+    const col = v => cs.getPropertyValue(v).trim();
+    const cents = live ? clamp(this.smooth, -60, 60) : 0;
+    const inTune = live && Math.abs(cents) < 1;
+    const bands = [{ p: 56, k: 1 }, { p: 28, k: 2 }, { p: 14, k: 4 }];
+    const top = 12, gap = 7, bh = (h - top * 2 - gap * 2) / 3;
+    const rr = (x, y, ww, hh, r) => { g.beginPath(); g.roundRect ? g.roundRect(x, y, ww, hh, r) : g.rect(x, y, ww, hh); };
+    rr(0, 0, w, h, 16); g.fillStyle = col('--card2'); g.fill();
+    const on = !live ? col('--fret') : inTune ? col('--good') : col('--accent');
+    bands.forEach((b, i) => {
+      // pixels per second: about 2.4 px/s per cent on the coarse band
+      if (live) this.strobeOff[i] = (this.strobeOff[i] + cents * 2.4 * b.k * dt) % b.p;
+      const y = top + i * (bh + gap);
+      g.save();
+      rr(10, y, w - 20, bh, 9); g.fillStyle = col('--card'); g.fill(); g.clip();
+      g.fillStyle = on; g.globalAlpha = live ? 1 : 0.55;
+      if (inTune) { g.shadowColor = col('--good'); g.shadowBlur = 12; }
+      let off = this.strobeOff[i];
+      if (off < 0) off += b.p;
+      for (let x = off - b.p; x < w; x += b.p) { rr(x + 1, y, b.p / 2 - 2, bh, Math.min(4, b.p / 6)); g.fill(); }
+      g.restore();
+    });
+    g.fillStyle = col('--ink');
+    g.beginPath(); g.moveTo(w / 2 - 7, 0); g.lineTo(w / 2 + 7, 0); g.lineTo(w / 2, 9); g.fill();
+    g.beginPath(); g.moveTo(w / 2 - 7, h); g.lineTo(w / 2 + 7, h); g.lineTo(w / 2, h - 9); g.fill();
   },
 
   drawHist() {
