@@ -11,7 +11,7 @@
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
 const VERSION = '1.25';
-const REPO = 'https://github.com/jonsolberg/guitarchords';
+const REPO = 'https://github.com/jonsolberg/plektrum';
 
 const store = {
   get(k, d) { try { const v = localStorage.getItem('plektrum.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
@@ -58,7 +58,7 @@ const STR = {
     sens: 'Sensitivity', sensD: 'Raise it for quiet acoustics, lower it in noisy rooms',
     grouping: 'Grouping', subdiv: 'Subdivision', swingD: 'Plays the off-beats late, like a shuffle', accentPat: 'Accent pattern',
     customPat: 'Custom', resetAcc: 'Reset accents', stepHint: 'Tap a step: normal → accent → soft → silent',
-    learn: 'Music theory', learnDesc: 'Short lessons with examples you can play', lessonsN: '{n} lessons', lessonN: 'Lesson {n} of {of}', inListening: 'Listening to', inBuiltin: 'phone microphone', inUsb: 'USB input', inHeadset: 'headset / cable input', inBt: 'Bluetooth headset', inOther: 'external input', inDefault: 'default input', inNotUsed: '{d} is connected but not being used – pick it below, or unplug and plug it in again with the tuner running.', inAuto: 'Input: automatic', lTry: 'Try it', lKey: 'Remember', lPiano: 'On the piano', lGuitar: 'On the guitar neck', lPrintAll: 'Save all lessons as PDF', lPrintOne: 'PDF', lPdfBusy: 'Creating PDF…', lPdfDone: 'Saved to Downloads: {f}', lPdfFail: 'Could not save the PDF – opening the print screen instead', lPdfTitle: 'Music theory', lPdfSub: '{n} lessons for string players – from tuning your guitar to CAGED and jazz chords', lPdfToc: 'Contents', lPdfHint: 'Every example can be played in the app: Practice → Music theory.', lPdfIntro: 'Music theory explained for guitarists and other string players – one idea at a time, with examples on the piano and the guitar neck, a short exercise and a summary in every lesson. No previous knowledge needed.', lPdfFoot: 'a toolbox for string players',
+    learn: 'Music theory', learnDesc: 'Short lessons with examples you can play', lessonsN: '{n} lessons', lessonN: 'Lesson {n} of {of}', inListening: 'Listening to', inBuiltin: 'phone microphone', inUsb: 'USB input', inHeadset: 'headset / cable input', inBt: 'Bluetooth headset', inOther: 'external input', inDefault: 'default input', inNotUsed: '{d} is connected but not being used – choose it under Input below, or unplug and plug it in again with the tuner running.', inAuto: 'Automatic', inLabel: 'Input', inLabelD: 'Phone microphone or a cable (USB-C adapter)', inN: 'Input {n}', inSaved: 'Saved choice (not connected)', inNoMatch: 'This input could not be selected directly – Android uses a connected cable automatically.', lTry: 'Try it', lKey: 'Remember', lPiano: 'On the piano', lGuitar: 'On the guitar neck', lPrintAll: 'Save all lessons as PDF', lPrintOne: 'PDF', lPdfBusy: 'Creating PDF…', lPdfDone: 'Saved to Downloads: {f}', lPdfFail: 'Could not save the PDF – opening the print screen instead', lPdfTitle: 'Music theory', lPdfSub: '{n} lessons for string players – from tuning your guitar to CAGED and jazz chords', lPdfToc: 'Contents', lPdfHint: 'Every example can be played in the app: Practice → Music theory.', lPdfIntro: 'Music theory explained for guitarists and other string players – one idea at a time, with examples on the piano and the guitar neck, a short exercise and a summary in every lesson. No previous knowledge needed.', lPdfFoot: 'a toolbox for string players',
     metroDesc: 'Time signatures, subdivisions, accents', qWhichNote: 'Which note is marked?', qFindNote: 'Find {n} on string {k} ({s})',
     qDegree: 'What is the {d} of {k} major?', qScaleIs: '{k} major: {s}', qSig: 'How many sharps or flats in {k} major?',
     qRel: 'What is the relative minor of {k} major?', qRelEx: 'The relative minor starts on the 6th note of the major scale.',
@@ -107,7 +107,7 @@ const STR = {
     sens: 'Känslighet', sensD: 'Höj för tysta akustiska gitarrer, sänk i stökiga rum',
     grouping: 'Gruppering', subdiv: 'Underdelning', swingD: 'Spelar offbeat-slagen sent, som shuffle', accentPat: 'Betoningsmönster',
     customPat: 'Eget', resetAcc: 'Återställ betoningar', stepHint: 'Tryck på ett steg: normal → betonad → svag → tyst',
-    learn: 'Musikteori', learnDesc: 'Korta lektioner med exempel du kan spela', lessonsN: '{n} lektioner', lessonN: 'Lektion {n} av {of}', inListening: 'Lyssnar på', inBuiltin: 'telefonens mikrofon', inUsb: 'USB-ingång', inHeadset: 'headset-/kabelingång', inBt: 'Bluetooth-headset', inOther: 'extern ingång', inDefault: 'standardingång', inNotUsed: '{d} är ansluten men används inte – välj den nedan, eller dra ur och sätt i den igen medan stämapparaten är igång.', inAuto: 'Ingång: automatisk', lTry: 'Prova', lKey: 'Kom ihåg', lPiano: 'På pianot', lGuitar: 'På gitarrhalsen', lPrintAll: 'Spara alla lektioner som PDF', lPrintOne: 'PDF', lPdfBusy: 'Skapar PDF…', lPdfDone: 'Sparad i Nedladdningar: {f}', lPdfFail: 'Kunde inte spara PDF:en – öppnar utskrift i stället', lPdfTitle: 'Musikteori', lPdfSub: '{n} lektioner för stränginstrument – från att stämma gitarren till CAGED och jazzackord', lPdfToc: 'Innehåll', lPdfHint: 'Alla exempel kan spelas i appen: Öva → Musikteori.', lPdfIntro: 'Musikteori förklarad för gitarrister och andra som spelar stränginstrument – en sak i taget, med exempel på pianot och gitarrhalsen, en kort övning och en sammanfattning i varje lektion. Inga förkunskaper behövs.', lPdfFoot: 'en verktygslåda för stränginstrument',
+    learn: 'Musikteori', learnDesc: 'Korta lektioner med exempel du kan spela', lessonsN: '{n} lektioner', lessonN: 'Lektion {n} av {of}', inListening: 'Lyssnar på', inBuiltin: 'telefonens mikrofon', inUsb: 'USB-ingång', inHeadset: 'headset-/kabelingång', inBt: 'Bluetooth-headset', inOther: 'extern ingång', inDefault: 'standardingång', inNotUsed: '{d} är ansluten men används inte – välj den under Ingång nedan, eller dra ur och sätt i den igen medan stämapparaten är igång.', inAuto: 'Automatisk', inLabel: 'Ingång', inLabelD: 'Telefonens mikrofon eller en kabel (USB-C-adapter)', inN: 'Ingång {n}', inSaved: 'Sparat val (inte anslutet)', inNoMatch: 'Den här ingången kunde inte väljas direkt – Android använder en ansluten kabel automatiskt.', lTry: 'Prova', lKey: 'Kom ihåg', lPiano: 'På pianot', lGuitar: 'På gitarrhalsen', lPrintAll: 'Spara alla lektioner som PDF', lPrintOne: 'PDF', lPdfBusy: 'Skapar PDF…', lPdfDone: 'Sparad i Nedladdningar: {f}', lPdfFail: 'Kunde inte spara PDF:en – öppnar utskrift i stället', lPdfTitle: 'Musikteori', lPdfSub: '{n} lektioner för stränginstrument – från att stämma gitarren till CAGED och jazzackord', lPdfToc: 'Innehåll', lPdfHint: 'Alla exempel kan spelas i appen: Öva → Musikteori.', lPdfIntro: 'Musikteori förklarad för gitarrister och andra som spelar stränginstrument – en sak i taget, med exempel på pianot och gitarrhalsen, en kort övning och en sammanfattning i varje lektion. Inga förkunskaper behövs.', lPdfFoot: 'en verktygslåda för stränginstrument',
     metroDesc: 'Taktarter, underdelningar, betoningar', qWhichNote: 'Vilken ton är markerad?', qFindNote: 'Hitta {n} på sträng {k} ({s})',
     qDegree: 'Vilken ton är {d} i {k}-dur?', qScaleIs: '{k}-dur: {s}', qSig: 'Hur många förtecken har {k}-dur?',
     qRel: 'Vilken är parallelltonarten i moll till {k}-dur?', qRelEx: 'Parallelltonarten i moll börjar på durskalans sjätte ton.',
@@ -1705,6 +1705,8 @@ const Tuner = {
           <div class="stepper"><button data-a="ta4" data-v="-0.5">−</button><span>${S.a4.toFixed(1)} Hz</span><button data-a="ta4" data-v="0.5">+</button></div></div>
         <div class="setrow"><div>${t('histOpt')}<small>${t('histOptD')}</small></div>
           <label class="switch"><input type="checkbox" id="thistopt" ${S.tunerHist ? 'checked' : ''}><span></span></label></div>
+        <div class="setrow"><div>${t('inLabel')}<small>${t('inLabelD')}</small></div>
+          <select id="tinsel" class="tinsel"><option value="">${t('inAuto')}</option></select></div>
         <div class="setrow"><div>${t('sens')}<small>${t('sensD')}</small></div>
           <input type="range" id="tsens" min="0" max="1" step="0.05" value="${S.tunerSens}" style="width:45%"></div>
         <div class="setrow"><div style="flex:1">${t('temperament')}
@@ -1721,6 +1723,8 @@ const Tuner = {
     $('#tpipe').addEventListener('change', e => { this.pipeOn = e.target.checked; if (!this.pipeOn) this.stopPipe(); this.render(); });
     $('#thistopt').addEventListener('change', e => { S.tunerHist = e.target.checked; saveS(); this.render(); });
     $('#tsens').addEventListener('input', e => { S.tunerSens = +e.target.value; this.applyGate(); saveS(); });
+    $('#tinsel').addEventListener('change', e => this.chooseInput(e.target.value));
+    this.fillInputSelect();
     this.canvas = $('#thist');
     if (this.hasSig && this.last) this.show(this.last);
     if (running) { const ti = $('#tinput'); if (ti) ti.dataset.h = ''; this.paintInput(); }
@@ -1781,7 +1785,6 @@ const Tuner = {
     if (act) h += `<span class="tin ${act.type === 'builtin' ? '' : 'ext'}">${act.type === 'builtin' ? I.mic : I.plug}${t('inListening')}: <b>${name(act)}</b></span>`;
     else if (!AND) h += `<span class="tin">${I.mic}${t('inListening')}: <b>${t('inDefault')}</b></span>`;
     if (act && act.type === 'builtin' && ext.length) h += `<div class="tinwarn">${t('inNotUsed', { d: name(ext[0]) })}</div>`;
-    if (this.devs.length > 1) h += `<select id="tinsel" class="tinsel"><option value="">${t('inAuto')}</option>${this.devs.map(d => `<option value="${esc(d.deviceId)}" ${d.deviceId === S.tunerInput ? 'selected' : ''}>${esc(d.label)}</option>`).join('')}</select>`;
     return h;
   },
   paintInput() {
@@ -1789,12 +1792,40 @@ const Tuner = {
     const h = this.inputHtml();
     if (el.dataset.h === h) return;
     el.dataset.h = h; el.innerHTML = h;
-    const sel = $('#tinsel');
-    if (sel) sel.addEventListener('change', async e => {
-      S.tunerInput = e.target.value; saveS();
-      Pitch.stop(); await Pitch.start(r => this.onPitch(r), S.tunerInput); this.applyRange(); this.applyGate();
-      setTimeout(() => { this.readInputs(); this.paintInput(); }, 600);
-    });
+  },
+  /** the input selector in the settings card: Automatic + the inputs the system offers */
+  inputName(d) { return d.type === 'builtin' ? t('inBuiltin') : d.type === 'usb' ? t('inUsb') + (d.name ? ` · ${d.name}` : '') : d.type === 'headset' ? t('inHeadset') : d.type === 'bluetooth' ? t('inBt') : t('inOther'); },
+  INPUT_MATCH: { builtin: /speaker|built|phone|bottom|back|front|mic/i, usb: /usb/i, headset: /headset|wired|line|jack/i, bluetooth: /bluetooth|sco|bt/i },
+  /** the deviceId to ask for: a direct choice, or an Android input type matched to the browser's list */
+  resolveInput() {
+    const v = S.tunerInput || '';
+    if (!v) return '';
+    if (v.startsWith('android:')) {
+      const re = this.INPUT_MATCH[v.slice(8)], d = re && this.devs.find(x => re.test(x.label));
+      return d ? d.deviceId : '';
+    }
+    return this.devs.some(d => d.deviceId === v) ? v : '';
+  },
+  async fillInputSelect() {
+    const sel = $('#tinsel'); if (!sel) return;
+    await this.listDevices(); this.readInputs();
+    const real = this.devs.filter(d => d.deviceId !== 'default' && d.deviceId !== 'communications');
+    let opts = [['', t('inAuto')]];
+    if (real.length > 1) opts = opts.concat(real.map((d, i) => [d.deviceId, d.label || t('inN', { n: i + 1 })]));
+    else if (this.inputs && this.inputs.available) {
+      const seen = new Set();
+      this.inputs.available.forEach(d => { if (!seen.has(d.type)) { seen.add(d.type); opts.push(['android:' + d.type, this.inputName({ type: d.type })]); } });
+    }
+    if (S.tunerInput && !opts.some(o => o[0] === S.tunerInput)) opts.push([S.tunerInput, t('inSaved')]);
+    sel.innerHTML = opts.map(([v, l]) => `<option value="${esc(v)}" ${v === (S.tunerInput || '') ? 'selected' : ''}>${esc(l)}</option>`).join('');
+  },
+  async chooseInput(v) {
+    S.tunerInput = v; saveS();
+    if (v && !this.resolveInput() && v.startsWith('android:')) toast(t('inNoMatch'));
+    if (Pitch.running) {
+      Pitch.stop(); await Pitch.start(r => this.onPitch(r), this.resolveInput()); this.applyRange(); this.applyGate();
+      setTimeout(() => { this.readInputs(); this.paintInput(); }, 700);
+    }
   },
   watchInput(on) {
     clearInterval(this.inputTimer); this.inputTimer = null;
@@ -1809,7 +1840,8 @@ const Tuner = {
     if (Pitch.running) { this.stop(); return; }
     this.applyGate();
     try {
-      await Pitch.start(r => this.onPitch(r), S.tunerInput || '');
+      await this.listDevices();
+      await Pitch.start(r => this.onPitch(r), this.resolveInput());
       this.applyRange();
       this.watchInput(true);
     } catch (e) {
@@ -3042,7 +3074,7 @@ function settingsHtml() {
     <div class="sethead">${t('about')}</div>
     <div class="setgroup small" style="line-height:1.55;padding:12px 14px">
       <b>Plektrum ${VERSION}</b><br>${t('aboutT')}<br>© 2026 Jon Solberg · ${t('license')}<br>
-      <a href="#" data-a="openRepo">${t('source')}: github.com/jonsolberg/guitarchords</a>
+      <a href="#" data-a="openRepo">${t('source')}: github.com/jonsolberg/plektrum</a>
     </div>`;
 }
 function openSettings() {

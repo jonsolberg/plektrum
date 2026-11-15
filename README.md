@@ -91,7 +91,7 @@ optional Swedish note names (H and B).
 
 ## Download
 
-**[Download the latest APK](https://github.com/jonsolberg/guitarchords/releases/latest/download/Plektrum.apk)** · [all releases](https://github.com/jonsolberg/guitarchords/releases)
+**[Download the latest APK](https://github.com/jonsolberg/plektrum/releases/latest/download/Plektrum.apk)** · [all releases](https://github.com/jonsolberg/plektrum/releases)
 
 ## Building
 
