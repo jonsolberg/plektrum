@@ -98,6 +98,13 @@ optional Swedish note names (H and B).
 Push to GitHub – the workflow builds the APK, publishes `Plektrum.apk` on the `apk` branch and
 attaches it to a release. Or open the folder in Android Studio and choose *Build → Build APK(s)*.
 
+## Support
+
+Plektrum is free, open source and has no ads. If you find it useful, you can
+[buy me a beer on Ko-fi](https://ko-fi.com/jonsolberg) 🍺
+
+[![Buy me a beer on Ko-fi](https://img.shields.io/badge/Ko--fi-buy%20me%20a%20beer-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/jonsolberg)
+
 ## License
 
 Copyright © 2026 Jon Solberg

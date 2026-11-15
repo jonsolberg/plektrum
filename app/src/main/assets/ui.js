@@ -10,8 +10,9 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.27';
+const VERSION = '1.28';
 const REPO = 'https://github.com/jonsolberg/plektrum';
+const KOFI = 'https://ko-fi.com/jonsolberg';
 
 const store = {
   get(k, d) { try { const v = localStorage.getItem('plektrum.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
@@ -75,6 +76,7 @@ const STR = {
     hNot: 'Swedish note names', hNotD: 'B is called H, B♭ is called B', playStyle: 'Tapping a chord chart plays', sound: 'Sound', volume: 'Volume',
     about: 'About', aboutT: 'A toolbox for string players: chords for guitar, ukulele, mandolin, banjo and bass, a tuner for fifteen instruments, chord progressions with strumming and drum backing, the circle of fifths, scales and a metronome. Works fully offline.',
     license: 'Free software under the GNU GPL v3.', source: 'Source code',
+    beerT: 'Plektrum is free and has no ads. If it helps your playing, you can buy me a beer.', beer: 'Buy me a beer on Ko-fi',
   },
   sv: {
     chords: 'Ackord', studio: 'Studio', circle: 'Kvintcirkel', scales: 'Skalor', tuner: 'Stämapparat', practice: 'Öva',
@@ -124,6 +126,7 @@ const STR = {
     hNot: 'Svenska tonnamn', hNotD: 'B heter H, B♭ heter B', playStyle: 'Ett tryck på ackorddiagrammet spelar', sound: 'Ljud', volume: 'Volym',
     about: 'Om', aboutT: 'En verktygslåda för dig som spelar stränginstrument: ackord för gitarr, ukulele, mandolin, banjo och elbas, stämapparat för femton instrument, ackordföljder med komp och trummor, kvintcirkeln, skalor och metronom. Fungerar helt utan nätverk.',
     license: 'Fri programvara under GNU GPL v3.', source: 'Källkod',
+    beerT: 'Plektrum är gratis och reklamfri. Om den hjälper ditt spelande får du gärna bjuda mig på en öl.', beer: 'Bjud på en öl via Ko-fi',
   },
 };
 const lang = () => S.lang !== 'auto' ? S.lang : ((navigator.language || 'en').toLowerCase().startsWith('sv') ? 'sv' : 'en');
@@ -3075,6 +3078,10 @@ function settingsHtml() {
     <div class="setgroup small" style="line-height:1.55;padding:12px 14px">
       <b>Plektrum ${VERSION}</b><br>${t('aboutT')}<br>© 2026 Jon Solberg · ${t('license')}<br>
       <a href="#" data-a="openRepo">${t('source')}: github.com/jonsolberg/plektrum</a>
+    </div>
+    <div class="setgroup small" style="line-height:1.5;padding:12px 14px">
+      ${t('beerT')}
+      <button class="btn primary" data-a="openKofi" style="width:100%;margin-top:10px">🍺 ${t('beer')}</button>
     </div>`;
 }
 function openSettings() {
@@ -3190,6 +3197,11 @@ document.addEventListener('click', e => {
   if (a === 'openRepo') {
     e.preventDefault();
     if (AND && AND.openUrl) AND.openUrl(REPO); else window.open(REPO, '_blank');
+    return;
+  }
+  if (a === 'openKofi') {
+    e.preventDefault();
+    if (AND && AND.openUrl) AND.openUrl(KOFI); else window.open(KOFI, '_blank');
     return;
   }
   Chords.action(a, v) || Studio.action(a, v) || CircleTab.action(a, v) || Scales.action(a, v) ||
