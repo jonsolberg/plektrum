@@ -171,6 +171,30 @@ const Snd = {
     });
   },
 
+  /**
+   * A note that lasts exactly `dur` seconds – for note-value examples, where a plucked string
+   * would ring on (or die away) regardless of the written length. Soft, recorder-like tone.
+   */
+  held(midi, when, dur, vel = 1) {
+    if (!this.enabled) return;
+    const ctx = this.init();
+    when = Math.max(when || 0, ctx.currentTime);
+    const f = 440 * Math.pow(2, (midi - 69) / 12), end = when + Math.max(0.08, dur - 0.06);   // a small gap before the next note
+    const g = ctx.createGain(), lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass'; lp.frequency.value = Math.min(5000, f * 6);
+    const oscs = [[1, 'triangle', 1], [2, 'sine', 0.25], [3, 'sine', 0.08]].map(([h, type, a]) => {
+      const o = ctx.createOscillator(), og = ctx.createGain();
+      o.type = type; o.frequency.value = f * h; og.gain.value = a; o.connect(og); og.connect(lp); return o;
+    });
+    const peak = 0.22 * vel;
+    g.gain.setValueAtTime(0.0001, when);
+    g.gain.exponentialRampToValueAtTime(peak, when + 0.02);
+    g.gain.setTargetAtTime(peak * 0.8, when + 0.02, 0.25);               // a slight settle, then steady
+    g.gain.setTargetAtTime(0.0001, end, 0.02);                          // stop at the end of the note value
+    lp.connect(g); g.connect(this.out);
+    oscs.forEach(o => { o.start(when); o.stop(end + 0.2); });
+  },
+
   /** Bowed note (violin family): two slightly detuned saws, bow attack, gentle delayed vibrato. */
   bowNote(midi, when, string = -1, vel = 1, dur = 1.4) {
     const ctx = this.ctx, f = 440 * Math.pow(2, (midi - 69) / 12);

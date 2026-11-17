@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.33';
+const VERSION = '1.34';
 const REPO = 'https://github.com/jonsolberg/plektrum';
 const KOFI = 'https://ko-fi.com/jonsolberg';
 
@@ -3026,7 +3026,13 @@ const Practice = {
         if (it.bar) return;
         const len = itemBeats(it) * beat;
         const prev = b.staff.items.slice(0, i).reverse().find(x => !x.bar);
-        if (it.n && !(prev && prev.tie)) { const p = parseNoteName(it.n); Snd.pluck(p.midi - (b.staff.octaveDown ? 12 : 0), now + tt, -1, 0.9); }   // a tied note keeps sounding
+        if (it.n && !(prev && prev.tie)) {                                   // a tied note keeps sounding
+          // the note lasts as long as it is written, including any notes tied on to it
+          let held = len;
+          for (let j = i, cur = it; cur && cur.tie; ) { const nx = b.staff.items.slice(j + 1).find(x => !x.bar); if (!nx) break; held += itemBeats(nx) * beat; j = b.staff.items.indexOf(nx); cur = nx; }
+          const p = parseNoteName(it.n);
+          Snd.held(p.midi - (b.staff.octaveDown ? 12 : 0), now + tt, held, 0.9);
+        }
         if (b.staff.click) Snd.tick(now + tt, Number.isInteger(tt / beat) ? 1 : 0.4, false);
         mark(q(`.sn[data-i="${i}"]`), now + tt);
         tt += len;
