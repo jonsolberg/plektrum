@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.31';
+const VERSION = '1.32';
 const REPO = 'https://github.com/jonsolberg/plektrum';
 const KOFI = 'https://ko-fi.com/jonsolberg';
 
@@ -86,7 +86,7 @@ const STR = {
     hNot: 'Swedish note names', hNotD: 'B is called H, B♭ is called B', playStyle: 'Tapping a chord chart plays', sound: 'Sound', volume: 'Volume',
     about: 'About', aboutT: 'A toolbox for string players: chords for guitar, ukulele, mandolin, banjo and bass, a tuner for fifteen instruments, chord progressions with strumming and drum backing, the circle of fifths, scales and a metronome. Works fully offline.',
     license: 'Free software under the GNU GPL v3.', source: 'Source code',
-    beerT: 'Plektrum is free and has no ads. If it helps your playing, you can buy me a beer.', beer: 'Buy me a beer on Ko-fi',
+    beerT: 'Plektrum is free and has no ads. If it helps your playing, you can support me.', beer: 'Support me on Ko-fi',
   },
   sv: {
     chords: 'Ackord', studio: 'Studio', circle: 'Kvintcirkel', scales: 'Skalor', tuner: 'Stämapparat', practice: 'Öva',
@@ -146,7 +146,7 @@ const STR = {
     hNot: 'Svenska tonnamn', hNotD: 'B heter H, B♭ heter B', playStyle: 'Ett tryck på ackorddiagrammet spelar', sound: 'Ljud', volume: 'Volym',
     about: 'Om', aboutT: 'En verktygslåda för dig som spelar stränginstrument: ackord för gitarr, ukulele, mandolin, banjo och elbas, stämapparat för femton instrument, ackordföljder med komp och trummor, kvintcirkeln, skalor och metronom. Fungerar helt utan nätverk.',
     license: 'Fri programvara under GNU GPL v3.', source: 'Källkod',
-    beerT: 'Plektrum är gratis och reklamfri. Om den hjälper ditt spelande får du gärna bjuda mig på en öl.', beer: 'Bjud på en öl via Ko-fi',
+    beerT: 'Plektrum är gratis och reklamfri. Om den hjälper ditt spelande får du gärna stödja mig.', beer: 'Stöd mig via Ko-fi',
   },
 };
 const lang = () => S.lang !== 'auto' ? S.lang : ((navigator.language || 'en').toLowerCase().startsWith('sv') ? 'sv' : 'en');
@@ -3386,7 +3386,7 @@ function settingsHtml() {
     </div>
     <div class="setgroup small" style="line-height:1.5;padding:12px 14px">
       ${t('beerT')}
-      <button class="btn primary" data-a="openKofi" style="width:100%;margin-top:10px">🍺 ${t('beer')}</button>
+      <button class="btn primary" data-a="openKofi" style="width:100%;margin-top:10px">❤️ ${t('beer')}</button>
     </div>`;
 }
 function openSettings() {
