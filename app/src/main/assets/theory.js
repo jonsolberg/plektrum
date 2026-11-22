@@ -142,6 +142,76 @@ const VCACHE = new Map();
  * All playable fingerings for root r, type t, optional bass b on an instrument, best first.
  * Each: {frets[] (-1 muted), fing[] (0 none), barre {fret,from,to}|null, pos}.
  */
+
+/* The chord-book shapes every guitarist learns first: the open chords, then the E- and A-shape
+   barre chords. On a standard-tuned guitar the matching shape is always offered first, so
+   progressions, keys and lessons suggest the simplest ordinary chord. Root note → frets, low E first. */
+const OPEN_SHAPES = {
+  '':     { 0: 'x32010', 2: 'xx0232', 4: '022100', 7: '320003', 9: 'x02220' },
+  'm':    { 2: 'xx0231', 4: '022000', 9: 'x02210' },
+  '7':    { 0: 'x32310', 2: 'xx0212', 4: '020100', 7: '320001', 9: 'x02020', 11: 'x21202' },
+  'm7':   { 2: 'xx0211', 4: '020000', 9: 'x02010' },
+  'maj7': { 0: 'x32000', 2: 'xx0222', 4: '021100', 5: 'xx3210', 7: '320002', 9: 'x02120' },
+  'sus4': { 2: 'xx0233', 4: '022200', 9: 'x02230' },
+  'sus2': { 2: 'xx0230', 9: 'x02200' },
+  'add9': { 0: 'x32030', 7: '320203' },
+  '6':    { 0: 'x32210', 2: 'xx0202', 4: '022120', 7: '320000', 9: 'x02222' },
+  'm6':   { 2: 'xx0201', 4: '022020', 9: 'x02212' },
+  '7sus4':{ 2: 'xx0213', 4: '020200', 9: 'x02030' },
+  '9':    { 4: '020102' },
+  '5':    { 4: '022xxx', 9: 'x022xx', 2: 'xx023x' },
+};
+// barre shapes: frets relative to the root on the low E string (E) or the A string (A); null = muted
+const BARRE_SHAPES = {
+  '':     { E: [0, 2, 2, 1, 0, 0], A: [null, 0, 2, 2, 2, 0] },
+  'm':    { E: [0, 2, 2, 0, 0, 0], A: [null, 0, 2, 2, 1, 0] },
+  '7':    { E: [0, 2, 0, 1, 0, 0], A: [null, 0, 2, 0, 2, 0] },
+  'm7':   { E: [0, 2, 0, 0, 0, 0], A: [null, 0, 2, 0, 1, 0] },
+  'maj7': { E: [0, null, 1, 1, 0, null], A: [null, 0, 2, 1, 2, 0] },
+  'sus4': { E: [0, 2, 2, 2, 0, 0], A: [null, 0, 2, 2, 3, 0] },
+  'sus2': { A: [null, 0, 2, 2, 0, 0] },
+  '7sus4':{ E: [0, 2, 0, 2, 0, 0], A: [null, 0, 2, 0, 3, 0] },
+  'm7b5': { A: [null, 0, 1, 0, 1, null], E: [0, null, 0, 0, -1, null] },
+  '5':    { E: [0, 2, 2, null, null, null], A: [null, 0, 2, 2, null, null] },
+};
+const parseShape = t => [...t].map(c => c === 'x' ? -1 : +c);
+/** standard fingering for a chord-book shape: index-finger barre, the rest in fret order, and
+    notes on the same fret beyond the fourth finger share one finger (the A-shape mini-barre) */
+function bookFingering(frets) {
+  const fr = frets.filter(f => f > 0), minF = fr.length ? Math.min(...fr) : 0, N = frets.length;
+  const fing = new Array(N).fill(0), at = [];
+  frets.forEach((f, i) => { if (f === minF && f > 0) at.push(i); });
+  let barre = null;
+  if (at.length >= 2 && frets.slice(at[0], at[at.length - 1] + 1).every(f => f < 0 || f >= minF) && fr.length > 3) barre = { fret: minF, from: at[0], to: at[at.length - 1] };
+  const rest = [];
+  frets.forEach((f, i) => { if (f <= 0) return; if (barre && f === minF && i >= barre.from && i <= barre.to) fing[i] = 1; else rest.push(i); });
+  rest.sort((a, c) => frets[a] - frets[c] || a - c);
+  let next = barre ? 2 : 1, prev = -1;
+  for (const i of rest) {
+    let f = Math.max(next, frets[i] - minF + 1);
+    if (f > 4 && prev >= 0 && frets[prev] === frets[i]) f = fing[prev];   // shares a finger with the note beside it
+    else if (f > 4) f = 4;
+    fing[i] = f; next = Math.max(next, f + 1); prev = i;
+  }
+  // a three-note mini-barre reads better as one finger
+  const groups = {}; rest.forEach(i => (groups[frets[i]] = groups[frets[i]] || []).push(i));
+  Object.values(groups).forEach(g => { if (g.length >= 3) { const f = Math.min(4, Math.max(...g.map(i => fing[i]))) === 4 ? 3 : fing[g[0]]; g.forEach(i => { fing[i] = f; }); } });
+  return { frets: frets.slice(), fing, barre, pos: fr.length ? minF : 0, score: 0 };
+}
+/** the standard chord-book shape for a chord on a standard-tuned six-string guitar, or null */
+function bookShape(r, t) {
+  const sfx = TYPES[t].sfx, open = OPEN_SHAPES[sfx];
+  if (open && open[r] != null) return parseShape(open[r]);
+  const B = BARRE_SHAPES[sfx]; if (!B) return null;
+  const c = [];
+  if (B.E) c.push({ f: mod12(r - 4), s: B.E });
+  if (B.A) c.push({ f: mod12(r - 9), s: B.A });
+  const ok = c.filter(x => x.f >= 1 && x.f <= 10 && x.s.every(d => d == null || x.f + d >= 1));
+  if (!ok.length) return null;
+  ok.sort((a, b) => a.f - b.f || (a.s === B.E ? -1 : 1));   // lowest on the neck; E shape on a tie
+  return ok[0].s.map(d => d == null ? -1 : ok[0].f + d);
+}
+
 function voicings(r, t, b = null, inst = CHORD_INSTS[0]) {
   if (Array.isArray(inst)) inst = Object.assign({}, CHORD_INSTS[0], { id: inst.join('.'), n: inst });
   if (b === r) b = null;
@@ -249,6 +319,16 @@ function voicings(r, t, b = null, inst = CHORD_INSTS[0]) {
       if (i === N) { evaluate(); return; }
       for (const f of opts[i]) { cur[i] = f; rec(i + 1); }
     })(0);
+  }
+  // the ordinary chord-book shape goes first on a standard-tuned guitar
+  if (b == null && drone < 0 && N === 6 && tuning.every((x, i) => x === STD[i])) {
+    const bk = bookShape(r, t);
+    if (bk) {
+      const k = bk.join(',');
+      if (!out.has(k)) { bk.forEach((f, i) => { cur[i] = f; }); evaluate(); }
+      if (!out.has(k)) out.set(k, bookFingering(bk));   // e.g. the ring-finger mini-barre of an A-shape chord
+      out.get(k).score = -1000;
+    }
   }
   const list = [...out.values()].sort((a, c) => a.score - c.score).slice(0, 24);
   VCACHE.set(key, list);
