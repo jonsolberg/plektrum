@@ -1,7 +1,7 @@
 # Plektrum (Android)
 
 A toolbox for guitar, ukulele, bass and other string players: chords, a tuner, scales, a metronome and a
-music theory course. Free, fully offline, no ads and no accounts.
+music theory course. Free, works offline, no ads and no accounts.
 
 <p align="center">
   <img src="docs/screenshot-chords.png" width="200" alt="Chord library">
