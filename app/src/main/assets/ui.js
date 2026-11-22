@@ -10,7 +10,7 @@
 
 const $ = (s, el = document) => el.querySelector(s);
 const AND = window.Android || null;
-const VERSION = '1.35';
+const VERSION = '1.36';
 const REPO = 'https://github.com/jonsolberg/plektrum';
 const KOFI = 'https://ko-fi.com/jonsolberg';
 
@@ -69,7 +69,7 @@ const STR = {
     lTipBass: 'Listens to the lowest note. Works best when the bass is clear, or when you play the line yourself.',
     lTipMelody: 'Listens for one note at a time – a solo, a sung melody or a riff. Works best when that part is the loudest.',
     lMicDenied: 'Plektrum needs the microphone to listen.',
-    lCable: 'Works best with a cable: plug the instrument (or the music player) into the phone through a USB-C audio interface or a guitar adapter cable instead of using the microphone. The line above shows which input is used – choose another under Tuner → Input.',
+    lCable: 'Works best with a cable: plug the instrument (or the music player) into the phone through a USB-C audio interface or a guitar adapter cable instead of using the microphone. While listening, the line above shows which input is used – choose another under Tuner → Input.',
     learn: 'Music theory', learnDesc: 'Short lessons with examples you can play', lessonsN: '{n} lessons', lessonN: 'Lesson {n} of {of}', inListening: 'Listening to', inBuiltin: 'phone microphone', inUsb: 'USB input', inHeadset: 'headset / cable input', inBt: 'Bluetooth headset', inOther: 'external input', inDefault: 'default input', inNotUsed: '{d} is connected but not being used – choose it under Input below, or unplug and plug it in again with the tuner running.', inAuto: 'Automatic', inLabel: 'Input', inLabelD: 'Phone microphone or a cable (USB-C adapter)', inN: 'Input {n}', inSaved: 'Saved choice (not connected)', inNoMatch: 'This input could not be selected directly – Android uses a connected cable automatically.', lTry: 'Try it', lKey: 'Remember', lPiano: 'On the piano', lGuitar: 'On the guitar neck', lPrintAll: 'Save all lessons as PDF', lPrintOne: 'PDF', lPdfBusy: 'Creating PDF…', lPdfDone: 'Saved to Downloads: {f}', lPdfFail: 'Could not save the PDF – opening the print screen instead', lPdfTitle: 'Music theory', lPdfSub: '{n} lessons for string players – one a week for a year, from tuning your guitar to writing your own songs', lPdfToc: 'Contents', lPdfHint: 'Every example can be played in the app: Practice → Music theory.', lPdfIntro: 'Music theory explained for guitarists and other string players – one idea at a time, with examples on the piano and the guitar neck, a short exercise and a summary in every lesson. No previous knowledge needed.', lPdfFoot: 'a toolbox for string players',
     metroDesc: 'Time signatures, subdivisions, accents', qWhichNote: 'Which note is marked?', qFindNote: 'Find {n} on string {k} ({s})',
     qDegree: 'What is the {d} of {k} major?', qScaleIs: '{k} major: {s}', qSig: 'How many sharps or flats in {k} major?',
@@ -130,7 +130,7 @@ const STR = {
     lTipBass: 'Lyssnar på den lägsta tonen. Fungerar bäst när basen hörs tydligt, eller när du spelar linjen själv.',
     lTipMelody: 'Lyssnar efter en ton i taget – ett solo, en sjungen melodi eller ett riff. Fungerar bäst när den stämman hörs mest.',
     lMicDenied: 'Plektrum behöver mikrofonen för att kunna lyssna.',
-    lCable: 'Fungerar bäst med kabel: koppla instrumentet (eller musikspelaren) till telefonen via ett USB-C-ljudkort eller en gitarradapterkabel i stället för att använda mikrofonen. Raden ovan visar vilken ingång som används – välj en annan under Stämapparat → Ingång.',
+    lCable: 'Fungerar bäst med kabel: koppla instrumentet (eller musikspelaren) till telefonen via ett USB-C-ljudkort eller en gitarradapterkabel i stället för att använda mikrofonen. När appen lyssnar visar raden ovan vilken ingång som används – välj en annan under Stämapparat → Ingång.',
     learn: 'Musikteori', learnDesc: 'Korta lektioner med exempel du kan spela', lessonsN: '{n} lektioner', lessonN: 'Lektion {n} av {of}', inListening: 'Lyssnar på', inBuiltin: 'telefonens mikrofon', inUsb: 'USB-ingång', inHeadset: 'headset-/kabelingång', inBt: 'Bluetooth-headset', inOther: 'extern ingång', inDefault: 'standardingång', inNotUsed: '{d} är ansluten men används inte – välj den under Ingång nedan, eller dra ur och sätt i den igen medan stämapparaten är igång.', inAuto: 'Automatisk', inLabel: 'Ingång', inLabelD: 'Telefonens mikrofon eller en kabel (USB-C-adapter)', inN: 'Ingång {n}', inSaved: 'Sparat val (inte anslutet)', inNoMatch: 'Den här ingången kunde inte väljas direkt – Android använder en ansluten kabel automatiskt.', lTry: 'Prova', lKey: 'Kom ihåg', lPiano: 'På pianot', lGuitar: 'På gitarrhalsen', lPrintAll: 'Spara alla lektioner som PDF', lPrintOne: 'PDF', lPdfBusy: 'Skapar PDF…', lPdfDone: 'Sparad i Nedladdningar: {f}', lPdfFail: 'Kunde inte spara PDF:en – öppnar utskrift i stället', lPdfTitle: 'Musikteori', lPdfSub: '{n} lektioner för stränginstrument – en i veckan i ett år, från att stämma gitarren till att skriva egna låtar', lPdfToc: 'Innehåll', lPdfHint: 'Alla exempel kan spelas i appen: Öva → Musikteori.', lPdfIntro: 'Musikteori förklarad för gitarrister och andra som spelar stränginstrument – en sak i taget, med exempel på pianot och gitarrhalsen, en kort övning och en sammanfattning i varje lektion. Inga förkunskaper behövs.', lPdfFoot: 'en verktygslåda för stränginstrument',
     metroDesc: 'Taktarter, underdelningar, betoningar', qWhichNote: 'Vilken ton är markerad?', qFindNote: 'Hitta {n} på sträng {k} ({s})',
     qDegree: 'Vilken ton är {d} i {k}-dur?', qScaleIs: '{k}-dur: {s}', qSig: 'Hur många förtecken har {k}-dur?',
@@ -3067,7 +3067,7 @@ const Practice = {
       if (q.inst === 'chord') instSel = `<div class="lbl">${t('instrument')}</div><select id="qinst">${CHORD_INSTS.map(x => `<option value="${x.id}" ${x.id === S.chordInst ? 'selected' : ''}>${L(x)}</option>`).join('')}</select>`;
       if (q.inst === 'fret') { const { insts, si } = quizTuning(); instSel = `<div class="lbl">${t('instrument')}</div><select id="qinst">${insts.map(x => `<option value="${x.id}" ${x.id === si.id ? 'selected' : ''}>${L(x)}</option>`).join('')}</select>`; }
       const lv = qLevel(this.view), best = store.get('best', {})[this.view + ':' + lv];
-      const lvSel = q.levels ? `<div class="lbl">${X('Level', 'Nivå')}</div>${seg('qlvl', [0, 1, 2, 3].map(k => [k, levelName(k)]), lv)}
+      const lvSel = q.levels ? `<div class="lbl">${X('Level', 'Nivå')}</div><div class="qlvlseg">${seg('qlvl', [0, 1, 2, 3].map(k => [k, levelName(k)]), lv)}</div>
         <div class="small muted" style="margin:6px 2px 0">${L(q.levels[lv])}</div>` : '';
       el.innerHTML = head + `<div class="card"><div class="qintro">${I[q.icon] || ''}</div><div style="text-align:center">${L(q.d)}</div>
         ${best ? `<div class="small muted" style="text-align:center;margin-top:6px">${t('best', { b: best })}</div>` : ''}
