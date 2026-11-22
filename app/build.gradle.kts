@@ -10,8 +10,8 @@ android {
         applicationId = "se.jonsolberg.plektrum"
         minSdk = 26
         targetSdk = 35
-        versionCode = 35
-        versionName = "1.34"
+        versionCode = 36
+        versionName = "1.35"
     }
 
     // Release signing: the keystore comes from GitHub secrets (see .github/workflows/build.yml).

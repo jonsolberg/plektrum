@@ -1,9 +1,7 @@
 # Plektrum (Android)
 
-A toolbox for string players – guitar, bass, ukulele, mandolin, banjo, violin and more: chords (also
-in alternative tunings), progressions with strumming and drum backing, the circle of fifths, scales,
-a tuner, a metronome, and music theory lessons and quizzes that explain every answer.
-Fully offline – no internet permission, no ads, no accounts. Everything lives in `app/src/main/assets/`.
+A toolbox for guitar, ukulele, bass and other string players: chords, a tuner, scales, a metronome and a
+music theory course. Free, fully offline, no ads and no accounts.
 
 <p align="center">
   <img src="docs/screenshot-chords.png" width="200" alt="Chord library">
@@ -18,99 +16,81 @@ Fully offline – no internet permission, no ads, no accounts. Everything lives 
   <img src="docs/screenshot-listen.png" width="200" alt="Listen: chords found in a song, with key and Roman numerals">
 </p>
 
-## What's inside
-
-**Chords**
-- Guitar, ukulele (standard and baritone), mandolin, 5-string banjo, tenor banjo and bass
-- Alternative tunings – open G, open D, DADGAD, drop D, low-G ukulele, banjo tunings and more
-  (e.g. how to play Cm in open G), with each string's tuning shown above the chart (can be hidden)
-- 36 chord types in all 12 keys, plus slash chords over any bass note
-- Fingerings worked out on the device for each instrument – up to 24 per chord, easiest first
-- Charts show fingers, note names or intervals (1, 3, 5 …), with the starting fret up the neck
-- Search by name (`Am7`, `C/G`, `F#m7b5`, `Bbmaj7` …), swipe between fingerings
-- Strum or arpeggio playback with an instrument-specific sound; the dots light up as each string sounds
-- Unlimited favourites (they remember the instrument)
-
-**Studio** – build progressions of up to 16 chords, pick any fingering, reorder, transpose and save
-them. Play them back in 4/4, 3/4, 2/4, 5/4, 6/8, 12/8 or 7/8 with 39 strumming patterns (accents,
-muted chucks, stabs, palm muting, syncopated pushes, reggae and ska offbeats, funk sixteenths,
-shuffle, Travis picking, boom-chick, arpeggios …) and 21 drum beats (rock and pop backbeats,
-half-time, four on the floor, funk, shuffle, train beat, one-drop, bossa nova, Motown, waltz, slow
-blues …). Swing, count-in, metronome click, and a step grid that shows the pattern as it plays.
-Suggested progressions for any major or minor key.
-
-**Circle of fifths** – interactive: tap a key and the chords that belong to it light up with their
-roman numerals. Key signature, relative key, the seven diatonic chords (tap to hear), and good
-progressions for that key that play on the circle or go straight to the Studio.
-
-**Scales** – 51 scales and arpeggios in eight groups: pentatonic and blues, the major modes, melodic
-minor modes (altered, Lydian dominant …), harmonic and exotic scales (Phrygian dominant, double
-harmonic, Hungarian, Neapolitan, Persian …), bebop, symmetric (whole tone, diminished, augmented),
-Japanese scales, and arpeggios. Shown on the fretboard of any of 14 instruments in any of their
-tunings – guitar, 7-string, bass, ukulele, mandolin, mandola, banjo, tenor banjo, violin, viola,
-cello, double bass (fretless ones with semitone lines). Positions (the five pentatonic boxes and
-three-notes-per-string on guitar and bass), notes or degrees, step pattern (W W H …), correctly
-spelled note names, the chords of the scale as triads or 7th chords, tap to hear any note – notes
-light up as they play.
-
-**Tuner** – needle, strobe wheel or strobe bands, with an optional pitch history trace.
-Fifteen instruments, each with its own headstock and common tunings: guitar (17 tunings), 7-string
-and 12-string guitar, 4-, 5- and 6-string bass, ukulele, mandolin, mandola, 5-string and tenor banjo,
-violin, viola, cello and double bass – plus a custom tuning for each. Tap a peg to tune one string;
-paired strings (12-string, mandolin) are marked together. Chromatic mode, A4 calibration
-(415–466 Hz), sensitivity, 16 temperaments (equal, just, Pythagorean, five meantones,
-Werckmeister III–V, Kirnberger II–III, Vallotti, Young II, Kellner) on any key, and a pitch pipe. Steady read-out that
-holds the last note for a moment after it fades.
-
-**Practice** – a start page with music theory lessons and separate exercises (ten questions each, best score kept):
-- Music theory for beginners: 52 short lessons in nine chapters – one a week for a year, in an order you can follow from day one –
-  *Getting started* (tuning, chord charts and tab, first chords, strumming), *Notes and rhythm* (the twelve
-  notes, the neck, rhythm, reading the staff, note values, syncopation and swing), *Scales and keys*,
-  *Chords* (triads, inversions, arpeggios, 7th chords, power chords, barre chords), *Harmony and songs*
-  (chords in a key, minor keys, cadences, secondary dominants, borrowed chords, 12-bar blues, finding the
-  key, capo, song form, learning by ear), *Soloing* (pentatonic boxes, tab techniques, improvising, modes)
-  *Further on the guitar* (CAGED, triads on the top strings, shell voicings, fingerpicking, open
-  tunings), *Going further* (ear training, sixteenths, ties and triplets, 6/8 and odd time, colour chords,
-  diminished and augmented chords, smooth chord changes) and *Putting it all together* (transposing and the
-  number system, soloing over the changes, reading a lead sheet, writing your own song, practising well and a
-  wrap-up song that uses everything). One idea at a time, with piano, guitar-neck and sheet-music examples you can play (notes, dots,
-  chords and strum arrows light up as they sound), a "Try it" exercise, a "Remember" summary and links to
-  the matching quiz or tool
-- Save the lessons as a nicely laid-out A4 PDF book – cover, contents in nine chapters and all 52
-  lessons, or just the one you are reading. It goes straight to Downloads and opens in your PDF viewer,
-  ready to print or share. See the [sample PDF](docs/plektrum-music-theory.pdf), also as an
-  [e-book (EPUB)](docs/plektrum-music-theory.epub) for phones and e-readers
-- Lesson texts, mnemonics and tab follow the note-name setting: B (international) or H (Swedish/German)
-- **Listen (experimental):** play a song to the phone and Plektrum tries to work out
-  - the **chords** – live, with a chord chart, the likely key and Roman numerals (I–V–vi–IV); a repeating
-    progression can be sent straight to Studio to play along
-  - the **bass line** or a **melody / solo** – note names and tab, the scale it fits (e.g. A minor pentatonic,
-    one tap to show it on the neck) and playback
-
-  It listens through the microphone and runs entirely on the phone – nothing is recorded or sent anywhere.
-  It hears the whole sound, so loud vocals, drums and dense mixes confuse it: a starting point to check by ear.
-- Metronome in 2/4 to 12/8 plus 5/8 and 7/8 (with groupings such as 2 + 2 + 3), subdivisions, swing,
-  tap tempo and accent patterns for syncopation (backbeat, offbeats, Charleston, tresillo, son/rumba/
-  bossa clave, shuffle, gallop) – tap any step to accent, soften or silence it
-- Name the chord from a chart (any chord instrument)
-- Name the note marked on the fretboard, and find a named note on a given string (any fretted instrument)
-- Scales & keys: notes of a key, key signatures, relative minors, chords in a key, modes, step
-  patterns, chord tones and intervals
-- Intervals by ear (with a song to remember each one) and chord types by ear
-- After every answer an explanation shows *why* – counting the frets, walking the circle of fifths,
-  building the chord – so the quizzes teach even if you know no theory
-
-Plus left-handed mode, light/dark/automatic theme, English and Swedish (follows the phone), and
-optional Swedish note names (H and B).
-
 ## Download
 
 **[Download the latest APK](https://github.com/jonsolberg/plektrum/releases/latest/download/Plektrum.apk)** · [all releases](https://github.com/jonsolberg/plektrum/releases)
 
+Plektrum isn't on Google Play, so Android asks before installing it. When you open the APK, allow your
+browser or file manager to **install unknown apps** (Android shows a switch for it), then tap *Install*.
+
+## What's inside
+
+The app has six tabs: **Chords, Studio, Circle, Scales, Tuner** and **Practice**.
+
+### Chords
+- Guitar, ukulele (standard and baritone), mandolin, 5-string banjo, tenor banjo and bass.
+- 36 chord types in all 12 keys, plus slash chords over any bass note.
+- Alternative tunings such as open G, open D, DADGAD, drop D and low-G ukulele (for example, how to play Cm in open G).
+- Up to 24 fingerings per chord, easiest first, worked out on the phone for each instrument.
+- Charts show fingers, note names or intervals (1, 3, 5 …). Search by name (`Am7`, `C/G`, `F#m7b5` …) and swipe between fingerings.
+- Strum or arpeggio playback, with the dots lighting up as each string sounds. Unlimited favourites.
+
+### Studio
+Build progressions of up to 16 chords, then transpose, reorder and save them. Play them back with 39 strumming
+patterns and 21 drum beats, in time signatures from 2/4 to 12/8 and 7/8, with swing, count-in and a metronome
+click. Suggested progressions for any key.
+
+### Circle of fifths
+Tap a key and its chords light up with their Roman numerals. Shows the key signature, the relative key, the seven
+chords of the key (tap to hear) and good progressions that you can send to the Studio.
+
+### Scales
+51 scales and arpeggios in eight groups: pentatonic and blues, the major modes, melodic minor modes, harmonic and
+exotic scales, bebop, symmetric scales, Japanese scales and arpeggios. They are shown on the fretboard of any of
+14 instruments, in any of their tunings, with positions, note names or degrees, the step pattern and the chords of
+the scale. Tap a note to hear it.
+
+### Tuner
+- Needle, strobe wheel or strobe bands, with an optional pitch history trace.
+- Fifteen instruments with their common tunings, plus a custom tuning for each.
+- Chromatic mode, A4 calibration (415–466 Hz), 16 temperaments and a pitch pipe.
+- **Input:** the tuner shows what it is listening to – the phone's microphone or a cable (a USB-C audio interface,
+  a headset adapter or a guitar cable adapter). Choose the input under *Input*, or leave it on *Automatic*.
+
+### Practice
+- **Music theory:** 52 short lessons in nine chapters, one a week for a year – from tuning and your first chords
+  to reading music, CAGED, jazz chords and writing your own songs. Each lesson has examples on the piano, the guitar
+  neck and in sheet music that you can play, a *Try it* exercise and a summary. The whole course can be saved as a
+  PDF book ([sample](docs/plektrum-music-theory.pdf)) or read as an [e-book (EPUB)](docs/plektrum-music-theory.epub).
+- **Metronome:** 2/4 to 12/8 plus 5/8 and 7/8, subdivisions, swing, tap tempo and accent patterns.
+- **Quizzes** – ten questions each, with four levels (*Novice, Medium, Advanced, Expert*) and the best score kept per level.
+  After every answer an explanation shows *why*, so the quizzes teach even if you know no theory.
+  - *Name the chord* – from open C, G, Am and friends on Novice to diminished, augmented and extended chords on Expert.
+  - *Name the note* and *Find the note* – on the fretboard of any fretted instrument, from natural notes on the first
+    five frets to all twelve notes with the fret numbers hidden.
+  - *Notes on the E and A strings* – learn the two lowest guitar strings by heart, where the root of every barre chord
+    and power chord lives.
+  - *Count up the neck* – start from a note you know and count one fret per semitone, the quickest way to find any note.
+  - *Scales & keys* – notes of a key, key signatures, relative minors, chords in a key, modes, step patterns and intervals.
+  - *Intervals by ear* (with a song to remember each one) and *Chord types by ear*.
+- **Listen (experimental):** play a song to the phone and Plektrum tries to work out the **chords** (with the key and
+  Roman numerals), the **bass line** or a **melody**, as chord charts and tab. Everything runs on the phone – nothing is
+  recorded or sent anywhere.
+  - It works **much better with a cable than with the microphone.** Plug the instrument or the music player into the
+    phone through a USB-C audio interface or an adapter cable. Like the tuner, Listen shows which input it is using.
+  - It hears the whole sound, so loud vocals, drums and dense mixes confuse it. Treat the result as a starting point
+    and check it by ear.
+
+### Settings and About
+Left-handed mode, light/dark/automatic theme, English and Swedish (follows the phone), and optional Swedish note names
+(H instead of B). The settings button (top right) also holds *About*: version, copyright, the source code, my website
+and the Ko-fi link.
+
 ## Building
 
-Push to GitHub – the workflow builds the APK, publishes `Plektrum.apk` on the `apk` branch and
-attaches it to a release. Or open the folder in Android Studio and choose *Build → Build APK(s)*.
+Push to GitHub – the workflow builds the APK and publishes it as a release (`Plektrum.apk` always points to the
+newest). Or open the folder in Android Studio and choose *Build → Build APK(s)*. Everything the app shows lives in
+`app/src/main/assets/`.
 
 ## Support
 
